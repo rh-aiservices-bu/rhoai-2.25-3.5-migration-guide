@@ -255,7 +255,7 @@ Authentication for the cluster is handled when you log in from inside the pod. T
    Expected output:
 
    ```
-   rhai-cli version: v1.26.4
+   kubectl-odh version 1.26.4 (commit: unknown, built: unknown)
    ```
 
 **Next steps**
