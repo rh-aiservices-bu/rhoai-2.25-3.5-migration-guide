@@ -12,12 +12,12 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 
 
   ```bash
-  $ oc auth can-i create namespaces -A
-  $ oc auth can-i delete namespaces -A
-  $ oc auth can-i create pytorchjobs -A
-  $ oc auth can-i delete pytorchjobs -A
-  $ oc auth can-i create pods -A
-  $ oc auth can-i watch pods -A
+  oc auth can-i create namespaces -A
+  oc auth can-i delete namespaces -A
+  oc auth can-i create pytorchjobs -A
+  oc auth can-i delete pytorchjobs -A
+  oc auth can-i create pods -A
+  oc auth can-i watch pods -A
   ```
 
 * You generated a list of PyTorchJob resources on your OpenShift cluster before you upgraded from OpenShift AI 2.25.9 (and later) to 3.5.
@@ -34,7 +34,7 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 
 1. Run the following command to get a list of PyTorchJob resources on your OpenShift cluster:  
    ```bash
-   $ oc get pytorchjobs -A
+   oc get pytorchjobs -A
    ```
 
    Example output:  
@@ -52,7 +52,7 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 2. Verify training workloads by running the **rhai-cli** training verification action:
 
    ```bash
-   $ rhai-cli migrate run --migration training.verify-workloads --target-version 3.5.0
+   rhai-cli migrate run --migration training.verify-workloads --target-version 3.5.0
    ```
 
    **Note**  
@@ -76,14 +76,14 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 * If a PyTorchJob is in a failed state, it likely indicates a failure of the job itself rather than a failed upgrade. You can get details about the job by running the following command:  
 
   ```bash
-  $ oc describe pytorchjobs {job_name} -n {namespace_name}
+  oc describe pytorchjobs {job_name} -n {namespace_name}
   ```
 
 * If KFTO does not start:
 
   1. View the **DataScienceCluster** (DSC) state by running the following command:  
      ```bash
-     $ oc describe dsc
+     oc describe dsc
      ```
 
   2. Scroll to the bottom of the resulting output to check the **Conditions** section for information about the issue.
@@ -91,7 +91,7 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 * If KFTO starts but PyTorchJobs are not reconciled, you can inspect the KFTO log by running the following command:  
 
   ```bash
-  $ oc logs -l app.kubernetes.io/name=trainer -n redhat-ods-applications --tail=-1
+  oc logs -l app.kubernetes.io/name=trainer -n redhat-ods-applications --tail=-1
   ```
 
 # **5\. Clean up** {#5.-clean-up}
@@ -99,8 +99,8 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 Cleanup
 
 ```bash
-$ oc delete statefulset rhai-cli -n <namespace>
-$ oc delete pvc backup-rhai-cli-0 -n <namespace>
+oc delete statefulset rhai-cli -n <namespace>
+oc delete pvc backup-rhai-cli-0 -n <namespace>
 ```
 
 ## **Legal Notice** {#legal-notice}

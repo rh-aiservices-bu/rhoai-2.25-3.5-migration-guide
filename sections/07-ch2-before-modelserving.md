@@ -99,7 +99,7 @@ All migration commands must be executed within the **rhai-cli** container, as it
 1. From inside the rhai-cli  container, verify the status of the kserve and modelmesh resources:
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --checks "*modelmesh*"
+   /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --checks "*modelmesh*"
    ```
 
    The command analyzes your cluster configuration and reports any issues that must be resolved before upgrading to OpenShift AI 3.5.
@@ -152,8 +152,8 @@ Run this backup command on your local machine, not inside the **rhai-cli** conta
 1. Create the backup directory and back up the **inferenceservice-config** **ConfigMap**:
 
    ```bash
-   $ mkdir -p /tmp/rhoai-upgrade-backup
-   $ oc get configmap inferenceservice-config -n redhat-ods-applications -o yaml > /tmp/rhoai-upgrade-backup/inferenceservice-config-backup.yaml
+   mkdir -p /tmp/rhoai-upgrade-backup
+   oc get configmap inferenceservice-config -n redhat-ods-applications -o yaml > /tmp/rhoai-upgrade-backup/inferenceservice-config-backup.yaml
    ```
 
 **Verification**
@@ -161,7 +161,7 @@ Run this backup command on your local machine, not inside the **rhai-cli** conta
 * Verify that  the backup file was created:
 
   ```bash
-  $ ls -lh /tmp/rhoai-upgrade-backup/inferenceservice-config-backup.yaml
+  ls -lh /tmp/rhoai-upgrade-backup/inferenceservice-config-backup.yaml
   ```
 
   The command displays the backup file with its size and timestamp.
@@ -194,7 +194,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 1. Identify **Serverless** InferenceServices that need to be converted to RawDeployment:
 
    ```bash
-   $ rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --isvc-deployment-mode serverless
+   rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --isvc-deployment-mode serverless
    ```
 
    Example output when Serverless workloads are found:
@@ -223,7 +223,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 2. Preview the conversion without applying changes:
 
    ```bash
-   $ rhai-cli migrate run --migration modelserving.serverless-to-raw --target-version 3.5.0 --dry-run
+   rhai-cli migrate run --migration modelserving.serverless-to-raw --target-version 3.5.0 --dry-run
    ```
 
    The command checks prerequisites and discovers eligible InferenceServices across all namespaces. In dry-run mode, changes are previewed without being applied. 
@@ -239,7 +239,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 3. Run the conversion:
 
    ```bash
-   $ rhai-cli migrate run --migration modelserving.serverless-to-raw --target-version 3.5.0
+   rhai-cli migrate run --migration modelserving.serverless-to-raw --target-version 3.5.0
    ```
 
    The command handles resource transformation, authentication resources (ServiceAccount, Role, RoleBinding), and storage credentials automatically across all namespaces.
@@ -247,7 +247,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 4. Verify that the converted InferenceServices are ready:
 
    ```bash
-   $ oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
+   oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
    ```
 
    Expected output:
@@ -265,7 +265,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    1. Preview what will be deleted:
 
       ```bash
-      $ oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name'
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name'
       ```
 
       Expected output:
@@ -278,7 +278,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    2. Delete them:
 
       ```bash
-      $ oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name' | while read -r name; do echo "Deleting  Serverless InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name' | while read -r name; do echo "Deleting  Serverless InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
       ```
 
       Expected output:
@@ -301,7 +301,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 1. Identify **ModelMesh** InferenceServices that need to be converted to RawDeployment:
 
    ```bash
-   $ rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --isvc-deployment-mode modelmesh
+   rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --isvc-deployment-mode modelmesh
    ```
 
    Sample expected output when ModelMesh workloads are found:
@@ -329,7 +329,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 2. Preview the conversion without applying changes:
 
    ```bash
-   $ rhai-cli migrate run --migration modelserving.modelmesh-to-raw --target-version 3.5.0 --dry-run
+   rhai-cli migrate run --migration modelserving.modelmesh-to-raw --target-version 3.5.0 --dry-run
    ```
 
    The command discovers ModelMesh InferenceServices and previews runtime template selection and storage configuration. In dry-run mode, changes are previewed without being applied. 
@@ -363,7 +363,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 3. Run the conversion:
 
    ```bash
-   $ rhai-cli migrate run --migration modelserving.modelmesh-to-raw --target-version 3.5.0
+   rhai-cli migrate run --migration modelserving.modelmesh-to-raw --target-version 3.5.0
    ```
 
    The command handles runtime template selection, resource transformation, authentication resources, and storage credentials automatically.
@@ -388,7 +388,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 4. Verify that the converted InferenceServices are ready:
 
    ```bash
-   $ oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
+   oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
    ```
 
    Expected output:
@@ -405,7 +405,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    1. Preview the ModelMesh InferenceServices that will be deleted:
 
       ```bash
-      $ oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name'
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name'
       ```
 
       Expected output:
@@ -417,7 +417,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    2. Delete them:
 
       ```bash
-      $ oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name' | while read -r name; do echo "Deleting ModelMesh InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name' | while read -r name; do echo "Deleting ModelMesh InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
       ```
 
       Expected output:
@@ -430,7 +430,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    3. Delete the ModelMesh ServingRuntimes (multi-model runtimes):
 
       ```bash
-      $ oc get servingruntimes.serving.kserve.io -n <namespace> -o json | jq -r '.items[] | select(.spec.multiModel==true) | .metadata.name' | while read -r name; do echo "Deleting ServingRuntime: $name"; oc delete servingruntime "$name" -n <namespace>; done
+      oc get servingruntimes.serving.kserve.io -n <namespace> -o json | jq -r '.items[] | select(.spec.multiModel==true) | .metadata.name' | while read -r name; do echo "Deleting ServingRuntime: $name"; oc delete servingruntime "$name" -n <namespace>; done
       ```
 
       Expected output:
@@ -455,7 +455,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 1. Confirm that no **Serverless** or **ModelMesh** InferenceServices remain:
 
    ```bash
-   $ rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*"
+   rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*"
    ```
 
    Expected output:
@@ -495,7 +495,7 @@ Update the **inferenceservice-config** **ConfigMap** to apply hardware profiles 
 1. Apply the hardware profiles ignorelist changes:
 
    ```bash
-   $ rhai-cli migrate run --migration modelserving.hardwareprofiles-ignorelist --target-version 3.5.0
+   rhai-cli migrate run --migration modelserving.hardwareprofiles-ignorelist --target-version 3.5.0
    ```
 
 **Verification**
@@ -503,7 +503,7 @@ Update the **inferenceservice-config** **ConfigMap** to apply hardware profiles 
 * Verify that the **inferenceservice-config** **ConfigMap** was updated:
 
   ```bash
-  $ oc get configmap inferenceservice-config -n redhat-ods-applications -o yaml | grep "hardware" -B 10
+  oc get configmap inferenceservice-config -n redhat-ods-applications -o yaml | grep "hardware" -B 10
   ```
 
   The ConfigMap displays the updated hardware profiles ignorelist configuration.
@@ -529,8 +529,8 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
    **Note**: These commands use the DSC v1 API field names (`modelmeshserving`, `serviceMesh`) because they are run against your OpenShift AI 2.25.9 cluster before upgrade. After upgrading to 3.5, the operator automatically converts to the v2 API.
 
    ```bash
-   $ export DSC_NAME=$(oc get dsc -o jsonpath='{.items[0].metadata.name}')
-   $ oc patch dsc $DSC_NAME --type='merge' -p '{
+   export DSC_NAME=$(oc get dsc -o jsonpath='{.items[0].metadata.name}')
+   oc patch dsc $DSC_NAME --type='merge' -p '{
      "spec": {
        "components": {
          "kserve": {
@@ -550,8 +550,8 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
 2. Update the **DSCInitialization** (DSCI) configuration to remove Service Mesh management:
 
    ```bash
-   $ export DSCI_NAME=$(oc get dsci -o jsonpath='{.items[0].metadata.name}')
-   $ oc patch dsci $DSCI_NAME --type='merge' -p '{
+   export DSCI_NAME=$(oc get dsci -o jsonpath='{.items[0].metadata.name}')
+   oc patch dsci $DSCI_NAME --type='merge' -p '{
      "spec": {
        "serviceMesh": {
          "managementState": "Removed"
@@ -669,7 +669,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 1. Create the Kuadrant custom resource:
 
    ```bash
-   $ oc apply -f - <<EOF
+   oc apply -f - <<EOF
    apiVersion: kuadrant.io/v1beta1
    kind: Kuadrant
    metadata:
@@ -681,25 +681,25 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 2. Wait for Kuadrant to become ready:
 
    ```bash
-   $ oc wait Kuadrant -n kuadrant-system kuadrant --for=condition=Ready --timeout=10m
+   oc wait Kuadrant -n kuadrant-system kuadrant --for=condition=Ready --timeout=10m
    ```
 
 3. Add the **ServingCert** annotation to the Authorino service:
 
    ```bash
-   $ oc annotate svc/authorino-authorino-authorization service.beta.openshift.io/serving-cert-secret-name=authorino-server-cert -n kuadrant-system
+   oc annotate svc/authorino-authorino-authorization service.beta.openshift.io/serving-cert-secret-name=authorino-server-cert -n kuadrant-system
    ```
 
    Wait a few seconds for the annotation to be processed:
 
    ```bash
-   $ sleep 2
+   sleep 2
    ```
 
 4. Update Authorino to enable SSL:
 
    ```bash
-   $ oc apply -f - <<EOF
+   oc apply -f - <<EOF
    apiVersion: operator.authorino.kuadrant.io/v1beta1
    kind: Authorino
    metadata:
@@ -722,7 +722,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 5. Verify that the Authorino pods are ready:
 
    ```bash
-   $ oc wait --for=condition=ready pod -l authorino-resource=authorino -n kuadrant-system --timeout=150s
+   oc wait --for=condition=ready pod -l authorino-resource=authorino -n kuadrant-system --timeout=150s
    ```
 
 **Verification**
@@ -730,7 +730,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 * Verify the Red Hat Connectivity Link operator is installed and ready:
 
   ```bash
-  $ oc get csv -n kuadrant-system | grep rhcl
+  oc get csv -n kuadrant-system | grep rhcl
   ```
 
   The operator displays a **Succeeded** phase.
@@ -738,7 +738,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
   Verify the Kuadrant resource is ready:
 
   ```bash
-  $ oc get kuadrant kuadrant -n kuadrant-system -o jsonpath='{.status.conditions}' | jq
+  oc get kuadrant kuadrant -n kuadrant-system -o jsonpath='{.status.conditions}' | jq
   ```
 
   Expected output showing the Kuadrant resource in **Ready** state:
@@ -758,7 +758,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 * Verify Authorino is configured with TLS enabled:
 
   ```bash
-  $ oc get authorino -n kuadrant-system authorino -o jsonpath='{.spec.listener.tls.enabled}'
+  oc get authorino -n kuadrant-system authorino -o jsonpath='{.spec.listener.tls.enabled}'
   ```
 
   The command returns **true**.
@@ -766,7 +766,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 * Verify Authorino pods are running:
 
   ```bash
-  $ oc get pods -n kuadrant-system -l authorino-resource=authorino
+  oc get pods -n kuadrant-system -l authorino-resource=authorino
   ```
 
   All Authorino pods display **Running** status with **1/1** ready.
@@ -802,7 +802,7 @@ Complete this procedure only if you are running distributed inference in a disco
 2. Create the **wasm-plugin-pull-secret** in the **openshift-ingress** namespace by running the following command:
 
    ```bash
-   $ oc get secret pull-secret -n openshift-config -o json | \
+   oc get secret pull-secret -n openshift-config -o json | \
        jq 'del(.metadata.namespace, .metadata.resourceVersion, .metadata.uid, .metadata.creationTimestamp, .metadata.ownerReferences)' | \
        jq '.metadata.name="wasm-plugin-pull-secret"' | \
        oc apply -n openshift-ingress -f -
@@ -811,9 +811,9 @@ Complete this procedure only if you are running distributed inference in a disco
 3. Configure Kuadrant Operator Subscription with mirrored WASM image by running the following command, replacing \<wasm-shim-sha\> with the SHA of the wasm-shim image that you identified in Step 1\.
 
    ```bash
-   $ export MIRROR_REGISTRY="<bastion-mirror-registry>:<bastion-mirror-registry-port>"
-   $ export WASM_IMAGE_DIGEST="<wasm-shim-sha>"
-   $ oc patch subscription rhcl-operator -n kuadrant-system --type=merge -p '{
+   export MIRROR_REGISTRY="<bastion-mirror-registry>:<bastion-mirror-registry-port>"
+   export WASM_IMAGE_DIGEST="<wasm-shim-sha>"
+   oc patch subscription rhcl-operator -n kuadrant-system --type=merge -p '{
      "spec": {
        "config": {
          "env": [
@@ -834,9 +834,9 @@ Complete this procedure only if you are running distributed inference in a disco
 4. Configure the Gateway to trust the mirror registry certificate by creating a ConfigMap that injects the WASM\_INSECURE\_REGISTRIES environment variable into the Gateway pod, using the following commands:
 
    ```bash
-   $ export MIRROR_REGISTRY="<bastion-mirror-registry>:<bastion-mirror-registry-port>"
-   $ export GATEWAY_NAME=<your-gateway-name>
-   $ oc apply -f - <<EOF
+   export MIRROR_REGISTRY="<bastion-mirror-registry>:<bastion-mirror-registry-port>"
+   export GATEWAY_NAME=<your-gateway-name>
+   oc apply -f - <<EOF
        apiVersion: v1
        kind: ConfigMap
        metadata:
@@ -853,7 +853,7 @@ Complete this procedure only if you are running distributed inference in a disco
                    - name: WASM_INSECURE_REGISTRIES
                      value: ${MIRROR_REGISTRY}
    EOF
-   $ oc patch gateway ${GATEWAY_NAME} -n openshift-ingress --type=merge -p '{"spec":{"infrastructure":{"parametersRef":{"group":"","kind":"ConfigMap","name":"'${GATEWAY_NAME}'-config"}}}}'
+   oc patch gateway ${GATEWAY_NAME} -n openshift-ingress --type=merge -p '{"spec":{"infrastructure":{"parametersRef":{"group":"","kind":"ConfigMap","name":"'${GATEWAY_NAME}'-config"}}}}'
    ```
 
 **Verification**
@@ -861,7 +861,7 @@ Complete this procedure only if you are running distributed inference in a disco
 * Verify the RHCL operator subscription includes the mirror registry configuration:
 
   ```bash
-  $ oc get subscription rhcl-operator -n kuadrant-system -o jsonpath='{.spec.config.env}' | jq
+  oc get subscription rhcl-operator -n kuadrant-system -o jsonpath='{.spec.config.env}' | jq
   ```
 
   The output displays your configured wasm-shim image location:
@@ -899,7 +899,7 @@ Configure authentication for your **LLMInferenceService** resources to handle se
    If you don't need authentication for your model, disable it by annotating the **LLMInferenceService**:
 
    ```bash
-   $ oc annotate llminferenceservice <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> security.opendatahub.io/enable-auth=false
+   oc annotate llminferenceservice <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> security.opendatahub.io/enable-auth=false
    ```
 
    Replace *\<LLMISVC-NAME\>* with your **LLMInferenceService** name and *\<LLMISVC-NAMESPACE\>* with your project namespace.  
@@ -952,8 +952,8 @@ Configure authentication for your **LLMInferenceService** resources to handle se
    Update your client applications to include the **Authorization** header:
 
    ```bash
-   $ TOKEN=$(oc create token my-llmisvc-sa -n <my-project>)
-   $ curl -H "Authorization: Bearer $TOKEN" https://<model-url>/v2/models/...
+   TOKEN=$(oc create token my-llmisvc-sa -n <my-project>)
+   curl -H "Authorization: Bearer $TOKEN" https://<model-url>/v2/models/...
    ```
 
 **Verification**
@@ -961,7 +961,7 @@ Configure authentication for your **LLMInferenceService** resources to handle se
 * Verify **LLMInferenceService** resources are ready:
 
   ```bash
-  $ oc get llminferenceservices --all-namespaces
+  oc get llminferenceservices --all-namespaces
   ```
 
   All **LLMInferenceService** resources display a **Ready** status.
@@ -985,7 +985,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 1. Pin **LLMInferenceService** configurations to use RHOAI 2.25.9 (and later) templates to prevent scheduler pod failures during upgrade:
 
    ```bash
-   $ oc patch llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> \
+   oc patch llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> \
        --subresource=status \
        --type=merge \
        -p '{ "status": { "annotations": { "serving.kserve.io/config-llm-template": "kserve-config-llm-template", "serving.kserve.io/config-llm-decode-template": "kserve-config-llm-decode-template", "serving.kserve.io/config-llm-worker-data-parallel": "kserve-config-llm-worker-data-parallel", "serving.kserve.io/config-llm-decode-worker-data-parallel": "kserve-config-llm-decode-worker-data-parallel", "serving.kserve.io/config-llm-prefill-template": "kserve-config-llm-prefill-template", "serving.kserve.io/config-llm-prefill-worker-data-parallel": "kserve-config-llm-prefill-worker-data-parallel", "serving.kserve.io/config-llm-scheduler": "kserve-config-llm-scheduler", "serving.kserve.io/config-llm-router-route": "kserve-config-llm-router-route" } } }'
@@ -1031,7 +1031,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 * Verify that the **LLMInferenceService** configuration has been frozen:
 
   ```bash
-  $ oc get llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> -o jsonpath='{.status.annotations}'
+  oc get llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> -o jsonpath='{.status.annotations}'
   ```
 
   The output displays the pinned template annotations.
@@ -1039,7 +1039,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 * Verify that the **LLMInferenceService** migration steps were completed correctly from inside the **rhai-cli** container:
 
   ```bash
-  $ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5
+  /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5
   ```
 
   The command completes without errors and confirms migration readiness.
@@ -1061,7 +1061,7 @@ Verify that all migration prerequisites have been completed and your cluster is 
 1. Perform a comprehensive readiness check from inside the **rhai-cli** container:
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks "*kserve*" --checks "*modelmesh*"
+   /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks "*kserve*" --checks "*modelmesh*"
    ```
 
    Review the output to determine if your cluster is ready to proceed with the upgrade.

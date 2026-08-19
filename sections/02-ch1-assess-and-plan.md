@@ -65,7 +65,7 @@ The migration assessment script checks your OpenShift AI 2.25.9 (and later) inst
 Optionally, you can check the status of the Kueue component by running the following command:
 
 ```bash
-$ oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}'
+oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}'
 ```
 
 * If the output is **Removed**, you can migrate from OpenShift AI 2.25.9 (and later) to 3.5. Kueue will be disabled after upgrade.
@@ -112,7 +112,7 @@ OpenShift AI user:
 
 To prepare for the migration of OpenShift AI 2.25.9 (and later) to 3.5,  deploy a long-lived pod on your OpenShift cluster. This pod provides the following conditions for the migration process:
 
-* A **StatefulSet** that runs \`sleep infinity\` to keep the pod alive. The pod name rhai-cli-0  is stable.
+* A **StatefulSet** that runs `sleep infinity` to keep the pod alive. The pod name rhai-cli-0  is stable.
 
 * A persistent volume claim (PVC) mounted at /tmp/rhoai-upgrade-backup for persisting  reports and backup artifacts between log in sessions.
 
@@ -194,19 +194,19 @@ To prepare for the migration of OpenShift AI 2.25.9 (and later) to 3.5,  deploy 
 3.  Wait for the pod to be ready:
 
    ```bash
-   $ oc wait pod/rhai-cli-0 -n <namespace> --for=condition=Ready --timeout=120s
+   oc wait pod/rhai-cli-0 -n <namespace> --for=condition=Ready --timeout=120s
    ```
 
    If the wait times out, run the following commands
 
    ```bash
-   $ oc get pods -n <namespace>
-   $ oc describe pod rhai-cli-0 -n <namespace>
+   oc get pods -n <namespace>
+   oc describe pod rhai-cli-0 -n <namespace>
    ```
 
-4. Depending on your cluster policy and workload, customize the container (\`cpu\`/\`memory\`) and PVC (\`storage\`) \`resources.requests\` values.
+4. Depending on your cluster policy and workload, customize the container (`cpu`/`memory`) and PVC (`storage`) `resources.requests` values.
 
-   If the PVC stays \`Pending\`, set\`spec.volumeClaimTemplates\[0\].spec.storageClassName\` to match a StorageClass in your cluster. Ask your OpenShift administrator for the correct value if you are unsure.
+   If the PVC stays `Pending`, set `spec.volumeClaimTemplates[0].spec.storageClassName` to match a StorageClass in your cluster. Ask your OpenShift administrator for the correct value if you are unsure.
 
 **Verification**
 
@@ -232,14 +232,14 @@ Authentication for the cluster is handled when you log in from inside the pod. T
 1. Open a shell in the pod:
 
    ```bash
-   $ oc exec -it rhai-cli-0 -n <namespace> -- /bin/bash
+   oc exec -it rhai-cli-0 -n <namespace> -- /bin/bash
    ```
 
-2.  Inside that shell, point \`KUBECONFIG\` to a writable path and log in:
+2.  Inside that shell, point `KUBECONFIG` to a writable path and log in:
 
    ```bash
-   $ export KUBECONFIG=/tmp/.kubeconfig
-   $ oc login --token=<token> --server=<api-server-url>
+   export KUBECONFIG=/tmp/.kubeconfig
+   oc login --token=<token> --server=<api-server-url>
    ```
 
 **Verification**
@@ -249,7 +249,7 @@ Authentication for the cluster is handled when you log in from inside the pod. T
 2. Verify the rhai-cli version:
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli version
+   /opt/rhai-cli/bin/rhai-cli version
    ```
 
    Expected output:
@@ -348,7 +348,7 @@ After you resolve a blocker, re-run the lint command to confirm that the critica
 3. Optional. For information about other options that you can use to filter the script output, run the rhai-cli lint command with the \--help flag:
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli lint --help
+   /opt/rhai-cli/bin/rhai-cli lint --help
    ```
 
 **Verification**
@@ -393,13 +393,13 @@ Before upgrading to OpenShift AI 3.5, ensure that no items with **prohibited** o
 To reduce output noise, you can also run a focused check for a specific component by using the \--checks flag for a component listed in the following table.  Enclose the component string value with wildcard (\*) characters:
 
 ```bash
-$ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *<component-string>*
+/opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *<component-string>*
 ```
 
 For example, to perform a targeted check on the AI Pipelines component, run the following command :
 
 ```bash
-$ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *datasciencepipelines*
+/opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *datasciencepipelines*
 ```
 
 | Component | Value for – \- check option |
@@ -426,7 +426,7 @@ Before upgrading to OpenShift AI 3.5, ensure that no items with **critical** or 
 Run the following command from outside the pod:
 
 ```bash
-$ oc cp -n <namespace> rhai-cli-0:/tmp/rhoai-upgrade-backup ./local-reports
+oc cp -n <namespace> rhai-cli-0:/tmp/rhoai-upgrade-backup ./local-reports
 ```
 
 ## 
@@ -453,13 +453,13 @@ Submit the results of the migration assessment script to Technical Support.
 1. Run the following command that sends the output of the migration script to a YAML file.
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --output yaml > /tmp/rhoai-upgrade-backup/<filename>.yaml
+   /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --output yaml > /tmp/rhoai-upgrade-backup/<filename>.yaml
    ```
 
    For example,  to send the output of the migration script to a YAML file named rhai-cli-output.yaml:
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --output yaml > /tmp/rhoai-upgrade-backup/rhai-cli-output.yaml
+   /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --output yaml > /tmp/rhoai-upgrade-backup/rhai-cli-output.yaml
    ```
 
 2. Copy the output file from the rhai-cli container to your local workstation:
@@ -469,13 +469,13 @@ Submit the results of the migration assessment script to Technical Support.
    2. Copy the output file from the rhai-cli container to your local workstation. \<namespace\> is the namespace where you deployed the pod that includes the rhai-cli container image:
 
       ```bash
-      $ kubectl cp <namespace>/rhai-cli-0:/tmp/rhoai-upgrade-backup/<filename>.yaml ./<filename>.yaml
+      kubectl cp <namespace>/rhai-cli-0:/tmp/rhoai-upgrade-backup/<filename>.yaml ./<filename>.yaml
       ```
 
       For example, if you deployed the pod that includes the rhai-cli container image in the rhai-migration namespace, run the following command to copy a YAML file named rhai-cli-output.yaml located in the /tmp/rhoai-upgrade-backup directory of the rhai-cli container to the current directory of your local workstation:
 
       ```bash
-      $ kubectl cp rhai-migration/rhai-cli-0:/tmp/rhoai-upgrade-backup/rhai-cli-output.yaml ./rhai-cli-output.yaml
+      kubectl cp rhai-migration/rhai-cli-0:/tmp/rhoai-upgrade-backup/rhai-cli-output.yaml ./rhai-cli-output.yaml
       ```
 
 3. If you have not already done so, open a proactive support case through the Red Hat customer portal at [access.redhat.com](http://access.redhat.com). to let Red Hat know that you are considering upgrading Red Hat OpenShift AI 2.25.9 (and later) to 3.5 , as described in [How to submit a Proactive Case](https://access.redhat.com/articles/5387111).

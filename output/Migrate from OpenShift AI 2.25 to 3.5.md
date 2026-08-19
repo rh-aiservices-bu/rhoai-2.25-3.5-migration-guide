@@ -242,7 +242,7 @@ The migration assessment script checks your OpenShift AI 2.25.9 (and later) inst
 Optionally, you can check the status of the Kueue component by running the following command:
 
 ```bash
-$ oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}'
+oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}'
 ```
 
 * If the output is **Removed**, you can migrate from OpenShift AI 2.25.9 (and later) to 3.5. Kueue will be disabled after upgrade.
@@ -289,7 +289,7 @@ OpenShift AI user:
 
 To prepare for the migration of OpenShift AI 2.25.9 (and later) to 3.5,  deploy a long-lived pod on your OpenShift cluster. This pod provides the following conditions for the migration process:
 
-* A **StatefulSet** that runs \`sleep infinity\` to keep the pod alive. The pod name rhai-cli-0  is stable.
+* A **StatefulSet** that runs `sleep infinity` to keep the pod alive. The pod name rhai-cli-0  is stable.
 
 * A persistent volume claim (PVC) mounted at /tmp/rhoai-upgrade-backup for persisting  reports and backup artifacts between log in sessions.
 
@@ -371,19 +371,19 @@ To prepare for the migration of OpenShift AI 2.25.9 (and later) to 3.5,  deploy 
 3.  Wait for the pod to be ready:
 
    ```bash
-   $ oc wait pod/rhai-cli-0 -n <namespace> --for=condition=Ready --timeout=120s
+   oc wait pod/rhai-cli-0 -n <namespace> --for=condition=Ready --timeout=120s
    ```
 
    If the wait times out, run the following commands
 
    ```bash
-   $ oc get pods -n <namespace>
-   $ oc describe pod rhai-cli-0 -n <namespace>
+   oc get pods -n <namespace>
+   oc describe pod rhai-cli-0 -n <namespace>
    ```
 
-4. Depending on your cluster policy and workload, customize the container (\`cpu\`/\`memory\`) and PVC (\`storage\`) \`resources.requests\` values.
+4. Depending on your cluster policy and workload, customize the container (`cpu`/`memory`) and PVC (`storage`) `resources.requests` values.
 
-   If the PVC stays \`Pending\`, set\`spec.volumeClaimTemplates\[0\].spec.storageClassName\` to match a StorageClass in your cluster. Ask your OpenShift administrator for the correct value if you are unsure.
+   If the PVC stays `Pending`, set `spec.volumeClaimTemplates[0].spec.storageClassName` to match a StorageClass in your cluster. Ask your OpenShift administrator for the correct value if you are unsure.
 
 **Verification**
 
@@ -409,14 +409,14 @@ Authentication for the cluster is handled when you log in from inside the pod. T
 1. Open a shell in the pod:
 
    ```bash
-   $ oc exec -it rhai-cli-0 -n <namespace> -- /bin/bash
+   oc exec -it rhai-cli-0 -n <namespace> -- /bin/bash
    ```
 
-2.  Inside that shell, point \`KUBECONFIG\` to a writable path and log in:
+2.  Inside that shell, point `KUBECONFIG` to a writable path and log in:
 
    ```bash
-   $ export KUBECONFIG=/tmp/.kubeconfig
-   $ oc login --token=<token> --server=<api-server-url>
+   export KUBECONFIG=/tmp/.kubeconfig
+   oc login --token=<token> --server=<api-server-url>
    ```
 
 **Verification**
@@ -426,7 +426,7 @@ Authentication for the cluster is handled when you log in from inside the pod. T
 2. Verify the rhai-cli version:
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli version
+   /opt/rhai-cli/bin/rhai-cli version
    ```
 
    Expected output:
@@ -525,7 +525,7 @@ After you resolve a blocker, re-run the lint command to confirm that the critica
 3. Optional. For information about other options that you can use to filter the script output, run the rhai-cli lint command with the \--help flag:
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli lint --help
+   /opt/rhai-cli/bin/rhai-cli lint --help
    ```
 
 **Verification**
@@ -570,13 +570,13 @@ Before upgrading to OpenShift AI 3.5, ensure that no items with **prohibited** o
 To reduce output noise, you can also run a focused check for a specific component by using the \--checks flag for a component listed in the following table.  Enclose the component string value with wildcard (\*) characters:
 
 ```bash
-$ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *<component-string>*
+/opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *<component-string>*
 ```
 
 For example, to perform a targeted check on the AI Pipelines component, run the following command :
 
 ```bash
-$ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *datasciencepipelines*
+/opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *datasciencepipelines*
 ```
 
 | Component | Value for – \- check option |
@@ -603,7 +603,7 @@ Before upgrading to OpenShift AI 3.5, ensure that no items with **critical** or 
 Run the following command from outside the pod:
 
 ```bash
-$ oc cp -n <namespace> rhai-cli-0:/tmp/rhoai-upgrade-backup ./local-reports
+oc cp -n <namespace> rhai-cli-0:/tmp/rhoai-upgrade-backup ./local-reports
 ```
 
 ## 
@@ -630,13 +630,13 @@ Submit the results of the migration assessment script to Technical Support.
 1. Run the following command that sends the output of the migration script to a YAML file.
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --output yaml > /tmp/rhoai-upgrade-backup/<filename>.yaml
+   /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --output yaml > /tmp/rhoai-upgrade-backup/<filename>.yaml
    ```
 
    For example,  to send the output of the migration script to a YAML file named rhai-cli-output.yaml:
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --output yaml > /tmp/rhoai-upgrade-backup/rhai-cli-output.yaml
+   /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --output yaml > /tmp/rhoai-upgrade-backup/rhai-cli-output.yaml
    ```
 
 2. Copy the output file from the rhai-cli container to your local workstation:
@@ -646,13 +646,13 @@ Submit the results of the migration assessment script to Technical Support.
    2. Copy the output file from the rhai-cli container to your local workstation. \<namespace\> is the namespace where you deployed the pod that includes the rhai-cli container image:
 
       ```bash
-      $ kubectl cp <namespace>/rhai-cli-0:/tmp/rhoai-upgrade-backup/<filename>.yaml ./<filename>.yaml
+      kubectl cp <namespace>/rhai-cli-0:/tmp/rhoai-upgrade-backup/<filename>.yaml ./<filename>.yaml
       ```
 
       For example, if you deployed the pod that includes the rhai-cli container image in the rhai-migration namespace, run the following command to copy a YAML file named rhai-cli-output.yaml located in the /tmp/rhoai-upgrade-backup directory of the rhai-cli container to the current directory of your local workstation:
 
       ```bash
-      $ kubectl cp rhai-migration/rhai-cli-0:/tmp/rhoai-upgrade-backup/rhai-cli-output.yaml ./rhai-cli-output.yaml
+      kubectl cp rhai-migration/rhai-cli-0:/tmp/rhoai-upgrade-backup/rhai-cli-output.yaml ./rhai-cli-output.yaml
       ```
 
 3. If you have not already done so, open a proactive support case through the Red Hat customer portal at [access.redhat.com](http://access.redhat.com). to let Red Hat know that you are considering upgrading Red Hat OpenShift AI 2.25.9 (and later) to 3.5 , as described in [How to submit a Proactive Case](https://access.redhat.com/articles/5387111).
@@ -694,8 +694,8 @@ Install the cert-manager Operator for Red Hat OpenShift using one of the followi
 1. Create the namespace, OperatorGroup, and Subscription:
 
    ```bash
-   $ oc create namespace cert-manager-operator
-   $ oc apply -f - <<EOF
+   oc create namespace cert-manager-operator
+   oc apply -f - <<EOF
    apiVersion: operators.coreos.com/v1
    kind: OperatorGroup
    metadata:
@@ -706,7 +706,7 @@ Install the cert-manager Operator for Red Hat OpenShift using one of the followi
      - cert-manager-operator
      upgradeStrategy: Default
    EOF
-   $ oc apply -f - <<EOF
+   oc apply -f - <<EOF
    apiVersion: operators.coreos.com/v1alpha1
    kind: Subscription
    metadata:
@@ -724,13 +724,13 @@ Install the cert-manager Operator for Red Hat OpenShift using one of the followi
 2. Wait for the cert-manager Operator to reach **Succeeded** status:
 
    ```bash
-   $ oc get csv -n cert-manager-operator --watch
+   oc get csv -n cert-manager-operator --watch
    ```
 
 3. Verify that cert-manager pods are running:
 
    ```bash
-   $ oc get pods -n cert-manager
+   oc get pods -n cert-manager
    ```
 
    All pods should show **Running** status with all containers ready.
@@ -933,13 +933,13 @@ If any model registries or custom model catalog sources were created before upgr
 
 3. You can also get information on pods by using the following command:  
    ```bash
-   $ oc get pods -n rhoai-model-registries
+   oc get pods -n rhoai-model-registries
    ```
 
    Check the pod logs to ensure there are no error messages as follows:  
    ```bash
-   $ oc logs <my-model-catalog-pod-name> -n rhoai-model-registries -c catalog
-   $ oc logs <my-model-registry-pod-name> -n rhoai-model-registries -c <my-container-name>
+   oc logs <my-model-catalog-pod-name> -n rhoai-model-registries -c catalog
+   oc logs <my-model-registry-pod-name> -n rhoai-model-registries -c <my-container-name>
    ```
 
 4. In the OpenShift AI dashboard, click **Settings \> Model registry settings** to check the status of your model registries. For more information, see [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.25/html/managing_model_registries/index).
@@ -988,7 +988,7 @@ If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later)
 
 1. As an OpenShift AI administrator, get a list of all Feature Store instances and their namespaces on the cluster:  
    ```bash
-   $ oc get featurestores --all-namespaces
+   oc get featurestores --all-namespaces
    ```
 
    Example output:
@@ -1004,13 +1004,13 @@ If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later)
    1. Check that the Feature Store instance is in the **Ready** state. Get the status of a Feature Store instance by running the following command and replacing **\<namespace\>** with the namespace that has the Feature Store instance:
 
       ```bash
-      $ oc get featurestores -n <namespace>
+      oc get featurestores -n <namespace>
       ```
 
       For example, given the example output from Step 1, to see the status of **my-featurestore**, run the following command:
 
       ```bash
-      $ oc get featurestores -n project-alpha
+      oc get featurestores -n project-alpha
       ```
 
       Example output:
@@ -1023,13 +1023,13 @@ If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later)
    2. List CronJobs for a namespace that has a Feature Store instance by running the following command and replacing **\<namespace\>** with the name of the namespace:
 
       ```bash
-      $ oc get cronjobs -n <namespace>
+      oc get cronjobs -n <namespace>
       ```
 
       For example:
 
       ```bash
-      $ oc get cronjobs -n project-alpha
+      oc get cronjobs -n project-alpha
       ```
 
       Example output:
@@ -1042,13 +1042,13 @@ If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later)
    3. Create a Job by running the following command. Replace **\<job-name\>** with the name of the job and replace **\<cronjob-name\>** with the name of a CronJob output from the previous step:
 
       ```bash
-      $ oc create job <job-name> --from=cronjob/<cronjob-name> -n <namespace>
+      oc create job <job-name> --from=cronjob/<cronjob-name> -n <namespace>
       ```
 
       For example:
 
       ```bash
-      $ oc create job test --from=cronjob/feast-sample-git -n project-alpha
+      oc create job test --from=cronjob/feast-sample-git -n project-alpha
       ```
 
       Example output:
@@ -1060,13 +1060,13 @@ If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later)
    4. Check that the CronJob for the Feature Store instance ran the Job successfully. View a list of jobs and their status by running the following command:
 
       ```bash
-      $ oc get jobs -n <namespace>
+      oc get jobs -n <namespace>
       ```
 
       For example:
 
       ```bash
-      $ oc get jobs -n project-alpha
+      oc get jobs -n project-alpha
       ```
 
       The output should indicate that the job completed, as shown in the following example:
@@ -1129,13 +1129,13 @@ Since Llama Stack was in Technology Preview in 2.25.x and has been renamed to OG
 1. Before proceeding with the upgrade, OpenShift AI cluster administrators must identify all **LlamaStackDistribution** CRs resources in your cluster. List all **LlamaStackDistributions** resources across your cluster with the following command:
 
    ```bash
-   $ oc get llamastackdistribution --all-namespaces -o custom-columns=NAMESPACE:.metadata.namespace,NAME:.metadata.name,PHASE:.status.phase,Created:.metadata.creationTimestamp
+   oc get llamastackdistribution --all-namespaces -o custom-columns=NAMESPACE:.metadata.namespace,NAME:.metadata.name,PHASE:.status.phase,Created:.metadata.creationTimestamp
    ```
 
 2. For each namespace with Llama Stack deployments, identify the owners of the namespace with the following command:
 
    ```bash
-   $ oc get rolebindings -n <namespace> -o wide
+   oc get rolebindings -n <namespace> -o wide
    ```
 
 3. Once you have identified all **LlamaStackDistribution** CRs and their owners, contact each owner and inform them of the following:
@@ -1161,8 +1161,8 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (a
 1. (Optional) To archive your LlamaStack configuration and data, use the **rhai-cli** `llamastack.backup` migration action. The `llamastack.backup` migration is a prepare-only action. You can preview what would be backed up with `--dry-run`, then run the backup:
 
    ```bash
-   $ rhai-cli migrate prepare --migration llamastack.backup --target-version 3.5.0 --dry-run
-   $ rhai-cli migrate prepare --migration llamastack.backup --target-version 3.5.0 --output-dir /backups
+   rhai-cli migrate prepare --migration llamastack.backup --target-version 3.5.0 --dry-run
+   rhai-cli migrate prepare --migration llamastack.backup --target-version 3.5.0 --output-dir /backups
    ```
 
    Expected Output:
@@ -1192,7 +1192,7 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (a
 2. After your cluster administrator notifies you of the upgrade, and if you optionally archived your Llama Stack data, at the start of the maintenance window, delete your **LlamaStackDistribution** resources.
 
    ```bash
-   $ oc get -A llsd
+   oc get -A llsd
    ```
 
    Example output:
@@ -1208,7 +1208,7 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (a
    For each llsd:
 
    ```bash
-   $ oc delete -n <namespace> llsd/<llsd-resource-name>
+   oc delete -n <namespace> llsd/<llsd-resource-name>
    ```
 
 3. During the recreation of deployments as **OGXServer** resources in OpenShift AI 3.5, you must complete and understand the following:
@@ -1254,7 +1254,7 @@ However, the upgrade includes updates to API versions and RBAC permissions. Befo
 1. Capture the pre-upgrade DSPA pod health baseline:
 
    ```bash
-   $ rhai-cli migrate prepare --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
+   rhai-cli migrate prepare --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
    ```
 
    To preview without making changes, add `--dry-run`.
@@ -1268,7 +1268,7 @@ However, the upgrade includes updates to API versions and RBAC permissions. Befo
 2. Run the AI Pipelines pre-upgrade check to remediate deprecated resources:
 
    ```bash
-   $ rhai-cli migrate run --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
+   rhai-cli migrate run --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
    ```
 
 3. Review the output.  
@@ -1285,13 +1285,13 @@ However, the upgrade includes updates to API versions and RBAC permissions. Befo
 5. If the action reports custom RBAC roles that require updates, consult with the teams that use AI Pipelines and run the DSP role update action:
 
    ```bash
-   $ rhai-cli migrate run --migration ai-pipelines.update-dsp-role --target-version 3.5.0
+   rhai-cli migrate run --migration ai-pipelines.update-dsp-role --target-version 3.5.0
    ```
 
 6. After completing remediation, rerun the pre-upgrade check to confirm that no issues remain:
 
    ```bash
-   $ rhai-cli migrate run --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
+   rhai-cli migrate run --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
    ```
 
    You can ignore the following warning if it appears, because it does not affect the upgrade:
@@ -1309,7 +1309,7 @@ However, the upgrade includes updates to API versions and RBAC permissions. Befo
 * The pre-upgrade state file exists:
 
   ```bash
-  $ ls -la /tmp/rhoai-upgrade-backup/ai_pipelines/dspa_pre_upgrade_pods.json
+  ls -la /tmp/rhoai-upgrade-backup/ai_pipelines/dspa_pre_upgrade_pods.json
   ```
 
 ## 
@@ -1347,8 +1347,8 @@ Verify that the management state of the TrustyAI component for your Data Science
 1. Check the **TrustyAI** management state for your Data Science Cluster:
 
    ```bash
-   $ export DSC_NAME=$(oc get datascienceclusters -o jsonpath='{.items[0].metadata.name}')
-   $ oc get datascienceclusters "$DSC_NAME" -o jsonpath='{.spec.components.trustyai.managementState}' && echo
+   export DSC_NAME=$(oc get datascienceclusters -o jsonpath='{.items[0].metadata.name}')
+   oc get datascienceclusters "$DSC_NAME" -o jsonpath='{.spec.components.trustyai.managementState}' && echo
    ```
 
    Example output:
@@ -1364,7 +1364,7 @@ Verify that the management state of the TrustyAI component for your Data Science
 2. Get a list of the namespaces that contain a TrustyAI service:
 
    ```bash
-   $ oc get trustyaiservice -A
+   oc get trustyaiservice -A
    ```
 
    Example output:
@@ -1380,8 +1380,8 @@ Verify that the management state of the TrustyAI component for your Data Science
 3. Create a directory for backups:
 
    ```bash
-   $ mkdir -p /tmp/rhoai-upgrade-backup/trustyai
-   $ export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
+   mkdir -p /tmp/rhoai-upgrade-backup/trustyai
+   export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
    ```
 
 ### **2.7.2. TrustyAI \- Before upgrade \- Backup metrics** {#2.7.2.-trustyai---before-upgrade---backup-metrics}
@@ -1405,19 +1405,19 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 1. Set the namespace:
 
    ```bash
-   $ export NS=<namespace>
+   export NS=<namespace>
    ```
 
 2. Set the **TrustyAIService** name:
 
    ```bash
-   $ export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
+   export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
    ```
 
 3. Confirm the namespace and **TrustyAIService** names:
 
    ```bash
-   $ echo "NAMESPACE=${NS} TAS_NAME=${TAS_NAME}"
+   echo "NAMESPACE=${NS} TAS_NAME=${TAS_NAME}"
    ```
 
    Example output:
@@ -1429,8 +1429,8 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 4. Get the service HTTP port:
 
    ```bash
-   $ export SVC_PORT=$(oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
-   $ echo "SVC_PORT=$SVC_PORT"
+   export SVC_PORT=$(oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
+   echo "SVC_PORT=$SVC_PORT"
    ```
 
    If the result is a port number as shown in the following example, skip to Step 7:
@@ -1444,7 +1444,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 5. List all available ports:
 
    ```bash
-   $ oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{range .spec.ports[*]}{.name}:{.port}{"\n"}{end}'
+   oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{range .spec.ports[*]}{.name}:{.port}{"\n"}{end}'
    ```
 
    Example output:
@@ -1457,13 +1457,13 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 6. In the following command, replace \<port\> with the port number (for example, **80**):
 
    ```bash
-   $ export SVC_PORT=<port>
+   export SVC_PORT=<port>
    ```
 
 7. Port-forward the TrustyAI service:
 
    ```bash
-   $ oc port-forward -n "$NS" "svc/$TAS_NAME" 8080:${SVC_PORT} &
+   oc port-forward -n "$NS" "svc/$TAS_NAME" 8080:${SVC_PORT} &
    export PF_PID=$!
    sleep 3
    ```
@@ -1478,8 +1478,8 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 8. Fetch the metrics:
 
    ```bash
-   $ export TOKEN=$(oc whoami -t)
-   $ curl -sk -H "Authorization: Bearer $TOKEN" \
+   export TOKEN=$(oc whoami -t)
+   curl -sk -H "Authorization: Bearer $TOKEN" \
      "http://localhost:8080/metrics/all/requests" \
      -o "${BACKUP_DIR}/trustyai-metrics-${NS}-$(date +%Y%m%d-%H%M%S).json"
    ```
@@ -1487,7 +1487,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 9. Stop the port-forward:
 
    ```bash
-   $ kill $PF_PID 2>/dev/null
+   kill $PF_PID 2>/dev/null
    ```
 
 **Verification**
@@ -1495,7 +1495,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 1. Verify that the port-forward process stopped running:
 
    ```bash
-   $ ps -p $PF_PID 2>/dev/null && echo "Still running" || echo "Stopped"
+   ps -p $PF_PID 2>/dev/null && echo "Still running" || echo "Stopped"
    ```
 
    Example output:
@@ -1510,7 +1510,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
    Run this command from your workstation (not from inside the **rhai-cli** pod). It reads the backup file from the pod's PVC and validates it with `jq` locally.
 
    ```bash
-   $ oc exec rhai-cli-0 -n rhai-migration -- cat ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | jq empty && echo "OK" || echo "FAIL: invalid JSON"
+   oc exec rhai-cli-0 -n rhai-migration -- cat ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | jq empty && echo "OK" || echo "FAIL: invalid JSON"
    ```
 
    **Note**
@@ -1525,7 +1525,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 3. Verify that the backup file exists:
 
    ```bash
-   $ oc exec rhai-cli-0 -n rhai-migration -- ls ${BACKUP_DIR}/trustyai-metrics-${NS}-*
+   oc exec rhai-cli-0 -n rhai-migration -- ls ${BACKUP_DIR}/trustyai-metrics-${NS}-*
    ```
 
    Example output:
@@ -1557,13 +1557,13 @@ For each namespace that has a TrustyAI service, follow these steps to backup Tru
 1. If the namespace is not already set, set it:
 
    ```bash
-   $ export NS=<namespace>
+   export NS=<namespace>
    ```
 
 2. Run the TrustyAI data backup action:
 
    ```bash
-   $ rhai-cli migrate prepare --migration trustyai.data --target-version 3.5.0 \
+   rhai-cli migrate prepare --migration trustyai.data --target-version 3.5.0 \
        --output-dir /tmp/rhoai-upgrade-backup/trustyai
    ```
 
@@ -1623,7 +1623,7 @@ Before you upgrade OpenShift AI 2.25.9 (and later) to 3.5, set the name of all T
 1. Get a list of the namespaces that contain the TrustyAI Guardrails Orchestrator service:
 
    ```bash
-   $ oc get guardrailsorchestrator -A
+   oc get guardrailsorchestrator -A
    ```
 
    Example output:
@@ -1643,19 +1643,19 @@ Before you upgrade OpenShift AI 2.25.9 (and later) to 3.5, set the name of all T
 1. Set the namespace:
 
    ```bash
-   $ export NS=<namespace>
+   export NS=<namespace>
    ```
 
 2. Set the **GuardrailsOrchestrator** name:
 
    ```bash
-   $ export GORCH_NAME=<orchestrator-name>
+   export GORCH_NAME=<orchestrator-name>
    ```
 
 3.  Check that **GORCH\_NAME** and **NS** environment variables are properly set:
 
    ```bash
-   $ echo "GORCH_NAME=$GORCH_NAME" && echo "NS=$NS"
+   echo "GORCH_NAME=$GORCH_NAME" && echo "NS=$NS"
    ```
 
    The output should return values for **GORCH\_NAME** and **NS**, as shown in the following example:
@@ -1674,8 +1674,8 @@ For each namespace that has the TrustyAI Guardrails Orchestrator service:
 1. Find the **GuardrailsOrchestrator** pod:
 
    ```bash
-   $ export ORCH_POD=$(oc get pods -n $NS --no-headers -o name | grep $GORCH_NAME | head -1)
-   $ echo "ORCH_POD=$ORCH_POD"
+   export ORCH_POD=$(oc get pods -n $NS --no-headers -o name | grep $GORCH_NAME | head -1)
+   echo "ORCH_POD=$ORCH_POD"
    ```
 
    The output should show a value for **ORCH\_POD**, as shown in the following example:
@@ -1687,7 +1687,7 @@ For each namespace that has the TrustyAI Guardrails Orchestrator service:
 2. Check the pod phase and readiness:
 
    ```bash
-   $ oc get "$ORCH_POD" -n "$NS" -o jsonpath='phase={.status.phase} ready={.status.conditions[?(@.type=="Ready")].status}' && echo " OK" || echo " FAIL"
+   oc get "$ORCH_POD" -n "$NS" -o jsonpath='phase={.status.phase} ready={.status.conditions[?(@.type=="Ready")].status}' && echo " OK" || echo " FAIL"
    ```
 
    Example output:
@@ -1703,9 +1703,9 @@ For each namespace that has the TrustyAI Guardrails Orchestrator service:
 1. Check the **spec.otelExporter** field configuration in your **GuardrailsOrchestrator** CR:
 
    ```bash
-   $ export OTEL_SPEC=$(oc get guardrailsorchestrator "$GORCH_NAME" -n "$NS" -o jsonpath='{.spec.otelExporter}' 2>/dev/null || true)
-   $ export OTEL_LEN=$(echo "$OTEL_SPEC" | jq -r 'keys | length' 2>/dev/null)
-   $ [ "$OTEL_LEN" -gt 0 ] 2>/dev/null && echo "spec.otelExporter present" || echo "spec.otelExporter missing"
+   export OTEL_SPEC=$(oc get guardrailsorchestrator "$GORCH_NAME" -n "$NS" -o jsonpath='{.spec.otelExporter}' 2>/dev/null || true)
+   export OTEL_LEN=$(echo "$OTEL_SPEC" | jq -r 'keys | length' 2>/dev/null)
+   [ "$OTEL_LEN" -gt 0 ] 2>/dev/null && echo "spec.otelExporter present" || echo "spec.otelExporter missing"
    ```
 
    The output is one of the following results:  
@@ -1716,8 +1716,8 @@ For each namespace that has the TrustyAI Guardrails Orchestrator service:
 2. If **spec.otelExporter** is present, backup your traces and metrics exporter configuration by saving it to **${BACKUP\_DIR}/$GORCH\_NAME-$NS-otelExporter-backup.json**:
 
    ```bash
-   $ oc get guardrailsorchestrator $GORCH_NAME -n $NS -o jsonpath='{.spec.otelExporter}' > ${BACKUP_DIR}/$GORCH_NAME-$NS-otelExporter-backup.json
-   $ cat ${BACKUP_DIR}/$GORCH_NAME-$NS-otelExporter-backup.json
+   oc get guardrailsorchestrator $GORCH_NAME -n $NS -o jsonpath='{.spec.otelExporter}' > ${BACKUP_DIR}/$GORCH_NAME-$NS-otelExporter-backup.json
+   cat ${BACKUP_DIR}/$GORCH_NAME-$NS-otelExporter-backup.json
    ```
 
    Example output:
@@ -1802,7 +1802,7 @@ All procedures in this section must be completed before upgrading the Red Hat Op
    Your workbenches are ready to be upgraded if your compatibility check returns with **PASS** or **WARNING** results in the output. A **FAIL** result requires resolution before proceeding to upgrade your workbench.
 
    ```bash
-   $ rhai-cli lint --target-version 3.5 --checks "*notebook*"
+   rhai-cli lint --target-version 3.5 --checks "*notebook*"
    ```
 
    **Example output:**
@@ -1839,7 +1839,7 @@ All procedures in this section must be completed before upgrading the Red Hat Op
 2. Verify that all workbenches eligible for upgrading are in a stopped state across all namespaces with the following command:
 
    ```bash
-   $ oc get notebooks -A -o custom-columns="NAMESPACE:.metadata.namespace,NAME:.metadata.name,RUNNING:.status.readyReplicas,STARTED:.status.containerState.running.startedAt"
+   oc get notebooks -A -o custom-columns="NAMESPACE:.metadata.namespace,NAME:.metadata.name,RUNNING:.status.readyReplicas,STARTED:.status.containerState.running.startedAt"
    ```
 
    **Example output**
@@ -1947,7 +1947,7 @@ rules:
 1. Set CodeFlare to **Removed** in the DataScienceCluster before running the Ray backup:
 
    ```bash
-   $ oc patch datasciencecluster default-dsc --type merge \
+   oc patch datasciencecluster default-dsc --type merge \
        -p '{"spec":{"components":{"codeflare":{"managementState":"Removed"}}}}'
    ```
 
@@ -1957,7 +1957,7 @@ rules:
    Verify:
 
    ```bash
-   $ oc get datasciencecluster default-dsc -o jsonpath='{.spec.components.codeflare.managementState}' && echo
+   oc get datasciencecluster default-dsc -o jsonpath='{.spec.components.codeflare.managementState}' && echo
    ```
 
    Expected output: `Removed`
@@ -1966,7 +1966,7 @@ rules:
    **Note**  
    The migration backs up your Ray cluster CR configuration YAML files only. It does not back up the state of your Ray clusters.  
    ```bash
-   $ rhai-cli migrate run --migration raycluster.backup --target-version 3.5.0
+   rhai-cli migrate run --migration raycluster.backup --target-version 3.5.0
    ```
    The migration runs pre-upgrade checks. If all pre-upgrade checks succeed, then it saves your Ray cluster CR configurations to the following subdirectories under the backup directory:
 
@@ -1977,7 +1977,7 @@ rules:
 3. Get a list of the Ray clusters and check their status:
 
    ```bash
-   $ rhai-cli migrate list --target-version 3.5.0
+   rhai-cli migrate list --target-version 3.5.0
    ```
 
    The output should be similar to the following:
@@ -2156,7 +2156,7 @@ All migration commands must be executed within the **rhai-cli** container, as it
 1. From inside the rhai-cli  container, verify the status of the kserve and modelmesh resources:
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --checks "*modelmesh*"
+   /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --checks "*modelmesh*"
    ```
 
    The command analyzes your cluster configuration and reports any issues that must be resolved before upgrading to OpenShift AI 3.5.
@@ -2209,8 +2209,8 @@ Run this backup command on your local machine, not inside the **rhai-cli** conta
 1. Create the backup directory and back up the **inferenceservice-config** **ConfigMap**:
 
    ```bash
-   $ mkdir -p /tmp/rhoai-upgrade-backup
-   $ oc get configmap inferenceservice-config -n redhat-ods-applications -o yaml > /tmp/rhoai-upgrade-backup/inferenceservice-config-backup.yaml
+   mkdir -p /tmp/rhoai-upgrade-backup
+   oc get configmap inferenceservice-config -n redhat-ods-applications -o yaml > /tmp/rhoai-upgrade-backup/inferenceservice-config-backup.yaml
    ```
 
 **Verification**
@@ -2218,7 +2218,7 @@ Run this backup command on your local machine, not inside the **rhai-cli** conta
 * Verify that  the backup file was created:
 
   ```bash
-  $ ls -lh /tmp/rhoai-upgrade-backup/inferenceservice-config-backup.yaml
+  ls -lh /tmp/rhoai-upgrade-backup/inferenceservice-config-backup.yaml
   ```
 
   The command displays the backup file with its size and timestamp.
@@ -2251,7 +2251,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 1. Identify **Serverless** InferenceServices that need to be converted to RawDeployment:
 
    ```bash
-   $ rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --isvc-deployment-mode serverless
+   rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --isvc-deployment-mode serverless
    ```
 
    Example output when Serverless workloads are found:
@@ -2280,7 +2280,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 2. Preview the conversion without applying changes:
 
    ```bash
-   $ rhai-cli migrate run --migration modelserving.serverless-to-raw --target-version 3.5.0 --dry-run
+   rhai-cli migrate run --migration modelserving.serverless-to-raw --target-version 3.5.0 --dry-run
    ```
 
    The command checks prerequisites and discovers eligible InferenceServices across all namespaces. In dry-run mode, changes are previewed without being applied. 
@@ -2296,7 +2296,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 3. Run the conversion:
 
    ```bash
-   $ rhai-cli migrate run --migration modelserving.serverless-to-raw --target-version 3.5.0
+   rhai-cli migrate run --migration modelserving.serverless-to-raw --target-version 3.5.0
    ```
 
    The command handles resource transformation, authentication resources (ServiceAccount, Role, RoleBinding), and storage credentials automatically across all namespaces.
@@ -2304,7 +2304,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 4. Verify that the converted InferenceServices are ready:
 
    ```bash
-   $ oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
+   oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
    ```
 
    Expected output:
@@ -2322,7 +2322,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    1. Preview what will be deleted:
 
       ```bash
-      $ oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name'
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name'
       ```
 
       Expected output:
@@ -2335,7 +2335,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    2. Delete them:
 
       ```bash
-      $ oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name' | while read -r name; do echo "Deleting  Serverless InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name' | while read -r name; do echo "Deleting  Serverless InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
       ```
 
       Expected output:
@@ -2358,7 +2358,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 1. Identify **ModelMesh** InferenceServices that need to be converted to RawDeployment:
 
    ```bash
-   $ rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --isvc-deployment-mode modelmesh
+   rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*" --isvc-deployment-mode modelmesh
    ```
 
    Sample expected output when ModelMesh workloads are found:
@@ -2386,7 +2386,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 2. Preview the conversion without applying changes:
 
    ```bash
-   $ rhai-cli migrate run --migration modelserving.modelmesh-to-raw --target-version 3.5.0 --dry-run
+   rhai-cli migrate run --migration modelserving.modelmesh-to-raw --target-version 3.5.0 --dry-run
    ```
 
    The command discovers ModelMesh InferenceServices and previews runtime template selection and storage configuration. In dry-run mode, changes are previewed without being applied. 
@@ -2420,7 +2420,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 3. Run the conversion:
 
    ```bash
-   $ rhai-cli migrate run --migration modelserving.modelmesh-to-raw --target-version 3.5.0
+   rhai-cli migrate run --migration modelserving.modelmesh-to-raw --target-version 3.5.0
    ```
 
    The command handles runtime template selection, resource transformation, authentication resources, and storage credentials automatically.
@@ -2445,7 +2445,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 4. Verify that the converted InferenceServices are ready:
 
    ```bash
-   $ oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
+   oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
    ```
 
    Expected output:
@@ -2462,7 +2462,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    1. Preview the ModelMesh InferenceServices that will be deleted:
 
       ```bash
-      $ oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name'
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name'
       ```
 
       Expected output:
@@ -2474,7 +2474,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    2. Delete them:
 
       ```bash
-      $ oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name' | while read -r name; do echo "Deleting ModelMesh InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name' | while read -r name; do echo "Deleting ModelMesh InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
       ```
 
       Expected output:
@@ -2487,7 +2487,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    3. Delete the ModelMesh ServingRuntimes (multi-model runtimes):
 
       ```bash
-      $ oc get servingruntimes.serving.kserve.io -n <namespace> -o json | jq -r '.items[] | select(.spec.multiModel==true) | .metadata.name' | while read -r name; do echo "Deleting ServingRuntime: $name"; oc delete servingruntime "$name" -n <namespace>; done
+      oc get servingruntimes.serving.kserve.io -n <namespace> -o json | jq -r '.items[] | select(.spec.multiModel==true) | .metadata.name' | while read -r name; do echo "Deleting ServingRuntime: $name"; oc delete servingruntime "$name" -n <namespace>; done
       ```
 
       Expected output:
@@ -2512,7 +2512,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 1. Confirm that no **Serverless** or **ModelMesh** InferenceServices remain:
 
    ```bash
-   $ rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*"
+   rhai-cli lint --target-version 3.5 --verbose --checks "*kserve*"
    ```
 
    Expected output:
@@ -2552,7 +2552,7 @@ Update the **inferenceservice-config** **ConfigMap** to apply hardware profiles 
 1. Apply the hardware profiles ignorelist changes:
 
    ```bash
-   $ rhai-cli migrate run --migration modelserving.hardwareprofiles-ignorelist --target-version 3.5.0
+   rhai-cli migrate run --migration modelserving.hardwareprofiles-ignorelist --target-version 3.5.0
    ```
 
 **Verification**
@@ -2560,7 +2560,7 @@ Update the **inferenceservice-config** **ConfigMap** to apply hardware profiles 
 * Verify that the **inferenceservice-config** **ConfigMap** was updated:
 
   ```bash
-  $ oc get configmap inferenceservice-config -n redhat-ods-applications -o yaml | grep "hardware" -B 10
+  oc get configmap inferenceservice-config -n redhat-ods-applications -o yaml | grep "hardware" -B 10
   ```
 
   The ConfigMap displays the updated hardware profiles ignorelist configuration.
@@ -2586,8 +2586,8 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
    **Note**: These commands use the DSC v1 API field names (`modelmeshserving`, `serviceMesh`) because they are run against your OpenShift AI 2.25.9 cluster before upgrade. After upgrading to 3.5, the operator automatically converts to the v2 API.
 
    ```bash
-   $ export DSC_NAME=$(oc get dsc -o jsonpath='{.items[0].metadata.name}')
-   $ oc patch dsc $DSC_NAME --type='merge' -p '{
+   export DSC_NAME=$(oc get dsc -o jsonpath='{.items[0].metadata.name}')
+   oc patch dsc $DSC_NAME --type='merge' -p '{
      "spec": {
        "components": {
          "kserve": {
@@ -2607,8 +2607,8 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
 2. Update the **DSCInitialization** (DSCI) configuration to remove Service Mesh management:
 
    ```bash
-   $ export DSCI_NAME=$(oc get dsci -o jsonpath='{.items[0].metadata.name}')
-   $ oc patch dsci $DSCI_NAME --type='merge' -p '{
+   export DSCI_NAME=$(oc get dsci -o jsonpath='{.items[0].metadata.name}')
+   oc patch dsci $DSCI_NAME --type='merge' -p '{
      "spec": {
        "serviceMesh": {
          "managementState": "Removed"
@@ -2726,7 +2726,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 1. Create the Kuadrant custom resource:
 
    ```bash
-   $ oc apply -f - <<EOF
+   oc apply -f - <<EOF
    apiVersion: kuadrant.io/v1beta1
    kind: Kuadrant
    metadata:
@@ -2738,25 +2738,25 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 2. Wait for Kuadrant to become ready:
 
    ```bash
-   $ oc wait Kuadrant -n kuadrant-system kuadrant --for=condition=Ready --timeout=10m
+   oc wait Kuadrant -n kuadrant-system kuadrant --for=condition=Ready --timeout=10m
    ```
 
 3. Add the **ServingCert** annotation to the Authorino service:
 
    ```bash
-   $ oc annotate svc/authorino-authorino-authorization service.beta.openshift.io/serving-cert-secret-name=authorino-server-cert -n kuadrant-system
+   oc annotate svc/authorino-authorino-authorization service.beta.openshift.io/serving-cert-secret-name=authorino-server-cert -n kuadrant-system
    ```
 
    Wait a few seconds for the annotation to be processed:
 
    ```bash
-   $ sleep 2
+   sleep 2
    ```
 
 4. Update Authorino to enable SSL:
 
    ```bash
-   $ oc apply -f - <<EOF
+   oc apply -f - <<EOF
    apiVersion: operator.authorino.kuadrant.io/v1beta1
    kind: Authorino
    metadata:
@@ -2779,7 +2779,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 5. Verify that the Authorino pods are ready:
 
    ```bash
-   $ oc wait --for=condition=ready pod -l authorino-resource=authorino -n kuadrant-system --timeout=150s
+   oc wait --for=condition=ready pod -l authorino-resource=authorino -n kuadrant-system --timeout=150s
    ```
 
 **Verification**
@@ -2787,7 +2787,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 * Verify the Red Hat Connectivity Link operator is installed and ready:
 
   ```bash
-  $ oc get csv -n kuadrant-system | grep rhcl
+  oc get csv -n kuadrant-system | grep rhcl
   ```
 
   The operator displays a **Succeeded** phase.
@@ -2795,7 +2795,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
   Verify the Kuadrant resource is ready:
 
   ```bash
-  $ oc get kuadrant kuadrant -n kuadrant-system -o jsonpath='{.status.conditions}' | jq
+  oc get kuadrant kuadrant -n kuadrant-system -o jsonpath='{.status.conditions}' | jq
   ```
 
   Expected output showing the Kuadrant resource in **Ready** state:
@@ -2815,7 +2815,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 * Verify Authorino is configured with TLS enabled:
 
   ```bash
-  $ oc get authorino -n kuadrant-system authorino -o jsonpath='{.spec.listener.tls.enabled}'
+  oc get authorino -n kuadrant-system authorino -o jsonpath='{.spec.listener.tls.enabled}'
   ```
 
   The command returns **true**.
@@ -2823,7 +2823,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 * Verify Authorino pods are running:
 
   ```bash
-  $ oc get pods -n kuadrant-system -l authorino-resource=authorino
+  oc get pods -n kuadrant-system -l authorino-resource=authorino
   ```
 
   All Authorino pods display **Running** status with **1/1** ready.
@@ -2859,7 +2859,7 @@ Complete this procedure only if you are running distributed inference in a disco
 2. Create the **wasm-plugin-pull-secret** in the **openshift-ingress** namespace by running the following command:
 
    ```bash
-   $ oc get secret pull-secret -n openshift-config -o json | \
+   oc get secret pull-secret -n openshift-config -o json | \
        jq 'del(.metadata.namespace, .metadata.resourceVersion, .metadata.uid, .metadata.creationTimestamp, .metadata.ownerReferences)' | \
        jq '.metadata.name="wasm-plugin-pull-secret"' | \
        oc apply -n openshift-ingress -f -
@@ -2868,9 +2868,9 @@ Complete this procedure only if you are running distributed inference in a disco
 3. Configure Kuadrant Operator Subscription with mirrored WASM image by running the following command, replacing \<wasm-shim-sha\> with the SHA of the wasm-shim image that you identified in Step 1\.
 
    ```bash
-   $ export MIRROR_REGISTRY="<bastion-mirror-registry>:<bastion-mirror-registry-port>"
-   $ export WASM_IMAGE_DIGEST="<wasm-shim-sha>"
-   $ oc patch subscription rhcl-operator -n kuadrant-system --type=merge -p '{
+   export MIRROR_REGISTRY="<bastion-mirror-registry>:<bastion-mirror-registry-port>"
+   export WASM_IMAGE_DIGEST="<wasm-shim-sha>"
+   oc patch subscription rhcl-operator -n kuadrant-system --type=merge -p '{
      "spec": {
        "config": {
          "env": [
@@ -2891,9 +2891,9 @@ Complete this procedure only if you are running distributed inference in a disco
 4. Configure the Gateway to trust the mirror registry certificate by creating a ConfigMap that injects the WASM\_INSECURE\_REGISTRIES environment variable into the Gateway pod, using the following commands:
 
    ```bash
-   $ export MIRROR_REGISTRY="<bastion-mirror-registry>:<bastion-mirror-registry-port>"
-   $ export GATEWAY_NAME=<your-gateway-name>
-   $ oc apply -f - <<EOF
+   export MIRROR_REGISTRY="<bastion-mirror-registry>:<bastion-mirror-registry-port>"
+   export GATEWAY_NAME=<your-gateway-name>
+   oc apply -f - <<EOF
        apiVersion: v1
        kind: ConfigMap
        metadata:
@@ -2910,7 +2910,7 @@ Complete this procedure only if you are running distributed inference in a disco
                    - name: WASM_INSECURE_REGISTRIES
                      value: ${MIRROR_REGISTRY}
    EOF
-   $ oc patch gateway ${GATEWAY_NAME} -n openshift-ingress --type=merge -p '{"spec":{"infrastructure":{"parametersRef":{"group":"","kind":"ConfigMap","name":"'${GATEWAY_NAME}'-config"}}}}'
+   oc patch gateway ${GATEWAY_NAME} -n openshift-ingress --type=merge -p '{"spec":{"infrastructure":{"parametersRef":{"group":"","kind":"ConfigMap","name":"'${GATEWAY_NAME}'-config"}}}}'
    ```
 
 **Verification**
@@ -2918,7 +2918,7 @@ Complete this procedure only if you are running distributed inference in a disco
 * Verify the RHCL operator subscription includes the mirror registry configuration:
 
   ```bash
-  $ oc get subscription rhcl-operator -n kuadrant-system -o jsonpath='{.spec.config.env}' | jq
+  oc get subscription rhcl-operator -n kuadrant-system -o jsonpath='{.spec.config.env}' | jq
   ```
 
   The output displays your configured wasm-shim image location:
@@ -2956,7 +2956,7 @@ Configure authentication for your **LLMInferenceService** resources to handle se
    If you don't need authentication for your model, disable it by annotating the **LLMInferenceService**:
 
    ```bash
-   $ oc annotate llminferenceservice <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> security.opendatahub.io/enable-auth=false
+   oc annotate llminferenceservice <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> security.opendatahub.io/enable-auth=false
    ```
 
    Replace *\<LLMISVC-NAME\>* with your **LLMInferenceService** name and *\<LLMISVC-NAMESPACE\>* with your project namespace.  
@@ -3009,8 +3009,8 @@ Configure authentication for your **LLMInferenceService** resources to handle se
    Update your client applications to include the **Authorization** header:
 
    ```bash
-   $ TOKEN=$(oc create token my-llmisvc-sa -n <my-project>)
-   $ curl -H "Authorization: Bearer $TOKEN" https://<model-url>/v2/models/...
+   TOKEN=$(oc create token my-llmisvc-sa -n <my-project>)
+   curl -H "Authorization: Bearer $TOKEN" https://<model-url>/v2/models/...
    ```
 
 **Verification**
@@ -3018,7 +3018,7 @@ Configure authentication for your **LLMInferenceService** resources to handle se
 * Verify **LLMInferenceService** resources are ready:
 
   ```bash
-  $ oc get llminferenceservices --all-namespaces
+  oc get llminferenceservices --all-namespaces
   ```
 
   All **LLMInferenceService** resources display a **Ready** status.
@@ -3042,7 +3042,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 1. Pin **LLMInferenceService** configurations to use RHOAI 2.25.9 (and later) templates to prevent scheduler pod failures during upgrade:
 
    ```bash
-   $ oc patch llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> \
+   oc patch llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> \
        --subresource=status \
        --type=merge \
        -p '{ "status": { "annotations": { "serving.kserve.io/config-llm-template": "kserve-config-llm-template", "serving.kserve.io/config-llm-decode-template": "kserve-config-llm-decode-template", "serving.kserve.io/config-llm-worker-data-parallel": "kserve-config-llm-worker-data-parallel", "serving.kserve.io/config-llm-decode-worker-data-parallel": "kserve-config-llm-decode-worker-data-parallel", "serving.kserve.io/config-llm-prefill-template": "kserve-config-llm-prefill-template", "serving.kserve.io/config-llm-prefill-worker-data-parallel": "kserve-config-llm-prefill-worker-data-parallel", "serving.kserve.io/config-llm-scheduler": "kserve-config-llm-scheduler", "serving.kserve.io/config-llm-router-route": "kserve-config-llm-router-route" } } }'
@@ -3088,7 +3088,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 * Verify that the **LLMInferenceService** configuration has been frozen:
 
   ```bash
-  $ oc get llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> -o jsonpath='{.status.annotations}'
+  oc get llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> -o jsonpath='{.status.annotations}'
   ```
 
   The output displays the pinned template annotations.
@@ -3096,7 +3096,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 * Verify that the **LLMInferenceService** migration steps were completed correctly from inside the **rhai-cli** container:
 
   ```bash
-  $ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5
+  /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5
   ```
 
   The command completes without errors and confirms migration readiness.
@@ -3118,7 +3118,7 @@ Verify that all migration prerequisites have been completed and your cluster is 
 1. Perform a comprehensive readiness check from inside the **rhai-cli** container:
 
    ```bash
-   $ /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks "*kserve*" --checks "*modelmesh*"
+   /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks "*kserve*" --checks "*modelmesh*"
    ```
 
    Review the output to determine if your cluster is ready to proceed with the upgrade.
@@ -3159,7 +3159,7 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 
 * Run the following command to get a list of PyTorchJob resources on your OpenShift cluster:  
   ```bash
-  $ oc get pytorchjobs -A
+  oc get pytorchjobs -A
   ```
 
 **Verification**
@@ -3198,7 +3198,7 @@ If you have bookmarked dashboard URLs, you must recreate redirects **after** the
 * You have set the **CodeFlare** component to **Removed** in the DataScienceCluster resource. CodeFlare is removed in OpenShift AI 3.5 and must be disabled before upgrading, even if you have no RayClusters. If you completed the Ray pre-upgrade migration (Section 2.7), you already performed this step. Otherwise, run:
 
   ```bash
-  $ oc patch dsc default-dsc --type=merge \
+  oc patch dsc default-dsc --type=merge \
     -p '{"spec":{"components":{"codeflare":{"managementState":"Removed"}}}}'
   ```
 
@@ -3222,7 +3222,7 @@ If you have bookmarked dashboard URLs, you must recreate redirects **after** the
 
 1. Verify that the Red Hat OpenShift AI 2.25.9 (and later) CSV status shows **Succeeded**.  
    ```bash
-   $ oc get csv -n redhat-ods-operator
+   oc get csv -n redhat-ods-operator
    ```
 
    **Note**  
@@ -3231,8 +3231,8 @@ If you have bookmarked dashboard URLs, you must recreate redirects **after** the
 2. Verify that the **DataScienceCluster** (DSC) and **DSCInitialization** (DSCI) custom resources show a status of **Ready**.
 
    ```bash
-   $ oc get dsc -o custom-columns='NAME:.metadata.name,STATUS:.status.phase'
-   $ oc get dsci -o custom-columns='NAME:.metadata.name,STATUS:.status.phase'
+   oc get dsc -o custom-columns='NAME:.metadata.name,STATUS:.status.phase'
+   oc get dsci -o custom-columns='NAME:.metadata.name,STATUS:.status.phase'
    ```
 
    **Important**  
@@ -3241,7 +3241,7 @@ If you have bookmarked dashboard URLs, you must recreate redirects **after** the
 3. Verify that all operator pods in the operator namespace have a status of **Running** and their **Ready** condition is **True**.
 
    ```bash
-   $ oc get pods -n redhat-ods-operator -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
+   oc get pods -n redhat-ods-operator -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
    ```
 
    **Note**  
@@ -3250,7 +3250,7 @@ If you have bookmarked dashboard URLs, you must recreate redirects **after** the
 4. Verify that all component controller pods in the applications namespace have a status of **Running** and their **Ready** condition is **True**.
 
    ```bash
-   $ oc get pods -n redhat-ods-applications -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
+   oc get pods -n redhat-ods-applications -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
    ```
 
    **Note**  
@@ -3290,7 +3290,7 @@ After preparing your cluster and changing the subscription channel, you must man
    In the following steps, replace \<ossm-version\>  with this value (for example, servicemeshoperator3.v3.1.0):
 
    ```bash
-   $ oc set env deployment/ingress-operator -n openshift-ingress-operator --list \
+   oc set env deployment/ingress-operator -n openshift-ingress-operator --list \
        | grep GATEWAY_API_OPERATOR_VERSION \
        | sed 's/.*=//'
    ```
@@ -3299,7 +3299,7 @@ After preparing your cluster and changing the subscription channel, you must man
    In the following steps  replace \<ossm-channel\> with this value (for example,  stable):
 
    ```bash
-   $ oc set env deployment/ingress-operator -n openshift-ingress-operator --list \
+   oc set env deployment/ingress-operator -n openshift-ingress-operator --list \
        | grep GATEWAY_API_OPERATOR_CHANNEL \
        | sed 's/.*=//'
    ```
@@ -3310,7 +3310,7 @@ After preparing your cluster and changing the subscription channel, you must man
    1. Create the ImageSetConfiguration. Replace \<ocp-version\>, \<ossm-version\> and \<ossm-channel\> with your values:
 
       ```bash
-      $ cat > imageset-config.yaml <<EOF
+      cat > imageset-config.yaml <<EOF
       apiVersion: mirror.openshift.io/v2alpha1
       kind: ImageSetConfiguration
       mirror:
@@ -3332,7 +3332,7 @@ After preparing your cluster and changing the subscription channel, you must man
       
 
       ```bash
-      $ oc-mirror --v2 --config=imageset-config.yaml \
+      oc-mirror --v2 --config=imageset-config.yaml \
           --workspace file://oc-mirror-workspace \
           docker://<mirror-registry>
       ```
@@ -3344,7 +3344,7 @@ After preparing your cluster and changing the subscription channel, you must man
       If CatalogSource redhat-operators doesn’t exist on the cluster, change the name of the CatalogSource generated by oc-mirror to redhat-operators and apply the generated cluster resources so that  the cluster is aware of the mirrored content: 
 
    ```bash
-   $ oc apply -f oc-mirror-workspace/working-dir/cluster-resources/
+   oc apply -f oc-mirror-workspace/working-dir/cluster-resources/
    ```
 
    
@@ -3352,7 +3352,7 @@ After preparing your cluster and changing the subscription channel, you must man
    **d.** Verify that the required version of OSSM is available in the required channel in the mirrored CatalogSource named redhat-operators:
 
    ```bash
-   $ oc get packagemanifest -o json | jq '.items[] | select (.metadata.name == "servicemeshoperator3" and .status.catalogSource == "redhat-operators") | .status.channels[] | select (.name == "<ossm-channel>") | .entries[].name'
+   oc get packagemanifest -o json | jq '.items[] | select (.metadata.name == "servicemeshoperator3" and .status.catalogSource == "redhat-operators") | .status.channels[] | select (.name == "<ossm-channel>") | .entries[].name'
    ```
 
    
@@ -3362,27 +3362,27 @@ After preparing your cluster and changing the subscription channel, you must man
 5. **FBC (File-Based Catalog) environments only:** If you installed Red Hat OpenShift AI using a custom FBC CatalogSource (for example, for pre-release testing), you must update the CatalogSource image to the target version before switching channels. The source FBC fragment only contains channels up to the source version.
 
    ```bash
-   $ oc patch catalogsource <catalog-name> -n openshift-marketplace \
+   oc patch catalogsource <catalog-name> -n openshift-marketplace \
      --type=merge -p '{"spec":{"image":"<target-fbc-fragment-image>"}}'
    ```
 
    Delete the catalog pod to force OLM to rebuild its cache. Without this step, OLM may serve stale channel data even after the CatalogSource reports READY:
 
    ```bash
-   $ oc delete pod -n openshift-marketplace -l olm.catalogSource=<catalog-name>
+   oc delete pod -n openshift-marketplace -l olm.catalogSource=<catalog-name>
    ```
 
    Wait for the CatalogSource to reach **READY** state:
 
    ```bash
-   $ oc get catalogsource <catalog-name> -n openshift-marketplace \
+   oc get catalogsource <catalog-name> -n openshift-marketplace \
      -o jsonpath='{.status.connectionState.lastObservedState}'
    ```
 
    Verify that the **support-required-upgrade-3.5** channel is now available. If your cluster also has the default **redhat-operators** CatalogSource, you must query the packagemanifest from your custom FBC CatalogSource specifically, because `oc get packagemanifest` may return data from **redhat-operators** by default:
 
    ```bash
-   $ oc get packagemanifest -n openshift-marketplace -o json | \
+   oc get packagemanifest -n openshift-marketplace -o json | \
        jq -r '.items[] | select(.metadata.name == "rhods-operator" and
        .status.catalogSource == "<catalog-name>") |
        .status.channels[].name' | grep support
@@ -3422,13 +3422,13 @@ After preparing your cluster and changing the subscription channel, you must man
    1. Create a dedicated namespace:
 
       ```bash
-      $ oc create namespace jobset-system
+      oc create namespace jobset-system
       ```
 
    2. Create an **OwnNamespace** OperatorGroup:
 
       ```bash
-      $ oc apply -f - <<'EOF'
+      oc apply -f - <<'EOF'
       apiVersion: operators.coreos.com/v1
       kind: OperatorGroup
       metadata:
@@ -3443,7 +3443,7 @@ After preparing your cluster and changing the subscription channel, you must man
    3. Subscribe to the operator:
 
       ```bash
-      $ oc apply -f - <<'EOF'
+      oc apply -f - <<'EOF'
       apiVersion: operators.coreos.com/v1alpha1
       kind: Subscription
       metadata:
@@ -3461,7 +3461,7 @@ After preparing your cluster and changing the subscription channel, you must man
    4. Wait for the CSV to reach **Succeeded**:
 
       ```bash
-      $ oc wait csv jobset-operator.v1.0.0 -n jobset-system \
+      oc wait csv jobset-operator.v1.0.0 -n jobset-system \
         --for=jsonpath='{.status.phase}'=Succeeded --timeout=120s
       ```
 
@@ -3471,7 +3471,7 @@ After preparing your cluster and changing the subscription channel, you must man
    5. Create the **JobSetOperator** custom resource to deploy the operand. This installs the `jobsets.jobset.x-k8s.io` CRD that Kueue requires:
 
       ```bash
-      $ oc apply -f - <<'EOF'
+      oc apply -f - <<'EOF'
       apiVersion: operator.openshift.io/v1
       kind: JobSetOperator
       metadata:
@@ -3486,8 +3486,8 @@ After preparing your cluster and changing the subscription channel, you must man
    6. Verify that the CRD exists and KueueReady is True:
 
       ```bash
-      $ oc get crd jobsets.jobset.x-k8s.io
-      $ oc get dsc -o jsonpath='{.items[0].status.conditions[?(@.type=="KueueReady")].status}' && echo
+      oc get crd jobsets.jobset.x-k8s.io
+      oc get dsc -o jsonpath='{.items[0].status.conditions[?(@.type=="KueueReady")].status}' && echo
       ```
 
       Expected output: the CRD is listed and KueueReady shows **True**.
@@ -3495,13 +3495,13 @@ After preparing your cluster and changing the subscription channel, you must man
 14. Verify that the rhai-cli pod has cluster access for post-upgrade commands. The service account ClusterRoleBinding may need to be re-applied after the upgrade:
 
    ```bash
-   $ oc auth can-i list csv -A --as=system:serviceaccount:rhai-migration:default
+   oc auth can-i list csv -A --as=system:serviceaccount:rhai-migration:default
    ```
 
    If the output is **no**, restore the ClusterRoleBinding:
 
    ```bash
-   $ oc adm policy add-cluster-role-to-user cluster-admin -z default -n rhai-migration
+   oc adm policy add-cluster-role-to-user cluster-admin -z default -n rhai-migration
    ```
 
    **Note**  
@@ -3530,8 +3530,8 @@ After the upgrade process finishes, you must verify that the environment is stab
 1. Confirm that the **DataScienceCluster** (DSC) and **DSCInitialization** (DSCI) resources are in a **Ready** state.
 
    ```bash
-   $ oc get dsc -o custom-columns='NAME:.metadata.name,STATUS:.status.phase'
-   $ oc get dsci -o custom-columns='NAME:.metadata.name,STATUS:.status.phase'
+   oc get dsc -o custom-columns='NAME:.metadata.name,STATUS:.status.phase'
+   oc get dsci -o custom-columns='NAME:.metadata.name,STATUS:.status.phase'
    ```
 
    **Note**  
@@ -3545,19 +3545,19 @@ After the upgrade process finishes, you must verify that the environment is stab
 1. Verify that all Operator pods in the Operator namespace have **Status** equal to **Running** and their condition **Ready** is **True\`**.
 
    ```bash
-   $ oc get pods -n redhat-ods-operator -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
+   oc get pods -n redhat-ods-operator -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
    ```
 
 2. Verify that all component controller pods in the applications namespace have **Status** equal to **Running** and their condition **Ready** is **True**.
 
    ```bash
-   $ oc get pods -n redhat-ods-applications -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
+   oc get pods -n redhat-ods-applications -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
    ```
 
 3. Verify that the RHOAI gateway is ready:
 
    ```bash
-   $ oc get gatewayconfigs --all-namespaces -o wide
+   oc get gatewayconfigs --all-namespaces -o wide
    ```
 
    Expected output is: default-gateway shows READY: True
@@ -3677,8 +3677,8 @@ In OpenShift AI version 3.x, the dashboard navigation changed from **Models \> m
 
    You can also get more information on a specific pod if needed by using the following commands:  
    ```bash
-   $ oc logs <my-model-catalog-pod-name> -n rhoai-model-registries -c catalog
-   $ oc logs <my-model-registry-pod-name> -n rhoai-model-registries -c <my-container-name>
+   oc logs <my-model-catalog-pod-name> -n rhoai-model-registries -c catalog
+   oc logs <my-model-registry-pod-name> -n rhoai-model-registries -c <my-container-name>
    ```
 
 3. In the OpenShift AI dashboard, click **Settings \> Model resources and operations \> AI registry settings** to check the status of your model registries. For more information, see [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_model_registries).
@@ -3729,7 +3729,7 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
 
 1. As an OpenShift AI administrator, run the following command in a terminal to check that the Feature Store operator pod (**feast-operator-controller-manager**) is in the **Running** state:  
    ```bash
-   $ oc get pods -n redhat-ods-applications | grep feast-operator
+   oc get pods -n redhat-ods-applications | grep feast-operator
    ```
 
    Example output:  
@@ -3741,7 +3741,7 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
 2. As an OpenShift AI administrator, get a list of all Feature Store instances on the cluster and verify that each Feature Store instance is in the **Ready** state:
 
    ```bash
-   $ oc get featurestores --all-namespaces
+   oc get featurestores --all-namespaces
    ```
 
    ```bash
@@ -3759,13 +3759,13 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
 
 1. List CronJobs for the namespace that has a Feature Store instance by running the following command and replacing **\<namespace\>** with the name of the namespace:  
    ```bash
-   $ oc get cronjobs -n <namespace>
+   oc get cronjobs -n <namespace>
    ```
 
    For example:
 
    ```bash
-   $ oc get cronjobs -n project-alpha
+   oc get cronjobs -n project-alpha
    ```
 
    Example output:
@@ -3777,13 +3777,13 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
 
 2. Create a Job by running the following command. Replace **\<job-name\>** with the name of the job and replace **\<cronjob-name\>** with the name of a CronJob output from the previous step:  
    ```bash
-   $ oc create job <job-name> --from=cronjob/<cronjob-name> -n <namespace>
+   oc create job <job-name> --from=cronjob/<cronjob-name> -n <namespace>
    ```
 
    For example:
 
    ```bash
-   $ oc create job postupgradetest --from=cronjob/feast-sample-git -n project-alpha
+   oc create job postupgradetest --from=cronjob/feast-sample-git -n project-alpha
    ```
 
    Example output:
@@ -3794,13 +3794,13 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
 
 3. Check that the CronJob for the Feature Store instance ran the Job successfully. View a list of jobs and their status by running the following command:  
    ```bash
-   $ oc get jobs -n <namespace>
+   oc get jobs -n <namespace>
    ```
 
    For example:
 
    ```bash
-   $ oc get jobs -n project-alpha
+   oc get jobs -n project-alpha
    ```
 
    The output should indicate that the job is running or completed, as shown in the following   
@@ -3877,14 +3877,14 @@ After upgrading to OpenShift AI 3.5, confirm that the AI Pipelines platform is h
 1. Verify that the pre-upgrade state file exists:
 
    ```bash
-   $ ls -la /tmp/rhoai-upgrade-backup/ai_pipelines/dspa_pre_upgrade_pods.json
+   ls -la /tmp/rhoai-upgrade-backup/ai_pipelines/dspa_pre_upgrade_pods.json
    ```
 
    If the file does not exist, the `migrate prepare` step in [AI Pipelines - Before upgrade](#2.4.-ai-pipelines---before-upgrade) was not run before the upgrade. In this case, skip the automated comparison in step 2 and manually verify DSPA health:
 
    ```bash
-   $ oc get dspa -A
-   $ oc get pods -n <dspa-namespace> | grep ds-pipeline
+   oc get dspa -A
+   oc get pods -n <dspa-namespace> | grep ds-pipeline
    ```
 
    Confirm that all pipeline server pods are **Running** with all containers ready, then skip to step 3.
@@ -3892,7 +3892,7 @@ After upgrading to OpenShift AI 3.5, confirm that the AI Pipelines platform is h
 2. Run the AI Pipelines post-upgrade check action:
 
    ```bash
-   $ rhai-cli migrate run --migration ai-pipelines.post-upgrade-check --target-version 3.5.0
+   rhai-cli migrate run --migration ai-pipelines.post-upgrade-check --target-version 3.5.0
    ```
 
    This command compares post-upgrade pod state against the baseline saved by `migrate prepare` during [AI Pipelines - Before upgrade](#2.4.-ai-pipelines---before-upgrade).
@@ -3976,13 +3976,13 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
 1. Verify that you set the backup directory:
 
    ```bash
-   $ export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
+   export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
    ```
 
 3. Check that the TrustyAI Operator is healthy:
 
    ```bash
-   $ oc wait --for=condition=Available deployment/trustyai-service-operator-controller-manager -n redhat-ods-applications --timeout=120s
+   oc wait --for=condition=Available deployment/trustyai-service-operator-controller-manager -n redhat-ods-applications --timeout=120s
    ```
 
    Expected output:
@@ -3996,13 +3996,13 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
    If the command fails with a timeout error, inspect the Operator pod for more details:
 
    ```bash
-   $ oc get pods -n redhat-ods-applications -l control-plane=controller-manager -o wide
+   oc get pods -n redhat-ods-applications -l control-plane=controller-manager -o wide
    ```
 
 4. List the namespaces for which you have backups:
 
    ```bash
-   $ ls ${BACKUP_DIR}/trustyai-metrics-*.json 2>/dev/null \
+   ls ${BACKUP_DIR}/trustyai-metrics-*.json 2>/dev/null \
      | sed 's|.*/trustyai-metrics-||;s|-[0-9]\{8\}-[0-9]\{6\}\.json||' \
      | sort -u
    ```
@@ -4019,16 +4019,16 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
 5. For each namespace that has a backup, check whether data was lost:
 
    ```bash
-   $ export NS=<namespace>
-   $ export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
-   $ export SVC_PORT=$(oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
-   $ oc port-forward -n "$NS" "svc/$TAS_NAME" 8080:${SVC_PORT} &
-   $ export PF_PID=$!
-   $ export CURRENT=$(curl -sk -H "Authorization: Bearer $(oc whoami -t)" \
+   export NS=<namespace>
+   export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
+   export SVC_PORT=$(oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
+   oc port-forward -n "$NS" "svc/$TAS_NAME" 8080:${SVC_PORT} &
+   export PF_PID=$!
+   export CURRENT=$(curl -sk -H "Authorization: Bearer $(oc whoami -t)" \
      "http://localhost:8080/metrics/all/requests" | jq '.requests | length')
-   $ export BACKUP=$(jq '.requests | length' "$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)")
-   $ kill $PF_PID 2>/dev/null
-   $ echo "Current: $CURRENT | Backup: $BACKUP"
+   export BACKUP=$(jq '.requests | length' "$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)")
+   kill $PF_PID 2>/dev/null
+   echo "Current: $CURRENT | Backup: $BACKUP"
    [ "$CURRENT" -ge "$BACKUP" ] && echo "OK: no data loss" || echo "DATA LOSS: restore needed"
    ```
 
@@ -4053,7 +4053,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
 1. Get a list of the namespaces that contain the TrustyAI Guardrails Orchestrator service:
 
    ```bash
-   $ oc get guardrailsorchestrator -A
+   oc get guardrailsorchestrator -A
    ```
 
    Example output:
@@ -4071,7 +4071,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
 2. Check whether **GuardrailsOrchestrator** deployments are missing the ReadinessProbe:
 
    ```bash
-   $ rhai-cli migrate run --migration trustyai.patch-guardrails --target-version 3.5.0 --dry-run
+   rhai-cli migrate run --migration trustyai.patch-guardrails --target-version 3.5.0 --dry-run
    ```
 
    **Note**  
@@ -4092,7 +4092,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    1. Patch the **GuardrailsOrchestrator** deployments:
 
       ```bash
-      $ rhai-cli migrate run --migration trustyai.patch-guardrails --target-version 3.5.0
+      rhai-cli migrate run --migration trustyai.patch-guardrails --target-version 3.5.0
       ```
 
       **Note**  
@@ -4124,7 +4124,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
 3. Check whether **GuardrailsOrchestrator** CRs are exporting traces and metrics:
 
    ```bash
-   $ rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0 --dry-run
+   rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0 --dry-run
    ```
 
    **Note**  
@@ -4151,15 +4151,15 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
 4. Run the migration that patches the existing **GuardrailsOrchestrator** deployments by updating the keys under **spec.otelExporter**:
 
    ```bash
-   $ rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0
+   rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0
    ```
 
 5. Query the **/info** endpoint of the **GuardrailsOrchestrator** service:
 
    ```bash
-   $ export GORCH_NAME=<gorch-name>
-   $ export GORCH_ROUTE_HEALTH=$(oc get routes -n $NS "${GORCH_NAME}-health" -o jsonpath='{.spec.host}')
-   $ curl -sSk "https://${GORCH_ROUTE_HEALTH}/info" -H "Authorization: Bearer $(oc whoami -t)" | jq .
+   export GORCH_NAME=<gorch-name>
+   export GORCH_ROUTE_HEALTH=$(oc get routes -n $NS "${GORCH_NAME}-health" -o jsonpath='{.spec.host}')
+   curl -sSk "https://${GORCH_ROUTE_HEALTH}/info" -H "Authorization: Bearer $(oc whoami -t)" | jq .
    ```
 
 **Verification**
@@ -4207,13 +4207,13 @@ Follow these steps for each namespace that lost data:
 1. Set the backup directory:
 
    ```bash
-   $ export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
+   export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
    ```
 
 2. Verify that you have a backup for the namespace:
 
    ```bash
-   $ ls ${BACKUP_DIR}/trustyai-metrics-*.json 2>/dev/null \
+   ls ${BACKUP_DIR}/trustyai-metrics-*.json 2>/dev/null \
      | sed 's|.*/trustyai-metrics-||;s|-[0-9]\{8\}-[0-9]\{6\}\.json||' \
      | sort -u
    ```
@@ -4230,14 +4230,14 @@ Follow these steps for each namespace that lost data:
 3. Run the following command to set the namespace, by replacing \<namespace\> with a namespace that lost data:
 
    ```bash
-   $ export NS=<namespace>
+   export NS=<namespace>
    ```
 
 4. Get the TrustyAIService name:
 
    ```bash
-   $ export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
-   $ echo "TAS_NAME=$TAS_NAME"
+   export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
+   echo "TAS_NAME=$TAS_NAME"
    ```
 
    The command should print the TrustyAIService name, as shown in the following example output:
@@ -4252,7 +4252,7 @@ Follow these steps for each namespace that lost data:
 5. Verify that TrustyAIService is running:
 
    ```bash
-   $ oc get trustyaiservice -n "$NS" "$TAS_NAME" -o jsonpath='{.status.phase}'
+   oc get trustyaiservice -n "$NS" "$TAS_NAME" -o jsonpath='{.status.phase}'
    ```
 
    Example output:
@@ -4267,7 +4267,7 @@ Follow these steps for each namespace that lost data:
 6. Run the following command:
 
    ```bash
-   $ oc wait --for=jsonpath='{.status.phase}'=Ready trustyaiservice/"$TAS_NAME" -n "$NS" --timeout=300s
+   oc wait --for=jsonpath='{.status.phase}'=Ready trustyaiservice/"$TAS_NAME" -n "$NS" --timeout=300s
    ```
 
    Example output:
@@ -4279,13 +4279,13 @@ Follow these steps for each namespace that lost data:
    If the wait times out, the TrustyAIService might not be healthy. Check its status:
 
    ```bash
-   $ oc describe trustyaiservice "$TAS_NAME" -n "$NS"
+   oc describe trustyaiservice "$TAS_NAME" -n "$NS"
    ```
 
 7. Find the backup file for this namespace:
 
    ```bash
-   $ ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1
+   ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1
    ```
 
    If the output provides a file path, continue to the next step.  
@@ -4294,8 +4294,8 @@ Follow these steps for each namespace that lost data:
 8. Set the backup file path:
 
    ```bash
-   $ export BACKUP_FILE=$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)
-   $ echo "BACKUP_FILE=$BACKUP_FILE"
+   export BACKUP_FILE=$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)
+   echo "BACKUP_FILE=$BACKUP_FILE"
    ```
 
    The command should print the backup file path, as shown in the following example output:
@@ -4307,7 +4307,7 @@ Follow these steps for each namespace that lost data:
 9. Get the number of metrics that are in the backup:
 
    ```bash
-   $ jq '.requests | length' "$BACKUP_FILE"
+   jq '.requests | length' "$BACKUP_FILE"
    ```
 
    Example output:
@@ -4322,7 +4322,7 @@ Follow these steps for each namespace that lost data:
 10. Find the TrustyAI route and its label:
 
     ```bash
-    $ export ROUTE_LABEL=$(oc get route -n "$NS" -o json | jq -r --arg tas "$TAS_NAME" '
+    export ROUTE_LABEL=$(oc get route -n "$NS" -o json | jq -r --arg tas "$TAS_NAME" '
         .items[] | select(.spec.to.name==$tas)
         | (.metadata.labels // {}) as $l
         | if $l["trustyai-service-name"] then "trustyai-service-name=\($l["trustyai-service-name"])"
@@ -4330,7 +4330,7 @@ Follow these steps for each namespace that lost data:
           elif $l["app"] then "app=\($l["app"])"
           else empty end
       ' | head -1)
-    $ echo "ROUTE_LABEL=$ROUTE_LABEL"
+    echo "ROUTE_LABEL=$ROUTE_LABEL"
     ```
 
     The output should be a label selector, as shown in the following example. Continue to Step 9\.
@@ -4346,7 +4346,7 @@ Follow these steps for each namespace that lost data:
 11. Find the route label:
 
     ```bash
-    $ oc get route -n "$NS" --show-labels
+    oc get route -n "$NS" --show-labels
     ```
 
     Example output:
@@ -4360,13 +4360,13 @@ Follow these steps for each namespace that lost data:
 12. Set the route label by replacing **\<label\_key\>=\<label\_value\>:** with your **TrustyAI service label pair:**
 
     ```bash
-    $ export ROUTE_LABEL='<label_key>=<label_value>'
+    export ROUTE_LABEL='<label_key>=<label_value>'
     ```
 
     For example:
 
     ```bash
-    $ export ROUTE_LABEL=trustyai-service-name=trustyai-service
+    export ROUTE_LABEL=trustyai-service-name=trustyai-service
     ```
 
     IMPORTANT: Ensure the route label that you specify belongs to the trustyai-service and is not a route that belongs to any other services or models.
@@ -4376,7 +4376,7 @@ Follow these steps for each namespace that lost data:
 13. Dry-run the restore:
 
     ```bash
-    $ rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run
+    rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run
     ```
 
     Example output:
@@ -4419,7 +4419,7 @@ Follow these steps for each namespace that lost data:
 14. Run the restore:
 
     ```bash
-    $ rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0
+    rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0
     ```
 
 **Verification**
@@ -4444,7 +4444,7 @@ Follow these steps for each namespace that lost data:
 * Verify that the restore count matches the backup:
 
   ```bash
-  $ rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run 2>&1 | tail -5
+  rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run 2>&1 | tail -5
   ```
 
   The **Current scheduled metrics** count should be greater than or equal to the backup count from Step 8 in the procedure.
@@ -4475,7 +4475,7 @@ You can investigate and resolve the GPU deadlock.
 1. To determine the namespace where a potential GPU deadlock occurs:
 
    ```bash
-   $ oc get pods -A | grep predictor
+   oc get pods -A | grep predictor
    ```
 
    Example output:
@@ -4501,7 +4501,7 @@ You can investigate and resolve the GPU deadlock.
    1. Check for GPU deadlocks across the cluster:
 
       ```bash
-      $ rhai-cli migrate run --migration trustyai.break-gpu-deadlock --target-version 3.5.0 --dry-run
+      rhai-cli migrate run --migration trustyai.break-gpu-deadlock --target-version 3.5.0 --dry-run
       ```
 
       **Note**  
@@ -4525,7 +4525,7 @@ You can investigate and resolve the GPU deadlock.
    2. To fix the deadlocked GPU-based inference services, you can manually delete an older pod or you can run the migration:
 
       ```bash
-      $ rhai-cli migrate run --migration trustyai.break-gpu-deadlock --target-version 3.5.0
+      rhai-cli migrate run --migration trustyai.break-gpu-deadlock --target-version 3.5.0
       ```
 
       **Note**  
@@ -4534,7 +4534,7 @@ You can investigate and resolve the GPU deadlock.
    3. Get the pod list:
 
       ```bash
-      $ oc get pods -n $NS | grep predictor
+      oc get pods -n $NS | grep predictor
       ```
 
       Example output:
@@ -4573,7 +4573,7 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
 1. Verify that the ODH **Notebook Controller** components are updated and running by using the following command:
 
    ```bash
-   $ oc get Deployment --namespace redhat-ods-applications odh-notebook-controller-manager notebook-controller-deployment
+   oc get Deployment --namespace redhat-ods-applications odh-notebook-controller-manager notebook-controller-deployment
    ```
 
    **Example output**
@@ -4588,7 +4588,7 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
 
 
    ```bash
-   $ rhai-cli migrate run --migration workbenches.patch-auth-model --target-version 3.5.0 --only-stopped --with-cleanup
+   rhai-cli migrate run --migration workbenches.patch-auth-model --target-version 3.5.0 --only-stopped --with-cleanup
    ```
 
    **Note**
@@ -4612,7 +4612,7 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
 
 
    ```bash
-   $ rhai-cli migrate run --migration workbenches.verify-migration --target-version 3.5.0
+   rhai-cli migrate run --migration workbenches.verify-migration --target-version 3.5.0
    ```
 
    As the command runs, it provides output that indicates the status of your workbench upgrade. When the command completes, you should see a message similar to the following:  
@@ -4691,7 +4691,7 @@ The commands in the following procedure include an optional **\--dry-run** argum
 1. List the Ray clusters on your OpenShift cluster:
 
    ```bash
-   $ rhai-cli migrate list --target-version 3.5.0
+   rhai-cli migrate list --target-version 3.5.0
    ```
 
    The status of all Ray clusters is **NEEDS MIGRATION** as shown in the following example output:
@@ -4715,7 +4715,7 @@ The commands in the following procedure include an optional **\--dry-run** argum
 * **Migrate a single Ray cluster**  
 
   ```bash
-  $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-cluster my-cluster --raycluster-namespace my-namespace [[--dry-run]]
+  rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-cluster my-cluster --raycluster-namespace my-namespace [[--dry-run]]
   ```
 
   Example output:
@@ -4772,13 +4772,13 @@ The commands in the following procedure include an optional **\--dry-run** argum
 * **Migrate all Ray clusters in a namespace**  
 
   ```bash
-  $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-namespace my-namespace [[--dry-run]]
+  rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-namespace my-namespace [[--dry-run]]
   ```
 
 * **Migrate all Ray clusters on your OpenShift cluster**  
 
   ```bash
-  $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 [[--dry-run]]
+  rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 [[--dry-run]]
   ```
 
 3. Make a note of the Dashboard URL that is output by the migration command. Share this URL with users that want to access the Ray cluster.
@@ -4790,7 +4790,7 @@ The commands in the following procedure include an optional **\--dry-run** argum
 2. List the migration status of all Ray clusters:
 
    ```bash
-   $ rhai-cli migrate list --target-version 3.5.0
+   rhai-cli migrate list --target-version 3.5.0
    ```
 
    Example output:
@@ -4881,19 +4881,19 @@ Resolve any issues and then run the migration command again. Optionally, you can
      * Recover a single Ray cluster from backup (**\--dry-run** optional)  
 
        ```bash
-       $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x --raycluster-cluster my-cluster --raycluster-namespace my-namespace [[--dry-run]]
+       rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x --raycluster-cluster my-cluster --raycluster-namespace my-namespace [[--dry-run]]
        ```
 
      * Recover all Ray clusters from one namespace from backup (**\--dry-run** optional)  
 
        ```bash
-       $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x --raycluster-namespace my-namespace [[--dry-run]]
+       rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x --raycluster-namespace my-namespace [[--dry-run]]
        ```
 
      * Recover all Ray clusters on the OpenShift cluster from backup (**\--dry-run** optional)  
 
        ```bash
-       $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x [[--dry-run]]
+       rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x [[--dry-run]]
        ```
 
        The **\--raycluster-from-backup $BACKUP\_DIR/rhoai-3.x** argument instructs the command to delete the Ray clusters from your OpenShift cluster and then recreate them from the files in the **rhoai-3.x** backup directory.
@@ -4901,7 +4901,7 @@ Resolve any issues and then run the migration command again. Optionally, you can
        For example:
 
        ```bash
-       $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x
+       rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x
        ```
 
      * Example output:
@@ -5045,7 +5045,7 @@ If you were managing a customized **inferenceservice-config** **ConfigMap** manu
 
 1. Run the following command to reset the **inferenceservice-config** **ConfigMap** back to **managed=true** and restart the KServe controller:  
    ```bash
-   $ rhai-cli migrate run --migration modelserving.managed-isvc-config --target-version 3.5.0
+   rhai-cli migrate run --migration modelserving.managed-isvc-config --target-version 3.5.0
    ```
 
 2. Verify that **InferenceServices** were not redeployed by checking that each **InferenceService** has only one **ReplicaSet** with no old scaled-down **ReplicaSets** from a redeployment:
@@ -5053,13 +5053,13 @@ If you were managing a customized **inferenceservice-config** **ConfigMap** manu
    1. List the namespaces that have InferenceServices:
 
       ```bash
-      $ oc get isvc -A
+      oc get isvc -A
       ```
 
    2. For each namespace that has an InferenceService:
 
       ```bash
-      $ oc get replicasets -n <namespace> -o custom-columns=NAME:.metadata.name,CREATED:.metadata.creationTimestamp,REPLICAS:.status.replicas
+      oc get replicasets -n <namespace> -o custom-columns=NAME:.metadata.name,CREATED:.metadata.creationTimestamp,REPLICAS:.status.replicas
       ```
 
 **Verification**
@@ -5075,7 +5075,7 @@ Verify that the upgrade to Red Hat OpenShift AI 3.5 completed successfully and t
 1. Verify the KServe controller is running and ready:
 
    ```bash
-   $ oc get pods -n redhat-ods-applications -l control-plane=kserve-controller-manager
+   oc get pods -n redhat-ods-applications -l control-plane=kserve-controller-manager
    ```
 
    Expected output:
@@ -5088,7 +5088,7 @@ Verify that the upgrade to Red Hat OpenShift AI 3.5 completed successfully and t
 2. Verify the ODH Model Controller is running and ready:
 
    ```bash
-   $ oc get pods -n redhat-ods-applications -l control-plane=odh-model-controller
+   oc get pods -n redhat-ods-applications -l control-plane=odh-model-controller
    ```
 
    Expected output:
@@ -5101,7 +5101,7 @@ Verify that the upgrade to Red Hat OpenShift AI 3.5 completed successfully and t
 3. Verify all **InferenceServices** are using **RawDeployment** mode and are ready:
 
    ```bash
-   $ oc get isvc -A -o json | jq -r '["NAMESPACE","NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.namespace, .metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
+   oc get isvc -A -o json | jq -r '["NAMESPACE","NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.namespace, .metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
    ```
 
    Sample expected output:
@@ -5118,7 +5118,7 @@ Verify that the upgrade to Red Hat OpenShift AI 3.5 completed successfully and t
 4. If you have **LLMInferenceService** resources, verify their status:
 
    ```bash
-   $ oc get llminferenceservices --all-namespaces
+   oc get llminferenceservices --all-namespaces
    ```
 
    Sample expected output:
@@ -5182,7 +5182,7 @@ If you are not using the Serverless Operator outside of OpenShift AI use cases, 
 
 2. Delete the **knative-serving** namespace:  
    ```bash
-   $ oc delete namespace knative-serving
+   oc delete namespace knative-serving
    ```
 
 #####  **4.9.2.2.4. Authorino Operator not removed** {#4.9.2.2.4.-authorino-operator-not-removed}
@@ -5261,12 +5261,12 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 
 
   ```bash
-  $ oc auth can-i create namespaces -A
-  $ oc auth can-i delete namespaces -A
-  $ oc auth can-i create pytorchjobs -A
-  $ oc auth can-i delete pytorchjobs -A
-  $ oc auth can-i create pods -A
-  $ oc auth can-i watch pods -A
+  oc auth can-i create namespaces -A
+  oc auth can-i delete namespaces -A
+  oc auth can-i create pytorchjobs -A
+  oc auth can-i delete pytorchjobs -A
+  oc auth can-i create pods -A
+  oc auth can-i watch pods -A
   ```
 
 * You generated a list of PyTorchJob resources on your OpenShift cluster before you upgraded from OpenShift AI 2.25.9 (and later) to 3.5.
@@ -5283,7 +5283,7 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 
 1. Run the following command to get a list of PyTorchJob resources on your OpenShift cluster:  
    ```bash
-   $ oc get pytorchjobs -A
+   oc get pytorchjobs -A
    ```
 
    Example output:  
@@ -5301,7 +5301,7 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 2. Verify training workloads by running the **rhai-cli** training verification action:
 
    ```bash
-   $ rhai-cli migrate run --migration training.verify-workloads --target-version 3.5.0
+   rhai-cli migrate run --migration training.verify-workloads --target-version 3.5.0
    ```
 
    **Note**  
@@ -5325,14 +5325,14 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 * If a PyTorchJob is in a failed state, it likely indicates a failure of the job itself rather than a failed upgrade. You can get details about the job by running the following command:  
 
   ```bash
-  $ oc describe pytorchjobs {job_name} -n {namespace_name}
+  oc describe pytorchjobs {job_name} -n {namespace_name}
   ```
 
 * If KFTO does not start:
 
   1. View the **DataScienceCluster** (DSC) state by running the following command:  
      ```bash
-     $ oc describe dsc
+     oc describe dsc
      ```
 
   2. Scroll to the bottom of the resulting output to check the **Conditions** section for information about the issue.
@@ -5340,7 +5340,7 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 * If KFTO starts but PyTorchJobs are not reconciled, you can inspect the KFTO log by running the following command:  
 
   ```bash
-  $ oc logs -l app.kubernetes.io/name=trainer -n redhat-ods-applications --tail=-1
+  oc logs -l app.kubernetes.io/name=trainer -n redhat-ods-applications --tail=-1
   ```
 
 # **5\. Clean up** {#5.-clean-up}
@@ -5348,8 +5348,8 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 Cleanup
 
 ```bash
-$ oc delete statefulset rhai-cli -n <namespace>
-$ oc delete pvc backup-rhai-cli-0 -n <namespace>
+oc delete statefulset rhai-cli -n <namespace>
+oc delete pvc backup-rhai-cli-0 -n <namespace>
 ```
 
 ## **Legal Notice** {#legal-notice}

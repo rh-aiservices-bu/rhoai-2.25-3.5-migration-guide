@@ -19,7 +19,7 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
 1. Verify that the ODH **Notebook Controller** components are updated and running by using the following command:
 
    ```bash
-   $ oc get Deployment --namespace redhat-ods-applications odh-notebook-controller-manager notebook-controller-deployment
+   oc get Deployment --namespace redhat-ods-applications odh-notebook-controller-manager notebook-controller-deployment
    ```
 
    **Example output**
@@ -34,7 +34,7 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
 
 
    ```bash
-   $ rhai-cli migrate run --migration workbenches.patch-auth-model --target-version 3.5.0 --only-stopped --with-cleanup
+   rhai-cli migrate run --migration workbenches.patch-auth-model --target-version 3.5.0 --only-stopped --with-cleanup
    ```
 
    **Note**
@@ -58,7 +58,7 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
 
 
    ```bash
-   $ rhai-cli migrate run --migration workbenches.verify-migration --target-version 3.5.0
+   rhai-cli migrate run --migration workbenches.verify-migration --target-version 3.5.0
    ```
 
    As the command runs, it provides output that indicates the status of your workbench upgrade. When the command completes, you should see a message similar to the following:  
@@ -137,7 +137,7 @@ The commands in the following procedure include an optional **\--dry-run** argum
 1. List the Ray clusters on your OpenShift cluster:
 
    ```bash
-   $ rhai-cli migrate list --target-version 3.5.0
+   rhai-cli migrate list --target-version 3.5.0
    ```
 
    The status of all Ray clusters is **NEEDS MIGRATION** as shown in the following example output:
@@ -161,7 +161,7 @@ The commands in the following procedure include an optional **\--dry-run** argum
 * **Migrate a single Ray cluster**  
 
   ```bash
-  $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-cluster my-cluster --raycluster-namespace my-namespace [[--dry-run]]
+  rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-cluster my-cluster --raycluster-namespace my-namespace [[--dry-run]]
   ```
 
   Example output:
@@ -218,13 +218,13 @@ The commands in the following procedure include an optional **\--dry-run** argum
 * **Migrate all Ray clusters in a namespace**  
 
   ```bash
-  $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-namespace my-namespace [[--dry-run]]
+  rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-namespace my-namespace [[--dry-run]]
   ```
 
 * **Migrate all Ray clusters on your OpenShift cluster**  
 
   ```bash
-  $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 [[--dry-run]]
+  rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 [[--dry-run]]
   ```
 
 3. Make a note of the Dashboard URL that is output by the migration command. Share this URL with users that want to access the Ray cluster.
@@ -236,7 +236,7 @@ The commands in the following procedure include an optional **\--dry-run** argum
 2. List the migration status of all Ray clusters:
 
    ```bash
-   $ rhai-cli migrate list --target-version 3.5.0
+   rhai-cli migrate list --target-version 3.5.0
    ```
 
    Example output:
@@ -327,19 +327,19 @@ Resolve any issues and then run the migration command again. Optionally, you can
      * Recover a single Ray cluster from backup (**\--dry-run** optional)  
 
        ```bash
-       $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x --raycluster-cluster my-cluster --raycluster-namespace my-namespace [[--dry-run]]
+       rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x --raycluster-cluster my-cluster --raycluster-namespace my-namespace [[--dry-run]]
        ```
 
      * Recover all Ray clusters from one namespace from backup (**\--dry-run** optional)  
 
        ```bash
-       $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x --raycluster-namespace my-namespace [[--dry-run]]
+       rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x --raycluster-namespace my-namespace [[--dry-run]]
        ```
 
      * Recover all Ray clusters on the OpenShift cluster from backup (**\--dry-run** optional)  
 
        ```bash
-       $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x [[--dry-run]]
+       rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x [[--dry-run]]
        ```
 
        The **\--raycluster-from-backup $BACKUP\_DIR/rhoai-3.x** argument instructs the command to delete the Ray clusters from your OpenShift cluster and then recreate them from the files in the **rhoai-3.x** backup directory.
@@ -347,7 +347,7 @@ Resolve any issues and then run the migration command again. Optionally, you can
        For example:
 
        ```bash
-       $ rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x
+       rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --raycluster-from-backup $BACKUP_DIR/rhoai-3.x
        ```
 
      * Example output:
@@ -491,7 +491,7 @@ If you were managing a customized **inferenceservice-config** **ConfigMap** manu
 
 1. Run the following command to reset the **inferenceservice-config** **ConfigMap** back to **managed=true** and restart the KServe controller:  
    ```bash
-   $ rhai-cli migrate run --migration modelserving.managed-isvc-config --target-version 3.5.0
+   rhai-cli migrate run --migration modelserving.managed-isvc-config --target-version 3.5.0
    ```
 
 2. Verify that **InferenceServices** were not redeployed by checking that each **InferenceService** has only one **ReplicaSet** with no old scaled-down **ReplicaSets** from a redeployment:
@@ -499,13 +499,13 @@ If you were managing a customized **inferenceservice-config** **ConfigMap** manu
    1. List the namespaces that have InferenceServices:
 
       ```bash
-      $ oc get isvc -A
+      oc get isvc -A
       ```
 
    2. For each namespace that has an InferenceService:
 
       ```bash
-      $ oc get replicasets -n <namespace> -o custom-columns=NAME:.metadata.name,CREATED:.metadata.creationTimestamp,REPLICAS:.status.replicas
+      oc get replicasets -n <namespace> -o custom-columns=NAME:.metadata.name,CREATED:.metadata.creationTimestamp,REPLICAS:.status.replicas
       ```
 
 **Verification**
@@ -521,7 +521,7 @@ Verify that the upgrade to Red Hat OpenShift AI 3.5 completed successfully and t
 1. Verify the KServe controller is running and ready:
 
    ```bash
-   $ oc get pods -n redhat-ods-applications -l control-plane=kserve-controller-manager
+   oc get pods -n redhat-ods-applications -l control-plane=kserve-controller-manager
    ```
 
    Expected output:
@@ -534,7 +534,7 @@ Verify that the upgrade to Red Hat OpenShift AI 3.5 completed successfully and t
 2. Verify the ODH Model Controller is running and ready:
 
    ```bash
-   $ oc get pods -n redhat-ods-applications -l control-plane=odh-model-controller
+   oc get pods -n redhat-ods-applications -l control-plane=odh-model-controller
    ```
 
    Expected output:
@@ -547,7 +547,7 @@ Verify that the upgrade to Red Hat OpenShift AI 3.5 completed successfully and t
 3. Verify all **InferenceServices** are using **RawDeployment** mode and are ready:
 
    ```bash
-   $ oc get isvc -A -o json | jq -r '["NAMESPACE","NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.namespace, .metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
+   oc get isvc -A -o json | jq -r '["NAMESPACE","NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.namespace, .metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
    ```
 
    Sample expected output:
@@ -564,7 +564,7 @@ Verify that the upgrade to Red Hat OpenShift AI 3.5 completed successfully and t
 4. If you have **LLMInferenceService** resources, verify their status:
 
    ```bash
-   $ oc get llminferenceservices --all-namespaces
+   oc get llminferenceservices --all-namespaces
    ```
 
    Sample expected output:
@@ -628,7 +628,7 @@ If you are not using the Serverless Operator outside of OpenShift AI use cases, 
 
 2. Delete the **knative-serving** namespace:  
    ```bash
-   $ oc delete namespace knative-serving
+   oc delete namespace knative-serving
    ```
 
 #####  **4.9.2.2.4. Authorino Operator not removed** {#4.9.2.2.4.-authorino-operator-not-removed}

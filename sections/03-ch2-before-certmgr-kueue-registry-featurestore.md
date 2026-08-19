@@ -29,8 +29,8 @@ Install the cert-manager Operator for Red Hat OpenShift using one of the followi
 1. Create the namespace, OperatorGroup, and Subscription:
 
    ```bash
-   $ oc create namespace cert-manager-operator
-   $ oc apply -f - <<EOF
+   oc create namespace cert-manager-operator
+   oc apply -f - <<EOF
    apiVersion: operators.coreos.com/v1
    kind: OperatorGroup
    metadata:
@@ -41,7 +41,7 @@ Install the cert-manager Operator for Red Hat OpenShift using one of the followi
      - cert-manager-operator
      upgradeStrategy: Default
    EOF
-   $ oc apply -f - <<EOF
+   oc apply -f - <<EOF
    apiVersion: operators.coreos.com/v1alpha1
    kind: Subscription
    metadata:
@@ -59,13 +59,13 @@ Install the cert-manager Operator for Red Hat OpenShift using one of the followi
 2. Wait for the cert-manager Operator to reach **Succeeded** status:
 
    ```bash
-   $ oc get csv -n cert-manager-operator --watch
+   oc get csv -n cert-manager-operator --watch
    ```
 
 3. Verify that cert-manager pods are running:
 
    ```bash
-   $ oc get pods -n cert-manager
+   oc get pods -n cert-manager
    ```
 
    All pods should show **Running** status with all containers ready.
@@ -268,13 +268,13 @@ If any model registries or custom model catalog sources were created before upgr
 
 3. You can also get information on pods by using the following command:  
    ```bash
-   $ oc get pods -n rhoai-model-registries
+   oc get pods -n rhoai-model-registries
    ```
 
    Check the pod logs to ensure there are no error messages as follows:  
    ```bash
-   $ oc logs <my-model-catalog-pod-name> -n rhoai-model-registries -c catalog
-   $ oc logs <my-model-registry-pod-name> -n rhoai-model-registries -c <my-container-name>
+   oc logs <my-model-catalog-pod-name> -n rhoai-model-registries -c catalog
+   oc logs <my-model-registry-pod-name> -n rhoai-model-registries -c <my-container-name>
    ```
 
 4. In the OpenShift AI dashboard, click **Settings \> Model registry settings** to check the status of your model registries. For more information, see [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.25/html/managing_model_registries/index).
@@ -323,7 +323,7 @@ If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later)
 
 1. As an OpenShift AI administrator, get a list of all Feature Store instances and their namespaces on the cluster:  
    ```bash
-   $ oc get featurestores --all-namespaces
+   oc get featurestores --all-namespaces
    ```
 
    Example output:
@@ -339,13 +339,13 @@ If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later)
    1. Check that the Feature Store instance is in the **Ready** state. Get the status of a Feature Store instance by running the following command and replacing **\<namespace\>** with the namespace that has the Feature Store instance:
 
       ```bash
-      $ oc get featurestores -n <namespace>
+      oc get featurestores -n <namespace>
       ```
 
       For example, given the example output from Step 1, to see the status of **my-featurestore**, run the following command:
 
       ```bash
-      $ oc get featurestores -n project-alpha
+      oc get featurestores -n project-alpha
       ```
 
       Example output:
@@ -358,13 +358,13 @@ If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later)
    2. List CronJobs for a namespace that has a Feature Store instance by running the following command and replacing **\<namespace\>** with the name of the namespace:
 
       ```bash
-      $ oc get cronjobs -n <namespace>
+      oc get cronjobs -n <namespace>
       ```
 
       For example:
 
       ```bash
-      $ oc get cronjobs -n project-alpha
+      oc get cronjobs -n project-alpha
       ```
 
       Example output:
@@ -377,13 +377,13 @@ If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later)
    3. Create a Job by running the following command. Replace **\<job-name\>** with the name of the job and replace **\<cronjob-name\>** with the name of a CronJob output from the previous step:
 
       ```bash
-      $ oc create job <job-name> --from=cronjob/<cronjob-name> -n <namespace>
+      oc create job <job-name> --from=cronjob/<cronjob-name> -n <namespace>
       ```
 
       For example:
 
       ```bash
-      $ oc create job test --from=cronjob/feast-sample-git -n project-alpha
+      oc create job test --from=cronjob/feast-sample-git -n project-alpha
       ```
 
       Example output:
@@ -395,13 +395,13 @@ If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later)
    4. Check that the CronJob for the Feature Store instance ran the Job successfully. View a list of jobs and their status by running the following command:
 
       ```bash
-      $ oc get jobs -n <namespace>
+      oc get jobs -n <namespace>
       ```
 
       For example:
 
       ```bash
-      $ oc get jobs -n project-alpha
+      oc get jobs -n project-alpha
       ```
 
       The output should indicate that the job completed, as shown in the following example:

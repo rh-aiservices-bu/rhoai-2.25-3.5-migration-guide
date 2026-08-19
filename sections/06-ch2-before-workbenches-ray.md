@@ -73,7 +73,7 @@ All procedures in this section must be completed before upgrading the Red Hat Op
    Your workbenches are ready to be upgraded if your compatibility check returns with **PASS** or **WARNING** results in the output. A **FAIL** result requires resolution before proceeding to upgrade your workbench.
 
    ```bash
-   $ rhai-cli lint --target-version 3.5 --checks "*notebook*"
+   rhai-cli lint --target-version 3.5 --checks "*notebook*"
    ```
 
    **Example output:**
@@ -110,7 +110,7 @@ All procedures in this section must be completed before upgrading the Red Hat Op
 2. Verify that all workbenches eligible for upgrading are in a stopped state across all namespaces with the following command:
 
    ```bash
-   $ oc get notebooks -A -o custom-columns="NAMESPACE:.metadata.namespace,NAME:.metadata.name,RUNNING:.status.readyReplicas,STARTED:.status.containerState.running.startedAt"
+   oc get notebooks -A -o custom-columns="NAMESPACE:.metadata.namespace,NAME:.metadata.name,RUNNING:.status.readyReplicas,STARTED:.status.containerState.running.startedAt"
    ```
 
    **Example output**
@@ -218,7 +218,7 @@ rules:
 1. Set CodeFlare to **Removed** in the DataScienceCluster before running the Ray backup:
 
    ```bash
-   $ oc patch datasciencecluster default-dsc --type merge \
+   oc patch datasciencecluster default-dsc --type merge \
        -p '{"spec":{"components":{"codeflare":{"managementState":"Removed"}}}}'
    ```
 
@@ -228,7 +228,7 @@ rules:
    Verify:
 
    ```bash
-   $ oc get datasciencecluster default-dsc -o jsonpath='{.spec.components.codeflare.managementState}' && echo
+   oc get datasciencecluster default-dsc -o jsonpath='{.spec.components.codeflare.managementState}' && echo
    ```
 
    Expected output: `Removed`
@@ -237,7 +237,7 @@ rules:
    **Note**  
    The migration backs up your Ray cluster CR configuration YAML files only. It does not back up the state of your Ray clusters.  
    ```bash
-   $ rhai-cli migrate run --migration raycluster.backup --target-version 3.5.0
+   rhai-cli migrate run --migration raycluster.backup --target-version 3.5.0
    ```
    The migration runs pre-upgrade checks. If all pre-upgrade checks succeed, then it saves your Ray cluster CR configurations to the following subdirectories under the backup directory:
 
@@ -248,7 +248,7 @@ rules:
 3. Get a list of the Ray clusters and check their status:
 
    ```bash
-   $ rhai-cli migrate list --target-version 3.5.0
+   rhai-cli migrate list --target-version 3.5.0
    ```
 
    The output should be similar to the following:

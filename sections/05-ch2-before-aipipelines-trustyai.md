@@ -15,7 +15,7 @@ However, the upgrade includes updates to API versions and RBAC permissions. Befo
 1. Capture the pre-upgrade DSPA pod health baseline:
 
    ```bash
-   $ rhai-cli migrate prepare --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
+   rhai-cli migrate prepare --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
    ```
 
    To preview without making changes, add `--dry-run`.
@@ -29,7 +29,7 @@ However, the upgrade includes updates to API versions and RBAC permissions. Befo
 2. Run the AI Pipelines pre-upgrade check to remediate deprecated resources:
 
    ```bash
-   $ rhai-cli migrate run --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
+   rhai-cli migrate run --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
    ```
 
 3. Review the output.  
@@ -46,13 +46,13 @@ However, the upgrade includes updates to API versions and RBAC permissions. Befo
 5. If the action reports custom RBAC roles that require updates, consult with the teams that use AI Pipelines and run the DSP role update action:
 
    ```bash
-   $ rhai-cli migrate run --migration ai-pipelines.update-dsp-role --target-version 3.5.0
+   rhai-cli migrate run --migration ai-pipelines.update-dsp-role --target-version 3.5.0
    ```
 
 6. After completing remediation, rerun the pre-upgrade check to confirm that no issues remain:
 
    ```bash
-   $ rhai-cli migrate run --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
+   rhai-cli migrate run --migration ai-pipelines.pre-upgrade-check --target-version 3.5.0
    ```
 
    You can ignore the following warning if it appears, because it does not affect the upgrade:
@@ -70,7 +70,7 @@ However, the upgrade includes updates to API versions and RBAC permissions. Befo
 * The pre-upgrade state file exists:
 
   ```bash
-  $ ls -la /tmp/rhoai-upgrade-backup/ai_pipelines/dspa_pre_upgrade_pods.json
+  ls -la /tmp/rhoai-upgrade-backup/ai_pipelines/dspa_pre_upgrade_pods.json
   ```
 
 ## 
@@ -108,8 +108,8 @@ Verify that the management state of the TrustyAI component for your Data Science
 1. Check the **TrustyAI** management state for your Data Science Cluster:
 
    ```bash
-   $ export DSC_NAME=$(oc get datascienceclusters -o jsonpath='{.items[0].metadata.name}')
-   $ oc get datascienceclusters "$DSC_NAME" -o jsonpath='{.spec.components.trustyai.managementState}' && echo
+   export DSC_NAME=$(oc get datascienceclusters -o jsonpath='{.items[0].metadata.name}')
+   oc get datascienceclusters "$DSC_NAME" -o jsonpath='{.spec.components.trustyai.managementState}' && echo
    ```
 
    Example output:
@@ -125,7 +125,7 @@ Verify that the management state of the TrustyAI component for your Data Science
 2. Get a list of the namespaces that contain a TrustyAI service:
 
    ```bash
-   $ oc get trustyaiservice -A
+   oc get trustyaiservice -A
    ```
 
    Example output:
@@ -141,8 +141,8 @@ Verify that the management state of the TrustyAI component for your Data Science
 3. Create a directory for backups:
 
    ```bash
-   $ mkdir -p /tmp/rhoai-upgrade-backup/trustyai
-   $ export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
+   mkdir -p /tmp/rhoai-upgrade-backup/trustyai
+   export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
    ```
 
 ### **2.7.2. TrustyAI \- Before upgrade \- Backup metrics** {#2.7.2.-trustyai---before-upgrade---backup-metrics}
@@ -166,19 +166,19 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 1. Set the namespace:
 
    ```bash
-   $ export NS=<namespace>
+   export NS=<namespace>
    ```
 
 2. Set the **TrustyAIService** name:
 
    ```bash
-   $ export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
+   export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
    ```
 
 3. Confirm the namespace and **TrustyAIService** names:
 
    ```bash
-   $ echo "NAMESPACE=${NS} TAS_NAME=${TAS_NAME}"
+   echo "NAMESPACE=${NS} TAS_NAME=${TAS_NAME}"
    ```
 
    Example output:
@@ -190,8 +190,8 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 4. Get the service HTTP port:
 
    ```bash
-   $ export SVC_PORT=$(oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
-   $ echo "SVC_PORT=$SVC_PORT"
+   export SVC_PORT=$(oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
+   echo "SVC_PORT=$SVC_PORT"
    ```
 
    If the result is a port number as shown in the following example, skip to Step 7:
@@ -205,7 +205,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 5. List all available ports:
 
    ```bash
-   $ oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{range .spec.ports[*]}{.name}:{.port}{"\n"}{end}'
+   oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{range .spec.ports[*]}{.name}:{.port}{"\n"}{end}'
    ```
 
    Example output:
@@ -218,13 +218,13 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 6. In the following command, replace \<port\> with the port number (for example, **80**):
 
    ```bash
-   $ export SVC_PORT=<port>
+   export SVC_PORT=<port>
    ```
 
 7. Port-forward the TrustyAI service:
 
    ```bash
-   $ oc port-forward -n "$NS" "svc/$TAS_NAME" 8080:${SVC_PORT} &
+   oc port-forward -n "$NS" "svc/$TAS_NAME" 8080:${SVC_PORT} &
    export PF_PID=$!
    sleep 3
    ```
@@ -239,8 +239,8 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 8. Fetch the metrics:
 
    ```bash
-   $ export TOKEN=$(oc whoami -t)
-   $ curl -sk -H "Authorization: Bearer $TOKEN" \
+   export TOKEN=$(oc whoami -t)
+   curl -sk -H "Authorization: Bearer $TOKEN" \
      "http://localhost:8080/metrics/all/requests" \
      -o "${BACKUP_DIR}/trustyai-metrics-${NS}-$(date +%Y%m%d-%H%M%S).json"
    ```
@@ -248,7 +248,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 9. Stop the port-forward:
 
    ```bash
-   $ kill $PF_PID 2>/dev/null
+   kill $PF_PID 2>/dev/null
    ```
 
 **Verification**
@@ -256,7 +256,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 1. Verify that the port-forward process stopped running:
 
    ```bash
-   $ ps -p $PF_PID 2>/dev/null && echo "Still running" || echo "Stopped"
+   ps -p $PF_PID 2>/dev/null && echo "Still running" || echo "Stopped"
    ```
 
    Example output:
@@ -271,7 +271,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
    Run this command from your workstation (not from inside the **rhai-cli** pod). It reads the backup file from the pod's PVC and validates it with `jq` locally.
 
    ```bash
-   $ oc exec rhai-cli-0 -n rhai-migration -- cat ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | jq empty && echo "OK" || echo "FAIL: invalid JSON"
+   oc exec rhai-cli-0 -n rhai-migration -- cat ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | jq empty && echo "OK" || echo "FAIL: invalid JSON"
    ```
 
    **Note**
@@ -286,7 +286,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 3. Verify that the backup file exists:
 
    ```bash
-   $ oc exec rhai-cli-0 -n rhai-migration -- ls ${BACKUP_DIR}/trustyai-metrics-${NS}-*
+   oc exec rhai-cli-0 -n rhai-migration -- ls ${BACKUP_DIR}/trustyai-metrics-${NS}-*
    ```
 
    Example output:
@@ -318,13 +318,13 @@ For each namespace that has a TrustyAI service, follow these steps to backup Tru
 1. If the namespace is not already set, set it:
 
    ```bash
-   $ export NS=<namespace>
+   export NS=<namespace>
    ```
 
 2. Run the TrustyAI data backup action:
 
    ```bash
-   $ rhai-cli migrate prepare --migration trustyai.data --target-version 3.5.0 \
+   rhai-cli migrate prepare --migration trustyai.data --target-version 3.5.0 \
        --output-dir /tmp/rhoai-upgrade-backup/trustyai
    ```
 
@@ -384,7 +384,7 @@ Before you upgrade OpenShift AI 2.25.9 (and later) to 3.5, set the name of all T
 1. Get a list of the namespaces that contain the TrustyAI Guardrails Orchestrator service:
 
    ```bash
-   $ oc get guardrailsorchestrator -A
+   oc get guardrailsorchestrator -A
    ```
 
    Example output:
@@ -404,19 +404,19 @@ Before you upgrade OpenShift AI 2.25.9 (and later) to 3.5, set the name of all T
 1. Set the namespace:
 
    ```bash
-   $ export NS=<namespace>
+   export NS=<namespace>
    ```
 
 2. Set the **GuardrailsOrchestrator** name:
 
    ```bash
-   $ export GORCH_NAME=<orchestrator-name>
+   export GORCH_NAME=<orchestrator-name>
    ```
 
 3.  Check that **GORCH\_NAME** and **NS** environment variables are properly set:
 
    ```bash
-   $ echo "GORCH_NAME=$GORCH_NAME" && echo "NS=$NS"
+   echo "GORCH_NAME=$GORCH_NAME" && echo "NS=$NS"
    ```
 
    The output should return values for **GORCH\_NAME** and **NS**, as shown in the following example:
@@ -435,8 +435,8 @@ For each namespace that has the TrustyAI Guardrails Orchestrator service:
 1. Find the **GuardrailsOrchestrator** pod:
 
    ```bash
-   $ export ORCH_POD=$(oc get pods -n $NS --no-headers -o name | grep $GORCH_NAME | head -1)
-   $ echo "ORCH_POD=$ORCH_POD"
+   export ORCH_POD=$(oc get pods -n $NS --no-headers -o name | grep $GORCH_NAME | head -1)
+   echo "ORCH_POD=$ORCH_POD"
    ```
 
    The output should show a value for **ORCH\_POD**, as shown in the following example:
@@ -448,7 +448,7 @@ For each namespace that has the TrustyAI Guardrails Orchestrator service:
 2. Check the pod phase and readiness:
 
    ```bash
-   $ oc get "$ORCH_POD" -n "$NS" -o jsonpath='phase={.status.phase} ready={.status.conditions[?(@.type=="Ready")].status}' && echo " OK" || echo " FAIL"
+   oc get "$ORCH_POD" -n "$NS" -o jsonpath='phase={.status.phase} ready={.status.conditions[?(@.type=="Ready")].status}' && echo " OK" || echo " FAIL"
    ```
 
    Example output:
@@ -464,9 +464,9 @@ For each namespace that has the TrustyAI Guardrails Orchestrator service:
 1. Check the **spec.otelExporter** field configuration in your **GuardrailsOrchestrator** CR:
 
    ```bash
-   $ export OTEL_SPEC=$(oc get guardrailsorchestrator "$GORCH_NAME" -n "$NS" -o jsonpath='{.spec.otelExporter}' 2>/dev/null || true)
-   $ export OTEL_LEN=$(echo "$OTEL_SPEC" | jq -r 'keys | length' 2>/dev/null)
-   $ [ "$OTEL_LEN" -gt 0 ] 2>/dev/null && echo "spec.otelExporter present" || echo "spec.otelExporter missing"
+   export OTEL_SPEC=$(oc get guardrailsorchestrator "$GORCH_NAME" -n "$NS" -o jsonpath='{.spec.otelExporter}' 2>/dev/null || true)
+   export OTEL_LEN=$(echo "$OTEL_SPEC" | jq -r 'keys | length' 2>/dev/null)
+   [ "$OTEL_LEN" -gt 0 ] 2>/dev/null && echo "spec.otelExporter present" || echo "spec.otelExporter missing"
    ```
 
    The output is one of the following results:  
@@ -477,8 +477,8 @@ For each namespace that has the TrustyAI Guardrails Orchestrator service:
 2. If **spec.otelExporter** is present, backup your traces and metrics exporter configuration by saving it to **${BACKUP\_DIR}/$GORCH\_NAME-$NS-otelExporter-backup.json**:
 
    ```bash
-   $ oc get guardrailsorchestrator $GORCH_NAME -n $NS -o jsonpath='{.spec.otelExporter}' > ${BACKUP_DIR}/$GORCH_NAME-$NS-otelExporter-backup.json
-   $ cat ${BACKUP_DIR}/$GORCH_NAME-$NS-otelExporter-backup.json
+   oc get guardrailsorchestrator $GORCH_NAME -n $NS -o jsonpath='{.spec.otelExporter}' > ${BACKUP_DIR}/$GORCH_NAME-$NS-otelExporter-backup.json
+   cat ${BACKUP_DIR}/$GORCH_NAME-$NS-otelExporter-backup.json
    ```
 
    Example output:

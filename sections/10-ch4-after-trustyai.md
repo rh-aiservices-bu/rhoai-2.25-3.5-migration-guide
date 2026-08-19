@@ -39,13 +39,13 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
 1. Verify that you set the backup directory:
 
    ```bash
-   $ export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
+   export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
    ```
 
 3. Check that the TrustyAI Operator is healthy:
 
    ```bash
-   $ oc wait --for=condition=Available deployment/trustyai-service-operator-controller-manager -n redhat-ods-applications --timeout=120s
+   oc wait --for=condition=Available deployment/trustyai-service-operator-controller-manager -n redhat-ods-applications --timeout=120s
    ```
 
    Expected output:
@@ -59,13 +59,13 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
    If the command fails with a timeout error, inspect the Operator pod for more details:
 
    ```bash
-   $ oc get pods -n redhat-ods-applications -l control-plane=controller-manager -o wide
+   oc get pods -n redhat-ods-applications -l control-plane=controller-manager -o wide
    ```
 
 4. List the namespaces for which you have backups:
 
    ```bash
-   $ ls ${BACKUP_DIR}/trustyai-metrics-*.json 2>/dev/null \
+   ls ${BACKUP_DIR}/trustyai-metrics-*.json 2>/dev/null \
      | sed 's|.*/trustyai-metrics-||;s|-[0-9]\{8\}-[0-9]\{6\}\.json||' \
      | sort -u
    ```
@@ -82,16 +82,16 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
 5. For each namespace that has a backup, check whether data was lost:
 
    ```bash
-   $ export NS=<namespace>
-   $ export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
-   $ export SVC_PORT=$(oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
-   $ oc port-forward -n "$NS" "svc/$TAS_NAME" 8080:${SVC_PORT} &
-   $ export PF_PID=$!
-   $ export CURRENT=$(curl -sk -H "Authorization: Bearer $(oc whoami -t)" \
+   export NS=<namespace>
+   export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
+   export SVC_PORT=$(oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
+   oc port-forward -n "$NS" "svc/$TAS_NAME" 8080:${SVC_PORT} &
+   export PF_PID=$!
+   export CURRENT=$(curl -sk -H "Authorization: Bearer $(oc whoami -t)" \
      "http://localhost:8080/metrics/all/requests" | jq '.requests | length')
-   $ export BACKUP=$(jq '.requests | length' "$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)")
-   $ kill $PF_PID 2>/dev/null
-   $ echo "Current: $CURRENT | Backup: $BACKUP"
+   export BACKUP=$(jq '.requests | length' "$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)")
+   kill $PF_PID 2>/dev/null
+   echo "Current: $CURRENT | Backup: $BACKUP"
    [ "$CURRENT" -ge "$BACKUP" ] && echo "OK: no data loss" || echo "DATA LOSS: restore needed"
    ```
 
@@ -116,7 +116,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
 1. Get a list of the namespaces that contain the TrustyAI Guardrails Orchestrator service:
 
    ```bash
-   $ oc get guardrailsorchestrator -A
+   oc get guardrailsorchestrator -A
    ```
 
    Example output:
@@ -134,7 +134,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
 2. Check whether **GuardrailsOrchestrator** deployments are missing the ReadinessProbe:
 
    ```bash
-   $ rhai-cli migrate run --migration trustyai.patch-guardrails --target-version 3.5.0 --dry-run
+   rhai-cli migrate run --migration trustyai.patch-guardrails --target-version 3.5.0 --dry-run
    ```
 
    **Note**  
@@ -155,7 +155,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    1. Patch the **GuardrailsOrchestrator** deployments:
 
       ```bash
-      $ rhai-cli migrate run --migration trustyai.patch-guardrails --target-version 3.5.0
+      rhai-cli migrate run --migration trustyai.patch-guardrails --target-version 3.5.0
       ```
 
       **Note**  
@@ -187,7 +187,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
 3. Check whether **GuardrailsOrchestrator** CRs are exporting traces and metrics:
 
    ```bash
-   $ rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0 --dry-run
+   rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0 --dry-run
    ```
 
    **Note**  
@@ -214,15 +214,15 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
 4. Run the migration that patches the existing **GuardrailsOrchestrator** deployments by updating the keys under **spec.otelExporter**:
 
    ```bash
-   $ rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0
+   rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0
    ```
 
 5. Query the **/info** endpoint of the **GuardrailsOrchestrator** service:
 
    ```bash
-   $ export GORCH_NAME=<gorch-name>
-   $ export GORCH_ROUTE_HEALTH=$(oc get routes -n $NS "${GORCH_NAME}-health" -o jsonpath='{.spec.host}')
-   $ curl -sSk "https://${GORCH_ROUTE_HEALTH}/info" -H "Authorization: Bearer $(oc whoami -t)" | jq .
+   export GORCH_NAME=<gorch-name>
+   export GORCH_ROUTE_HEALTH=$(oc get routes -n $NS "${GORCH_NAME}-health" -o jsonpath='{.spec.host}')
+   curl -sSk "https://${GORCH_ROUTE_HEALTH}/info" -H "Authorization: Bearer $(oc whoami -t)" | jq .
    ```
 
 **Verification**
@@ -270,13 +270,13 @@ Follow these steps for each namespace that lost data:
 1. Set the backup directory:
 
    ```bash
-   $ export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
+   export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
    ```
 
 2. Verify that you have a backup for the namespace:
 
    ```bash
-   $ ls ${BACKUP_DIR}/trustyai-metrics-*.json 2>/dev/null \
+   ls ${BACKUP_DIR}/trustyai-metrics-*.json 2>/dev/null \
      | sed 's|.*/trustyai-metrics-||;s|-[0-9]\{8\}-[0-9]\{6\}\.json||' \
      | sort -u
    ```
@@ -293,14 +293,14 @@ Follow these steps for each namespace that lost data:
 3. Run the following command to set the namespace, by replacing \<namespace\> with a namespace that lost data:
 
    ```bash
-   $ export NS=<namespace>
+   export NS=<namespace>
    ```
 
 4. Get the TrustyAIService name:
 
    ```bash
-   $ export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
-   $ echo "TAS_NAME=$TAS_NAME"
+   export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
+   echo "TAS_NAME=$TAS_NAME"
    ```
 
    The command should print the TrustyAIService name, as shown in the following example output:
@@ -315,7 +315,7 @@ Follow these steps for each namespace that lost data:
 5. Verify that TrustyAIService is running:
 
    ```bash
-   $ oc get trustyaiservice -n "$NS" "$TAS_NAME" -o jsonpath='{.status.phase}'
+   oc get trustyaiservice -n "$NS" "$TAS_NAME" -o jsonpath='{.status.phase}'
    ```
 
    Example output:
@@ -330,7 +330,7 @@ Follow these steps for each namespace that lost data:
 6. Run the following command:
 
    ```bash
-   $ oc wait --for=jsonpath='{.status.phase}'=Ready trustyaiservice/"$TAS_NAME" -n "$NS" --timeout=300s
+   oc wait --for=jsonpath='{.status.phase}'=Ready trustyaiservice/"$TAS_NAME" -n "$NS" --timeout=300s
    ```
 
    Example output:
@@ -342,13 +342,13 @@ Follow these steps for each namespace that lost data:
    If the wait times out, the TrustyAIService might not be healthy. Check its status:
 
    ```bash
-   $ oc describe trustyaiservice "$TAS_NAME" -n "$NS"
+   oc describe trustyaiservice "$TAS_NAME" -n "$NS"
    ```
 
 7. Find the backup file for this namespace:
 
    ```bash
-   $ ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1
+   ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1
    ```
 
    If the output provides a file path, continue to the next step.  
@@ -357,8 +357,8 @@ Follow these steps for each namespace that lost data:
 8. Set the backup file path:
 
    ```bash
-   $ export BACKUP_FILE=$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)
-   $ echo "BACKUP_FILE=$BACKUP_FILE"
+   export BACKUP_FILE=$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)
+   echo "BACKUP_FILE=$BACKUP_FILE"
    ```
 
    The command should print the backup file path, as shown in the following example output:
@@ -370,7 +370,7 @@ Follow these steps for each namespace that lost data:
 9. Get the number of metrics that are in the backup:
 
    ```bash
-   $ jq '.requests | length' "$BACKUP_FILE"
+   jq '.requests | length' "$BACKUP_FILE"
    ```
 
    Example output:
@@ -385,7 +385,7 @@ Follow these steps for each namespace that lost data:
 10. Find the TrustyAI route and its label:
 
     ```bash
-    $ export ROUTE_LABEL=$(oc get route -n "$NS" -o json | jq -r --arg tas "$TAS_NAME" '
+    export ROUTE_LABEL=$(oc get route -n "$NS" -o json | jq -r --arg tas "$TAS_NAME" '
         .items[] | select(.spec.to.name==$tas)
         | (.metadata.labels // {}) as $l
         | if $l["trustyai-service-name"] then "trustyai-service-name=\($l["trustyai-service-name"])"
@@ -393,7 +393,7 @@ Follow these steps for each namespace that lost data:
           elif $l["app"] then "app=\($l["app"])"
           else empty end
       ' | head -1)
-    $ echo "ROUTE_LABEL=$ROUTE_LABEL"
+    echo "ROUTE_LABEL=$ROUTE_LABEL"
     ```
 
     The output should be a label selector, as shown in the following example. Continue to Step 9\.
@@ -409,7 +409,7 @@ Follow these steps for each namespace that lost data:
 11. Find the route label:
 
     ```bash
-    $ oc get route -n "$NS" --show-labels
+    oc get route -n "$NS" --show-labels
     ```
 
     Example output:
@@ -423,13 +423,13 @@ Follow these steps for each namespace that lost data:
 12. Set the route label by replacing **\<label\_key\>=\<label\_value\>:** with your **TrustyAI service label pair:**
 
     ```bash
-    $ export ROUTE_LABEL='<label_key>=<label_value>'
+    export ROUTE_LABEL='<label_key>=<label_value>'
     ```
 
     For example:
 
     ```bash
-    $ export ROUTE_LABEL=trustyai-service-name=trustyai-service
+    export ROUTE_LABEL=trustyai-service-name=trustyai-service
     ```
 
     IMPORTANT: Ensure the route label that you specify belongs to the trustyai-service and is not a route that belongs to any other services or models.
@@ -439,7 +439,7 @@ Follow these steps for each namespace that lost data:
 13. Dry-run the restore:
 
     ```bash
-    $ rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run
+    rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run
     ```
 
     Example output:
@@ -482,7 +482,7 @@ Follow these steps for each namespace that lost data:
 14. Run the restore:
 
     ```bash
-    $ rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0
+    rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0
     ```
 
 **Verification**
@@ -507,7 +507,7 @@ Follow these steps for each namespace that lost data:
 * Verify that the restore count matches the backup:
 
   ```bash
-  $ rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run 2>&1 | tail -5
+  rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run 2>&1 | tail -5
   ```
 
   The **Current scheduled metrics** count should be greater than or equal to the backup count from Step 8 in the procedure.
@@ -538,7 +538,7 @@ You can investigate and resolve the GPU deadlock.
 1. To determine the namespace where a potential GPU deadlock occurs:
 
    ```bash
-   $ oc get pods -A | grep predictor
+   oc get pods -A | grep predictor
    ```
 
    Example output:
@@ -564,7 +564,7 @@ You can investigate and resolve the GPU deadlock.
    1. Check for GPU deadlocks across the cluster:
 
       ```bash
-      $ rhai-cli migrate run --migration trustyai.break-gpu-deadlock --target-version 3.5.0 --dry-run
+      rhai-cli migrate run --migration trustyai.break-gpu-deadlock --target-version 3.5.0 --dry-run
       ```
 
       **Note**  
@@ -588,7 +588,7 @@ You can investigate and resolve the GPU deadlock.
    2. To fix the deadlocked GPU-based inference services, you can manually delete an older pod or you can run the migration:
 
       ```bash
-      $ rhai-cli migrate run --migration trustyai.break-gpu-deadlock --target-version 3.5.0
+      rhai-cli migrate run --migration trustyai.break-gpu-deadlock --target-version 3.5.0
       ```
 
       **Note**  
@@ -597,7 +597,7 @@ You can investigate and resolve the GPU deadlock.
    3. Get the pod list:
 
       ```bash
-      $ oc get pods -n $NS | grep predictor
+      oc get pods -n $NS | grep predictor
       ```
 
       Example output:

@@ -43,13 +43,13 @@ Since Llama Stack was in Technology Preview in 2.25.x and has been renamed to OG
 1. Before proceeding with the upgrade, OpenShift AI cluster administrators must identify all **LlamaStackDistribution** CRs resources in your cluster. List all **LlamaStackDistributions** resources across your cluster with the following command:
 
    ```bash
-   $ oc get llamastackdistribution --all-namespaces -o custom-columns=NAMESPACE:.metadata.namespace,NAME:.metadata.name,PHASE:.status.phase,Created:.metadata.creationTimestamp
+   oc get llamastackdistribution --all-namespaces -o custom-columns=NAMESPACE:.metadata.namespace,NAME:.metadata.name,PHASE:.status.phase,Created:.metadata.creationTimestamp
    ```
 
 2. For each namespace with Llama Stack deployments, identify the owners of the namespace with the following command:
 
    ```bash
-   $ oc get rolebindings -n <namespace> -o wide
+   oc get rolebindings -n <namespace> -o wide
    ```
 
 3. Once you have identified all **LlamaStackDistribution** CRs and their owners, contact each owner and inform them of the following:
@@ -75,8 +75,8 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (a
 1. (Optional) To archive your LlamaStack configuration and data, use the **rhai-cli** `llamastack.backup` migration action. The `llamastack.backup` migration is a prepare-only action. You can preview what would be backed up with `--dry-run`, then run the backup:
 
    ```bash
-   $ rhai-cli migrate prepare --migration llamastack.backup --target-version 3.5.0 --dry-run
-   $ rhai-cli migrate prepare --migration llamastack.backup --target-version 3.5.0 --output-dir /backups
+   rhai-cli migrate prepare --migration llamastack.backup --target-version 3.5.0 --dry-run
+   rhai-cli migrate prepare --migration llamastack.backup --target-version 3.5.0 --output-dir /backups
    ```
 
    Expected Output:
@@ -106,7 +106,7 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (a
 2. After your cluster administrator notifies you of the upgrade, and if you optionally archived your Llama Stack data, at the start of the maintenance window, delete your **LlamaStackDistribution** resources.
 
    ```bash
-   $ oc get -A llsd
+   oc get -A llsd
    ```
 
    Example output:
@@ -122,7 +122,7 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (a
    For each llsd:
 
    ```bash
-   $ oc delete -n <namespace> llsd/<llsd-resource-name>
+   oc delete -n <namespace> llsd/<llsd-resource-name>
    ```
 
 3. During the recreation of deployments as **OGXServer** resources in OpenShift AI 3.5, you must complete and understand the following:
