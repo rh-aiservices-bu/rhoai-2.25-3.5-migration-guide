@@ -241,6 +241,7 @@ Authentication for the cluster is handled when you log in from inside the pod. T
    export KUBECONFIG=/tmp/.kubeconfig
    oc login --token=<token> --server=<api-server-url>
    ```
+**NOTE: If you have closed your session or open a new session you will need to peform the `export` and `oc login` again in the new session. 
 
 **Verification**
 
@@ -365,24 +366,24 @@ The **rhai-cli** **lint** command produces a migration assessment report that in
 
 * **STATUS**: A status icon that indicates the severity of the item: ✗ for **critical**, ⚠ for **warning**, and ✓ for **info**.
 
-* **GROUP**:  The diagnostic category that classifies the assessment check. Groups include: dependency, service, component, and workload. 
+* **KIND:**  A specific OpenShift AI component, dependency, or resource. For example, kserve, notebook, cert-manager, or datasciencepipelines.
 
-* **KIND:**  A specific OpenShift AI component, dependency, or resource. For example, kserve, notebook, cert-manager, or datasciencepipelines. 
+* **GROUP**:  The diagnostic category that classifies the assessment check. Groups include: dependency, service, component, and workload. 
 
 * **CHECK**: The type of check for the item. For example, a **version-requirement** check might validate if your environment meets the minimum version requirement for a particular software.
 
-* **IMPACT**: The severity of the item. Blocking issues have a **critical** impact.
+* **IMPACT**: The severity of the item. Blocking issues have a **critical** or **prohibited** impact.
 
 * **MESSAGE**: A description of the item. For **critical** items, this field indicates required actions to resolve blocking issues.
 
 You can assess output items by impact:
 
-| Impact | Description | Action required |
-| :---- | :---- | :---- |
-| prohibited | Upgrade is not possible. | Do not continue with the upgrade. |
-| critical | A blocker for the upgrade. The component or workload will fail. | You must fix this blocking item by using the pre-upgrade steps in the respective component tab, or the **rhai-cli migrate** actions where available. |
-| warning | Potential issues or deprecated fields. | Review and remediate this item to ensure the long-term stability of your OpenShift AI environment. |
-| info | Prerequisite met or no migration required. | No action required. |
+| Impact | Description | Action required                                                                                                                                          |
+| :---- | :---- |:---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| prohibited | Upgrade is not possible. | Do not continue with the upgrade. Check the component's section of this document to see if a solution is documented. If not, check with Red Hat Support. |
+| critical | A blocker for the upgrade. The component or workload will fail. | You must fix this blocking item by using the pre-upgrade steps in the respective component tab, or the **rhai-cli migrate** actions where available.     |
+| warning | Potential issues or deprecated fields. | Review and remediate this item to ensure the long-term stability of your OpenShift AI environment.                                                       |
+| info | Prerequisite met or no migration required. | No action required.                                                                                                                                      |
 
 **Important**
 
@@ -402,18 +403,20 @@ For example, to perform a targeted check on the AI Pipelines component, run the 
 /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *datasciencepipelines*
 ```
 
-| Component | Value for – \- check option |
-| :---- | :---- |
-| OpenShift AI dashboard | **\*dashboard\*** |
+| Component | Value for – \- check option  |
+| :---- |:-----------------------------|
+| OpenShift AI dashboard | **\*dashboard\***            |
 | AI Pipelines | **\*datasciencepipelines\*** |
-| TrustyAI Guardrails | **\*guardrails\*** |
-| KServe | **\*kserve\*** |
-| Kueue | **\*kueue\*** |
-| Llama Stack / OGX | **\*llamastackdistribution\*** |
-| Model Serving | **\*modelmesh\*** |
-| Workbenches | **\*notebook\*** |
-| Ray Training Operator | **\*ray\*** |
-| Kubeflow Training Operator | **\*trainingoperator\*** |
+| TrustyAI Guardrails | **\*guardrails\***           |
+| KServe | **\*kserve\***               |
+| Kueue | **\*kueue\***                |
+| Llama Stack / OGX | **\*llamastack\***           |
+| Model Serving | **\*modelmesh\***            |
+| Workbenches | **\*notebook\***             |
+| Ray Training Operator | **\*ray\***                  |
+| Kubeflow Training Operator | **\*trainingoperator\***     |
+
+**Note:** This is not an exhaustive list for all the components. To get a full list of checks replace the check option with `--help`
 
 After you resolve each blocking item, re-run the **lint** command to confirm that the item no longer appears in the script output.
 
@@ -469,18 +472,18 @@ Submit the results of the migration assessment script to Technical Support.
    2. Copy the output file from the rhai-cli container to your local workstation. \<namespace\> is the namespace where you deployed the pod that includes the rhai-cli container image:
 
       ```bash
-      kubectl cp <namespace>/rhai-cli-0:/tmp/rhoai-upgrade-backup/<filename>.yaml ./<filename>.yaml
+      oc cp <namespace>/rhai-cli-0:/tmp/rhoai-upgrade-backup/<filename>.yaml ./<filename>.yaml
       ```
 
       For example, if you deployed the pod that includes the rhai-cli container image in the rhai-migration namespace, run the following command to copy a YAML file named rhai-cli-output.yaml located in the /tmp/rhoai-upgrade-backup directory of the rhai-cli container to the current directory of your local workstation:
 
       ```bash
-      kubectl cp rhai-migration/rhai-cli-0:/tmp/rhoai-upgrade-backup/rhai-cli-output.yaml ./rhai-cli-output.yaml
+      oc cp rhai-migration/rhai-cli-0:/tmp/rhoai-upgrade-backup/rhai-cli-output.yaml ./rhai-cli-output.yaml
       ```
 
 3. If you have not already done so, open a proactive support case through the Red Hat customer portal at [access.redhat.com](http://access.redhat.com). to let Red Hat know that you are considering upgrading Red Hat OpenShift AI 2.25.9 (and later) to 3.5 , as described in [How to submit a Proactive Case](https://access.redhat.com/articles/5387111).
 
-4. Upload the YAML output file as an attachment to your Red Hat support case. For more information about uploading a file to your support case, see [How to provide files to Red Hat Support](%20https://access.redhat.com/solutions/2112).
+4. Upload the YAML output file as an attachment to your Red Hat support case. For more information about uploading a file to your support case, see [How to provide files to Red Hat Support](https://access.redhat.com/solutions/2112).
 
 **Verification**
 
