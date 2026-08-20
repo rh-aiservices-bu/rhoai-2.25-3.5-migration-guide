@@ -250,28 +250,18 @@ rules:
 
    * **Rhoai-3.x** \- Your Ray cluster CR configurations YAML files that are compatible with OpenShift AI 3.x.
 
-4. Get a list of the Ray clusters and check their status:
+4. Get a list of the Ray clusters on your OpenShift cluster:
 
    ```bash
-   rhai-cli migrate list --target-version 3.5.0
+   oc get rayclusters -A
    ```
 
    The output should be similar to the following:
 
    ```
-   Fetching RayClusters (all namespaces)...
-   Found 2 RayCluster(s)
-   Analyzing clusters...
-   Analysis complete.
-
-   RayCluster Migration Status:
-
-   Name                   Namespace      Status      Workers   Migration Status
-   ----------------------------------------------------------------------------
-   comprehensive-mixed    raytest        ready        2        [NEEDS MIGRATION]
-   sdk-configurations     raytest        ready        1        [NEEDS MIGRATION]
-
-   Migration Summary: 0 migrated, 2 need migration
+   NAMESPACE   NAME                  DESIRED WORKERS   AVAILABLE WORKERS   CPUS   MEMORY   GPUS   STATUS   AGE
+   raytest     comprehensive-mixed   2                 2                   6      12Gi     0      ready    5d
+   raytest     sdk-configurations    1                 1                   4      8Gi      0      ready    3d
    ```
 
 **Verification**
