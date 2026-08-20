@@ -8,6 +8,8 @@ The **rhai-cli** utility contains migration actions to assist with pre-upgrade a
 
 To run the **rhai-cli migrate** actions, you must have write access as a cluster or namespace administrator. These actions require write access because they perform modifications to cluster resources.
 
+**NOTE:** Some **rhai-cli migrate** actions (for example, `kueue.rhbok.migrate`) write backup artifacts to a directory relative to your current working directory when no explicit output-directory flag is provided. Run these commands from the persistent volume mount (`cd /tmp/rhoai-upgrade-backup`) so that backups are written to a writable, persisted location. Otherwise, the backup step can fail with a `permission denied` error while the command still reports success. Always confirm that the expected backup files were created before continuing.
+
 ## **2.1 Install the cert-manager Operator for Red Hat OpenShift** {#2.1-install-the-cert-manager-operator-for-red-hat-openshift}
 
 **Procedure**
