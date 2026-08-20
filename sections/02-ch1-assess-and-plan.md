@@ -391,8 +391,9 @@ The `rhai-cli lint` command uses the following exit codes:
 
 | Exit code | Meaning |
 | :---- | :---- |
-| 0 | All checks passed with no prohibited or critical findings. |
+| 0 | All checks passed with no findings above the info level. |
 | 1 | One or more prohibited or critical findings were detected. This is expected behavior, not a tool error. |
+| 2 | No prohibited or critical findings were detected, but one or more warning findings were reported. This is expected behavior, not a tool error. |
 
 **Important**
 
