@@ -146,7 +146,7 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
    oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}'
    ```
 
-   * *If the output is Removed or Unmanaged, no migration is required and you can skip the remaining steps.*
+   * *If the output is Removed or Unmanaged, no migration is required and you can skip the remaining steps. Confirm using the rhai-cli script that kueue reports PASS.*
 
    * *If the output is Managed, you must migrate to Red Hat build of Kueue.*
 
@@ -274,7 +274,6 @@ If any model registries or custom model catalog sources were created before upgr
    Check the pod logs to ensure there are no error messages as follows:  
    ```bash
    oc logs <my-model-catalog-pod-name> -n rhoai-model-registries -c catalog
-   oc logs <my-model-registry-pod-name> -n rhoai-model-registries -c <my-container-name>
    ```
 
 4. In the OpenShift AI dashboard, click **Settings \> Model registry settings** to check the status of your model registries. For more information, see [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.25/html/managing_model_registries/index).

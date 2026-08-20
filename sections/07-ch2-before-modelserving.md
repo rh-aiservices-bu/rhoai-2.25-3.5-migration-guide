@@ -48,8 +48,6 @@ All model serving workloads must migrate to **RawDeployment** mode, which provid
 
 ### **2.10.3. Migration workflow for model serving** {#2.10.3.-migration-workflow-for-model-serving}
 
-The migration requires coordination between cluster administrators and users. The specific steps you complete depend on your cluster configuration and workloads.
-
 Following is an overview of the steps that you must complete for the model serving component before you upgrade the Red Hat OpenShift AI operator:
 
 1. Run the **rhai-cli** tool and analyze your cluster configuration, as described in [Run the rhai-cli script.](#2.10.5.-run-the-rhai-cli-tool)
@@ -78,7 +76,7 @@ Before migrating Model Serving workloads from Red Hat OpenShift AI 2.25.9 (and l
 
 **Important**
 
-If you cannot remove OpenShift Service Mesh v2 due to other dependencies, you must upgrade those applications to Service Mesh v3 before upgrading Red Hat OpenShift AI to version 3.5. For Service Mesh migration, see [Migrating from Service Mesh 2 to Service Mesh 3](https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.1/html/migrating_from_service_mesh_2_to_service_mesh_3/ossm-migrating-hub-recommendations-for-migrating_ossm-migrating-from-service-mesh-2-to-3).
+If you cannot remove OpenShift Service Mesh v2 due to other dependencies, you must upgrade those applications to Service Mesh v3 before upgrading Red Hat OpenShift AI to version 3.5. For Service Mesh migration, see [Migrating from Service Mesh 2 to Service Mesh 3](https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.1/html/migrating_from_service_mesh_2_to_service_mesh_3/index).
 
 If a conflicting OSSM v2.x subscription is present when you create a **GatewayClass** resource, the Cluster Ingress Operator attempts to install the required OSSM v3.x components but fails. This causes Gateway API resources to have no effect and no proxy gets configured to route traffic. Do not continue with the migration steps until after you resolve this conflict.
 
@@ -106,13 +104,13 @@ All migration commands must be executed within the **rhai-cli** container, as it
 
    Example output:
 
-| STATUS | GROUP | KIND | CHECK | IMPACT | MESSAGE |
+| STATUS | KIND | GROUP | CHECK | IMPACT | MESSAGE |
 | :---- | :---- | :---- | :---- | :---- | :---- |
-| ✗ | component | kserve | serverless-removal | critical | KServe serverless mode enabled but will be removed |
-| ✗ | component | modelmeshserving | removal | critical | ModelMesh is enabled but will be removed |
-| ✓ | workload | kserve | impacted-workloads | info | No Serverless InferenceService(s) found |
-| ✓ | workload | kserve | impacted-workloads | info | No ModelMesh InferenceService(s) found |
-| ⚠ | dependency | servicemesh-operator-v2 | upgrade | warning | Service Mesh Operator v2 no longer required |
+| ✗ | kserve | component | serverless-removal | critical | KServe serverless mode enabled but will be removed |
+| ✗ | modelmeshserving | component | removal | critical | ModelMesh is enabled but will be removed |
+| ✓ | kserve | workload | impacted-workloads | info | No Serverless InferenceService(s) found |
+| ✓ | kserve | workload | impacted-workloads | info | No ModelMesh InferenceService(s) found |
+| ⚠ | servicemesh-operator-v2 | dependency | upgrade | warning | Service Mesh Operator v2 no longer required |
 
    The output shows the status of your cluster configuration:  
    **✓ (checkmark)**  
@@ -152,7 +150,6 @@ Run this backup command on your local machine, not inside the **rhai-cli** conta
 1. Create the backup directory and back up the **inferenceservice-config** **ConfigMap**:
 
    ```bash
-   mkdir -p /tmp/rhoai-upgrade-backup
    oc get configmap inferenceservice-config -n redhat-ods-applications -o yaml > /tmp/rhoai-upgrade-backup/inferenceservice-config-backup.yaml
    ```
 
@@ -244,7 +241,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 
    The command handles resource transformation, authentication resources (ServiceAccount, Role, RoleBinding), and storage credentials automatically across all namespaces.
 
-4. Verify that the converted InferenceServices are ready:
+4. Verify that the converted InferenceServices are ready (run from your workstation due to the need for `jq`):
 
    ```bash
    oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
@@ -262,7 +259,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 
 5. Delete the legacy Serverless InferenceServices:
 
-   1. Preview what will be deleted:
+   1. Preview what will be deleted (run from your workstation due to the need for `jq`):
 
       ```bash
       oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name'
@@ -275,7 +272,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
       another-sl-model
       ```
 
-   2. Delete them:
+   2. Delete them (run from your workstation due to the need for `jq`):
 
       ```bash
       oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name' | while read -r name; do echo "Deleting  Serverless InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
@@ -385,7 +382,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    Migration helper completed!
    ```
 
-4. Verify that the converted InferenceServices are ready:
+4. Verify that the converted InferenceServices are ready (run from your workstation due to the need for `jq`):
 
    ```bash
    oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
@@ -402,7 +399,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 
 5. Delete the legacy ModelMesh InferenceServices and ServingRuntimes after confirming the new RawDeployment services are working.
 
-   1. Preview the ModelMesh InferenceServices that will be deleted:
+   1. Preview the ModelMesh InferenceServices that will be deleted (run from your workstation due to the need for `jq`):
 
       ```bash
       oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name'
@@ -414,7 +411,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
       My-modelmesh-isvc
       ```
 
-   2. Delete them:
+   2. Delete them (run from your workstation due to the need for `jq`):
 
       ```bash
       oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name' | while read -r name; do echo "Deleting ModelMesh InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
@@ -427,7 +424,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
       inferenceservice.serving.kserve.io "my-modelmesh-isvc" deleted
       ```
 
-   3. Delete the ModelMesh ServingRuntimes (multi-model runtimes):
+   3. Delete the ModelMesh ServingRuntimes (multi-model runtimes) (run from your workstation due to the need for `jq`):
 
       ```bash
       oc get servingruntimes.serving.kserve.io -n <namespace> -o json | jq -r '.items[] | select(.spec.multiModel==true) | .metadata.name' | while read -r name; do echo "Deleting ServingRuntime: $name"; oc delete servingruntime "$name" -n <namespace>; done
