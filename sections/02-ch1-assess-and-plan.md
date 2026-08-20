@@ -241,6 +241,17 @@ Authentication for the cluster is handled when you log in from inside the pod. T
    export KUBECONFIG=/tmp/.kubeconfig
    oc login --token=<token> --server=<api-server-url>
    ```
+
+   **NOTE:** If your cluster uses a custom or self-signed API serving certificate, `oc login` fails with `certificate signed by unknown authority`. To resolve this, either provide the cluster CA certificate (recommended) or bypass the certificate check:
+
+   ```bash
+   # Recommended: provide the cluster CA certificate
+   oc login --token=<token> --server=<api-server-url> --certificate-authority=<ca-file>
+
+   # Alternative: bypass the certificate check (insecure)
+   oc login --token=<token> --server=<api-server-url> --insecure-skip-tls-verify=true
+   ```
+
 **NOTE: If you have closed your session or open a new session you will need to peform the `export` and `oc login` again in the new session. 
 
 **Verification**
