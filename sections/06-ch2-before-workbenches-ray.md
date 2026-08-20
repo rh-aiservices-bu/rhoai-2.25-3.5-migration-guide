@@ -16,7 +16,7 @@ There are two major upgrade paths to follow. As a Red Hat OpenShift AI administr
 
 * RStudio workbenches require a new build from the RStudio BuildConfig after the upgrade. The existing image will not be compatible with the new authentication layer without this rebuild.
 
-* Workbenches created in Red Hat OpenShift AI version 2.25.9 (and later) or earlier are officially unsupported in the Red Hat OpenShift AI 3.5 environment unless they have been manually migrated.
+* Workbenches created in Red Hat OpenShift AI version 2.25 or earlier are officially unsupported in the Red Hat OpenShift AI 3.5 environment unless they have been manually migrated.
 
   **Important**  
   Workbenches that are not migrated will remain on the OpenShift AI 2.25.9 (and later) authentication layer. This legacy setup, paired with potential **NB\_PREFIX** routing conflicts, often results in redirection loops or connectivity failures—particularly for RStudio, Code Server, or custom images.
@@ -233,11 +233,16 @@ rules:
 
    Expected output: `Removed`
 
-2. Run a pre-upgrade check that verifies your configuration, verifies that the Ray clusters are ready for the upgrade, and backs up your Ray cluster CR configuration YAML files:  
+2. Create a folder for Ray cluster backup in `/tmp/rhoai-upgrade-backup`
+
+   ```bash
+   mkdir /tmp/rhoai-upgrade-backup/ray_cluster
+   ```
+3. Run a pre-upgrade check that verifies your configuration, verifies that the Ray clusters are ready for the upgrade, and backs up your Ray cluster CR configuration YAML files:  
    **Note**  
    The migration backs up your Ray cluster CR configuration YAML files only. It does not back up the state of your Ray clusters.  
    ```bash
-   rhai-cli migrate run --migration raycluster.backup --target-version 3.5.0
+   rhai-cli migrate run --migration raycluster.backup --target-version 3.5.0  --raycluster-output-dir /tmp/rhoai-upgrade-backup/ray_cluster
    ```
    The migration runs pre-upgrade checks. If all pre-upgrade checks succeed, then it saves your Ray cluster CR configurations to the following subdirectories under the backup directory:
 
@@ -245,7 +250,7 @@ rules:
 
    * **Rhoai-3.x** \- Your Ray cluster CR configurations YAML files that are compatible with OpenShift AI 3.x.
 
-3. Get a list of the Ray clusters and check their status:
+4. Get a list of the Ray clusters and check their status:
 
    ```bash
    rhai-cli migrate list --target-version 3.5.0

@@ -416,7 +416,6 @@ For example, to perform a targeted check on the AI Pipelines component, run the 
 | Ray Training Operator | **\*ray\***                  |
 | Kubeflow Training Operator | **\*trainingoperator\***     |
 
-**Note:** This is not an exhaustive list for all the components. To get a full list of checks replace the check option with `--help`
 
 After you resolve each blocking item, re-run the **lint** command to confirm that the item no longer appears in the script output.
 
