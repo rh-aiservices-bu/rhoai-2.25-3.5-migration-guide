@@ -609,14 +609,6 @@ After you resolve each blocking item, re-run the **lint** command to confirm tha
 
 Before upgrading to OpenShift AI 3.5, ensure that no items with **critical** or **prohibited** impact appear in the migration assessment script output.
 
-**Retrieve Data**
-
-Run the following command from outside the pod:
-
-```bash
-oc cp -n <namespace> rhai-cli-0:/tmp/rhoai-upgrade-backup ./local-reports
-```
-
 ## 
 
 ## 
