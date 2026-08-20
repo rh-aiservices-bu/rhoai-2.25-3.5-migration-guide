@@ -60,7 +60,7 @@ Since Llama Stack was in Technology Preview in 2.25.x and has been renamed to OG
 
    * Schedule a maintenance window for the upgrade.
 
-   * Provide them with the OpenShift AI 3.5 OGX documentation for recreating deployments. See [Working with Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_llama_stack/index).
+   * Provide them with the OpenShift AI 3.5 OGX documentation for recreating deployments. See [Working with Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_ogx/index).
 
 ### **2.5.2. Llama Stack upgrade steps for LlamaStackDistribution resource owners** {#2.5.2.-llama-stack-upgrade-steps-for-llamastackdistribution-resource-owners}
 
@@ -139,7 +139,7 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (a
 
       * Agent API changes: Review and update agent creation and interaction code for API compatibility.
 
-   3. The usage of the **llama-stack-client** library is distinct in OpenShift AI 3.5, refer to [OpenAI-compatible APIs in Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_llama_stack/overview-of-llama-stack_rag#openai-compatible-apis-in-Llama-Stack_rag).
+   3. The usage of the **llama-stack-client** library is distinct in OpenShift AI 3.5, refer to [OpenAI-compatible APIs in Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_ogx/overview-of-ogx_rag#openai-compatible-apis-in-ogx_rag).
 
    4. It is recommended to test your new OGX deployments in an OpenShift AI 3.5 staging cluster. Testing in the staging cluster allows you to do the following:
 

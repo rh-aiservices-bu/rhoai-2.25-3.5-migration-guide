@@ -557,7 +557,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
    }'
    ```
 
-4. If the Serverless Operator is installed, uninstall it: 
+3. If the Serverless Operator is installed, uninstall it: 
 
    1. In the OpenShift web console, navigate to **Operators** → **Installed Operators**.
 
@@ -571,7 +571,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
 
    6. Click **Uninstall**.
 
-5. If the Service Mesh 2 Operator is installed, uninstall it:
+4. If the Service Mesh 2 Operator is installed, uninstall it:
 
    1. In the OpenShift web console, navigate to **Operators** → **Installed Operators**.
 
@@ -585,7 +585,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
 
    6. Click **Uninstall**.
 
-6. If standalone Authorino is installed, uninstall it:
+5. If standalone Authorino is installed, uninstall it:
 
    **Note**  
    In Red Hat OpenShift AI 3.x, Authorino is exclusively necessary for use with **LLMInferenceService**. If Authorino has been installed independently as a standalone component, independent from Red Hat Connectivity Link, it must be uninstalled.
@@ -663,7 +663,12 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 
    From inside the **rhai-cli** container or your terminal, execute the following commands:
 
-1. Create the Kuadrant custom resource:
+8. Create the `kuadrant-system` namespace:
+   ```bash
+   oc new-project kuadrant-system
+   ```
+   
+9. Create the Kuadrant custom resource in the `kuadrant-system` namespace:
 
    ```bash
    oc apply -f - <<EOF
@@ -675,13 +680,13 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
    EOF
    ```
 
-2. Wait for Kuadrant to become ready:
+10. Wait for Kuadrant to become ready:
 
    ```bash
    oc wait Kuadrant -n kuadrant-system kuadrant --for=condition=Ready --timeout=10m
    ```
 
-3. Add the **ServingCert** annotation to the Authorino service:
+11. Add the **ServingCert** annotation to the Authorino service:
 
    ```bash
    oc annotate svc/authorino-authorino-authorization service.beta.openshift.io/serving-cert-secret-name=authorino-server-cert -n kuadrant-system
@@ -693,7 +698,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
    sleep 2
    ```
 
-4. Update Authorino to enable SSL:
+12. Update Authorino to enable SSL:
 
    ```bash
    oc apply -f - <<EOF
@@ -716,7 +721,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
    EOF
    ```
 
-5. Verify that the Authorino pods are ready:
+13. Verify that the Authorino pods are ready:
 
    ```bash
    oc wait --for=condition=ready pod -l authorino-resource=authorino -n kuadrant-system --timeout=150s
@@ -770,7 +775,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 
 **Additional resources**
 
-* [Installing Connectivity Link on OpenShift](https://docs.redhat.com/en/documentation/red_hat_connectivity_link/1.2/html/installing_connectivity_link_on_openshift/index)
+* [Installing Connectivity Link on OpenShift](https://docs.redhat.com/en/documentation/red_hat_connectivity_link/1.0/html/installing_connectivity_link_on_openshift/index)
 
 ####  **2.10.10.2. Configure Red Hat Connectivity Link for disconnected environments** {#2.10.10.2.-configure-red-hat-connectivity-link-for-disconnected-environments}
 

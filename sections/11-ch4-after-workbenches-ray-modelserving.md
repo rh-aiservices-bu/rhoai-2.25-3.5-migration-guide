@@ -47,8 +47,8 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
    This command prompts for interactive confirmation twice: once before patching notebooks, and once before cleaning up legacy OAuth resources. Enter **y** at each prompt to proceed.
 
    As the command runs, it provides output that indicates the status of the patch process. When the command completes, you should see a messages similar to the following:  
-* **Processed 9 workbenches: all succeeded.**  
-*  **Cleanup: all 9 workbenches completed successfully.**
+* **Migration workbenched.patch-auth-model completed successfully!**  
+* **All migrations completed successfully!**
 
 3. Notify your users that any workbenches that were stopped in order to prepare for the upgrade can now be started again.
 
@@ -62,7 +62,7 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
    ```
 
    As the command runs, it provides output that indicates the status of your workbench upgrade. When the command completes, you should see a message similar to the following:  
-    **OK: All workbenches have been migrated.**
+    **All migrations completed successfully!**
 
 2. Confirm with your OpenShift AI users that they can access their workbench IDE from a web browser.
 

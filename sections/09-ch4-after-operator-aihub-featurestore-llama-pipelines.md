@@ -33,19 +33,19 @@ After the upgrade process finishes, you must verify that the environment is stab
    **Note**  
    In the following commands, replace the default **redhat-ods-operator** and **redhat-ods-applications** with your specific namespace names.
 
-1. Verify that all Operator pods in the Operator namespace have **Status** equal to **Running** and their condition **Ready** is **True\`**.
+3. Verify that all Operator pods in the Operator namespace have **Status** equal to **Running** and their condition **Ready** is **True\`**.
 
    ```bash
    oc get pods -n redhat-ods-operator -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
    ```
 
-2. Verify that all component controller pods in the applications namespace have **Status** equal to **Running** and their condition **Ready** is **True**.
+4. Verify that all component controller pods in the applications namespace have **Status** equal to **Running** and their condition **Ready** is **True**.
 
    ```bash
    oc get pods -n redhat-ods-applications -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
    ```
 
-3. Verify that the RHOAI gateway is ready:
+5. Verify that the RHOAI gateway is ready:
 
    ```bash
    oc get gatewayconfigs --all-namespaces -o wide
@@ -53,28 +53,28 @@ After the upgrade process finishes, you must verify that the environment is stab
 
    Expected output is: default-gateway shows READY: True
 
-4. If the dashboard component is installed, verify that the console link exists and functions correctly.
+6. If the dashboard component is installed, verify that the console link exists and functions correctly.
 
-1. Click the **Red Hat OpenShift AI** link in the OpenShift console to go to the log in page.  
-2. Log in to the application and confirm that the dashboard is displayed.
+7. Click the **Red Hat OpenShift AI** link in the OpenShift console to go to the log in page.  
+8. Log in to the application and confirm that the dashboard is displayed.
 
-5. Change the OpenShift AI Operator update channel:
+9. Change the OpenShift AI Operator update channel:
 
-1. In the OpenShift web console, select **Operators \> Installed Operators**.
+10. In the OpenShift web console, select **Operators \> Installed Operators**.
 
-2. Select the **Red Hat OpenShift AI 3.5 Operator**. 
+11. Select the **Red Hat OpenShift AI 3.5 Operator**. 
 
-3. Select Subscriptions and then select the Upgrade channel: **support-required-upgrade-3.5** 
+12. Select Subscriptions and then select the Upgrade channel: **support-required-upgrade-3.5** 
 
-4. From the list of channels, select the 3.x channel that you want to use going forward, for example: **stable-3.5** or **stable-3.x**.
+13. From the list of channels, select the 3.x channel that you want to use going forward, for example: **stable-3.5**, **stable-3.x** or **eus-3.5**.
 
    For more information about update channels, see [Understanding update channels.](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/installing_and_uninstalling_openshift_ai_self-managed/index#understanding-update-channels_install)
 
-5. Click **Save**.
+14. Click **Save**.
 
    If there are later OpenShift AI releases available, either later on the 3.5 release or for a later release, such as 3.4 or 3.5, the Operator subscription proposes install plans for them. 
 
-6. Optionally, you can select to upgrade your environment to the most current release of OpenShift AI 3.x.
+15. Optionally, you can select to upgrade your environment to the most current release of OpenShift AI 3.x.
 
 **Troubleshooting** 
 
@@ -90,6 +90,8 @@ After upgrading Red Hat OpenShift AI on a disconnected cluster, the Red Hat Open
 - The `data-science-gateway` Gateway in `openshift-ingress` shows `Unknown` status.
 
 For information on how to resolve this issue, see the [OpenShift Service Mesh 3.x fails to deploy on a disconnected cluster during Red Hat OpenShift AI installation](https://access.redhat.com/solutions/7141146) knowledgebase article.
+
+**Note** With the OCP release of 4.20.31+. 4.21.22+, or 4.22+ Service Mesh 3 is no longer required as a dependency operator. 
 
 **Resolving dashboard URL 404 errors**  
 If you have bookmarked dashboard URLs, you must recreate redirects after the upgrade is complete. For more information, see the [Resolving dashboard URL 404 errors after upgrading from 2.x to 3.x](https://access.redhat.com/solutions/7137771).
@@ -108,39 +110,43 @@ During the upgrade from OpenShift AI 2.25.9 to 3.5, the operator automatically p
 
 ***Kueue \- after upgrade***
 
-*After upgrading to OpenShift AI 3.5, verify that the Kueue component is properly configured and operational. If the Kueue migration to Red Hat build of Kueue was not completed before the upgrade, you must recover by completing the migration steps.*
+After upgrading to OpenShift AI 3.5, verify that the Kueue component is properly configured and operational. If the Kueue migration to Red Hat build of Kueue was not completed before the upgrade, you must recover by completing the migration steps.
 
 ***Prerequisites***
 
-* *You have cluster administrator access to the OpenShift cluster.*  
+* *You have cluster administrator access to the OpenShift cluster.  
 * *You have upgraded to OpenShift AI 3.5.*
 
 ***Procedure***
 
-1. *Check that the Kueue component is in a ready state as follows:*
+1. Check that the Kueue component is in a ready state as follows:
 
    ```bash
    read STATUS REASON < <(oc get datasciencecluster -A -o jsonpath='{.items[0].status.conditions[?(@.type=="KueueReady")].status} {.items[0].status.conditions[?(@.type=="KueueReady")].reason}'); [[ "$STATUS" == "True" || ( "$STATUS" == "False" && "$REASON" == "Removed" ) ]] && echo "Ready" || echo "Not Ready"
    ```
 
-2. *If the output is Ready, you can skip all of the remaining steps.*
+2. If the output is Ready, you can skip all of the remaining steps.
 
-   *If the output of the preceding command is Not Ready, check the Kueue component status as follows:*  
+   If the output of the preceding command is Not Ready, check the Kueue component status as follows:
    ```bash
    oc get datasciencecluster -A -o jsonpath='{.items[0].status.conditions[?(@.type=="KueueReady")].status}{"\n"}{.items[0].status.conditions[?(@.type=="KueueReady")].message}{"\n"}'
    ```  
      
-   *The following output indicates that Kueue was not migrated to Red Hat build of Kueue and that migration is required:*  
-   *False*  
-   *Kueue managementState Managed is not supported, please use Removed or Unmanaged*  
+   The following output indicates that Kueue was not migrated to Red Hat build of Kueue and that migration is required:  
+   ```bash
+   False
+   ```
+   Kueue managementState Managed is not supported, please use Removed or Unmanaged*  
      
-   *The following output indicates that you have a non-Kueue managed environment and that migration is not required:*  
-   *False*  
-   *Component ManagementState is set to Removed*  
-3. *If migration to to Red Hat build of Kueue is required, you must follow the steps in Kueue \- Before upgrade.*
+   The following output indicates that you have a non-Kueue managed environment and that migration is not required:
+   ```bash
+   False  
+   Component ManagementState is set to Removed
+   ```  
+3. If migration to Red Hat build of Kueue is required, you must follow the steps in Kueue \- Before upgrade. See [Set Kueue management to Unmanaged](#2.2-set-kueue-management-to-removed)
 
    ***Important***  
-   *Pay close attention to all steps and caveats in the migration procedure, particularly the framework configuration annotation if you are using the default Kueue configuration.*
+   Pay close attention to all steps and caveats in the migration procedure, particularly the framework configuration annotation if you are using the default Kueue configuration.
 
 ## **4.2. AI hub registry and catalog \- After upgrade** {#4.2.-ai-hub-registry-and-catalog---after-upgrade}
 
@@ -172,9 +178,9 @@ In OpenShift AI version 3.x, the dashboard navigation changed from **Models \> m
    oc logs <my-model-registry-pod-name> -n rhoai-model-registries -c <my-container-name>
    ```
 
-3. In the OpenShift AI dashboard, click **Settings \> Model resources and operations \> AI registry settings** to check the status of your model registries. For more information, see [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_model_registries).
+3. In the OpenShift AI dashboard, click **Settings \> Model resources and operations \> Model registry settings** to check the status of your model registries. For more information, see [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_model_registries).
 
-4. Click **AI hub \> Catalog** to check the default catalog and any custom catalogs that were created. For more information, see [Working with the model catalog](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/working_with_the_model_catalog).
+4. Click **AI hub \> Models** to check the default catalog and any custom catalogs that were created. For more information, see [Working with the model catalog](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/working_with_the_model_catalog).
 
 **Verification**
 
@@ -188,7 +194,7 @@ In OpenShift AI version 3.x, the dashboard navigation changed from **Models \> m
 
    * **model-catalog-postgres-xxx**
 
-2. In the OpenShift AI dashboard, on the **Settings \> Model resources and operations \> AI registry settings** page, your model registries are displayed with **Available** status.
+2. In the OpenShift AI dashboard, on the **Settings \> Model resources and operations \> Model registry settings** page, your model registries are displayed with **Available** status.
 
 3. On the **AI Hub \> Model registry** page, your model registries are displayed correctly.
 
@@ -342,7 +348,7 @@ Key differences between OpenShift AI versions 2.25.9 (and later) and 3.5:
 
 **Procedure**
 
-* After you complete the Llama Stack before-upgrade steps and the upgrade process, you can create new **OGXServer** CRs and applications in OpenShift AI version 3.5 using the **llsd-backup.yaml** file as a reference. This file was created in "Llama Stack upgrade steps for **LlamaStackDistribution** resource owners". Refer to the [Deploying a Llama Stack server](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_llama_stack/deploying-llama-stack-server_rag) documentation for more information.
+* After you complete the Llama Stack before-upgrade steps and the upgrade process, you can create new **OGXServer** CRs and applications in OpenShift AI version 3.5 using the **llsd-backup.yaml** file as a reference. This file was created in "Llama Stack upgrade steps for **LlamaStackDistribution** resource owners". Refer to the [Deploying a Llama Stack server](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_ogx/deploying-ogx-server_rag) documentation for more information.
 
 ##  
 

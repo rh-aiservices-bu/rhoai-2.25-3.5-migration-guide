@@ -41,7 +41,7 @@ Before upgrading Red Hat OpenShift AI from version 2.25.9 (and later) to 3.5, co
 
 **Note**
 
-If you have bookmarked dashboard URLs, you must recreate redirects **after** the upgrade is complete. For more information, see the [Resolving dashboard URL 404 errors after upgrading from 2.x to 3.x](https://access.redhat.com/solutions/7137771).
+If you have bookmarked dashboard URLs, you must create redirects **after** the upgrade is complete. For more information, see the [Resolving dashboard URL 404 errors after upgrading from 2.x to 3.x](https://access.redhat.com/solutions/7137771).
 
 **Prerequisites**
 
@@ -49,9 +49,9 @@ If you have bookmarked dashboard URLs, you must recreate redirects **after** the
 
 * You have set the **Update approval** for the Red Hat OpenShift AI 2.25.9 (and later) subscription to **Manual**. This prevents unintended automatic upgrades and requires you to explicitly confirm the upgrade.
 
-* Kueue is set to **Removed** or **Unmanaged** (with external Red Hat build of Kueue Operator installed).
+* Kueue is set to **Removed** or **Unmanaged** (with external Red Hat build of Kueue Operator installed) within the DSC.
 
-* You have completed the Migrate **InferenceServices** to **RawDeployment** mode steps to convert all serving deployments to **RawDeployment** mode and removed the OpenShift Service Mesh 2 Operator.
+* You have completed the Migrate **InferenceServices** to **RawDeployment** mode steps to convert all serving deployments to **RawDeployment** mode and removed the OpenShift Service Mesh 2 Operator and Serverless Operator.
 
 * You have configured Model Serving to ignore hardware profile annotations to avoid inference service restarts during the upgrade, according to Update the inferenceservice-config ConfigMap.
 
@@ -65,6 +65,8 @@ If you have bookmarked dashboard URLs, you must recreate redirects **after** the
 * You migrated any other component workloads that require migration before the upgrade.
 
 * You have OpenShift cluster administrator permissions to install Operators and edit **DataScienceCluster** and **DataScienceClusterInitialization** resources.
+
+* The `rhai-cli lint --target-version 3.5` does not report any errors
 
 **Procedure**
 
@@ -132,7 +134,7 @@ After preparing your cluster and changing the subscription channel, you must man
 
 * You have completed all the before upgrade tasks and verified that the cluster is ready for upgrade.
 
-* Rerun the rh-ai  assessment script to make sure all critical issues are resolved.
+* Rerun the rhai-cli script to make sure all critical issues are resolved.
 
 * For disconnected environments, you have a mirror registry and oc-mirror v2, as described in [Mirroring images for a disconnected installation by using the oc-mirror plugin v2](https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/disconnected_environments/about-installing-oc-mirror-v2).
 
@@ -262,7 +264,7 @@ After preparing your cluster and changing the subscription channel, you must man
 10. For the **Upgrade channel**, select **support-required-upgrade-3.5**.
 
    **NOTE**:   
-   Several other 3.x channels might be visible in the **Change Subscription update channels** list, such as fast-3.x, stable-3.5, and stable-3.x. However, these channels do not provide a cross-major upgrade from 2.25. Only the **support-required-upgrade-3.5** channel provides an upgrade from 2.25.9 or later to 3.5. The unversioned **support-required-upgrade** channel is for upgrading from 2.25 to 3.3 only.
+   Several other 3.x channels might be visible in the **Change Subscription update channels** list, such as fast-3.x, stable-3.5, and stable-3.x. However, these channels do not provide a cross-major upgrade from 2.25. Only the **support-required-upgrade-3.5** channel provides an upgrade from 2.25.9 or later to 3.5. The unversioned **support-required-upgrade** channel is for upgrading from 2.25 to 3.3 only and should not be used here.
 
 11. Approve the install plan to begin the upgrade.
 
@@ -279,13 +281,13 @@ After preparing your cluster and changing the subscription channel, you must man
    **Important**  
    The JobSet operator only supports **OwnNamespace** and **SingleNamespace** install modes. Do not install it in the `openshift-operators` namespace, which uses an **AllNamespaces** OperatorGroup.
 
-   1. Create a dedicated namespace:
+   a. Create a dedicated namespace:
 
       ```bash
       oc create namespace jobset-system
       ```
 
-   2. Create an **OwnNamespace** OperatorGroup:
+   b. Create an **OwnNamespace** OperatorGroup:
 
       ```bash
       oc apply -f - <<'EOF'
@@ -300,7 +302,7 @@ After preparing your cluster and changing the subscription channel, you must man
       EOF
       ```
 
-   3. Subscribe to the operator:
+   c. Subscribe to the operator:
 
       ```bash
       oc apply -f - <<'EOF'
@@ -318,7 +320,7 @@ After preparing your cluster and changing the subscription channel, you must man
       EOF
       ```
 
-   4. Wait for the CSV to reach **Succeeded**:
+   d. Wait for the CSV to reach **Succeeded**:
 
       ```bash
       oc wait csv jobset-operator.v1.0.0 -n jobset-system \
@@ -328,7 +330,7 @@ After preparing your cluster and changing the subscription channel, you must man
       **Tip**  
       If the CSV name differs from `jobset-operator.v1.0.0`, verify it with `oc get csv -n jobset-system`.
 
-   5. Create the **JobSetOperator** custom resource to deploy the operand. This installs the `jobsets.jobset.x-k8s.io` CRD that Kueue requires:
+   e. Create the **JobSetOperator** custom resource to deploy the operand. This installs the `jobsets.jobset.x-k8s.io` CRD that Kueue requires:
 
       ```bash
       oc apply -f - <<'EOF'
@@ -343,7 +345,7 @@ After preparing your cluster and changing the subscription channel, you must man
       EOF
       ```
 
-   6. Verify that the CRD exists and KueueReady is True:
+   f. Verify that the CRD exists and KueueReady is True:
 
       ```bash
       oc get crd jobsets.jobset.x-k8s.io
@@ -351,6 +353,7 @@ After preparing your cluster and changing the subscription channel, you must man
       ```
 
       Expected output: the CRD is listed and KueueReady shows **True**.
+      **Note* If the kueue component was set to `removed` in the DSC before upgrade then the above command will return **False**. For step to setting up kueue See [Set Kueue management to Unmanaged](#2.2-set-kueue-management-to-removed)
 
 14. Verify that the rhai-cli pod has cluster access for post-upgrade commands. The service account ClusterRoleBinding may need to be re-applied after the upgrade:
 
