@@ -10,9 +10,9 @@
 > **For a real 2.25 migration, use the official Red Hat documentation instead:**
 > **[Migrating from Red Hat OpenShift AI 2.25 (access.redhat.com)](https://access.redhat.com/articles/7133758?extIdCarryOver=true&sc_cid=RHCTG0180000382538)**
 
-Migration guide for Red Hat OpenShift AI EUS-to-EUS upgrade (2.25.9 to 3.5).
+Migration guide for Red Hat OpenShift AI EUS-to-EUS upgrade (2.25.10 to 3.5).
 
-This guide provides step-by-step instructions for cluster administrators performing an in-place or side-by-side migration from OpenShift AI 2.25.9 (and later) to 3.5, covering all components: Model Serving, Workbenches, TrustyAI, OGX (formerly Llama Stack), AI Pipelines, Ray Training Operator, and Kubeflow Training Operator.
+This guide provides step-by-step instructions for cluster administrators performing an in-place or side-by-side migration from OpenShift AI 2.25.10 (and later) to 3.5, covering all components: Model Serving, Workbenches, TrustyAI, OGX (formerly Llama Stack), AI Pipelines, Ray Training Operator, and Kubeflow Training Operator.
 
 ## Directory structure
 

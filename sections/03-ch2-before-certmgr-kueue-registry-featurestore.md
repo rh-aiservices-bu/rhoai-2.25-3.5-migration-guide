@@ -2,7 +2,7 @@
 
 # Chapter 2\. Before you upgrade {#chapter-2.-before-you-upgrade}
 
-Before you upgrade OpenShift AI from version 2.25.9 (and later) to 3.5, you must migrate workload data for each of the components installed on your OpenShift AI cluster.
+Before you upgrade OpenShift AI from version 2.25.10 (and later) to 3.5, you must migrate workload data for each of the components installed on your OpenShift AI cluster.
 
 The **rhai-cli** utility contains migration actions to assist with pre-upgrade and post-upgrade steps for the Model Serving, Workbenches, TrustyAI, Llama Stack / OGX, AI Pipelines, and Ray Training Operator components.
 
@@ -72,7 +72,7 @@ Install the cert-manager Operator for Red Hat OpenShift using one of the followi
 
 ##  **2.2 Set Kueue management to Removed or Unmanaged** {#2.2-set-kueue-management-to-removed}
 
-The migration assessment script checks your OpenShift AI 2.25.9 (and later) installation to determine the status of the Kueue component management. In OpenShift AI 3.5, the supported Kueue management states are **Removed** and **Unmanaged**. The **Managed** state is accepted by OLM for backwards compatibility but is rejected at runtime.
+The migration assessment script checks your OpenShift AI 2.25.10 (and later) installation to determine the status of the Kueue component management. In OpenShift AI 3.5, the supported Kueue management states are **Removed** and **Unmanaged**. The **Managed** state is accepted by OLM for backwards compatibility but is rejected at runtime.
 
 You must set the Kueue management state to either **Removed** or **Unmanaged** before upgrading:
 
@@ -305,16 +305,16 @@ After upgrade, the dashboard navigation will change to **AI hub \> Registry** an
 
 ## **2.4. Feature Store \- Before upgrade** {#2.4.-feature-store---before-upgrade}
 
-In Red Hat OpenShift AI 2.25.9 (and later) , the Feature Store component is a Technology Preview feature. In OpenShift AI 3.5 , it is a GA feature. Otherwise, the Feature Store component is unchanged between Red Hat OpenShift AI 2.25.9 (and later) and 3.5.
+In Red Hat OpenShift AI 2.25.10 (and later) , the Feature Store component is a Technology Preview feature. In OpenShift AI 3.5 , it is a GA feature. Otherwise, the Feature Store component is unchanged between Red Hat OpenShift AI 2.25.10 (and later) and 3.5.
 
-If you use the Feature Store component in OpenShift AI 2.25.9 (and later) , follow the steps in this procedure to verify that Feature Store is working correctly before you upgrade to OpenShift AI 3.5.
+If you use the Feature Store component in OpenShift AI 2.25.10 (and later) , follow the steps in this procedure to verify that Feature Store is working correctly before you upgrade to OpenShift AI 3.5.
 
 **Note**  
-If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later) , skip this section. You do not need to perform any steps for Feature Store before you upgrade to 3.5.
+If you do not use the Feature Store component in OpenShift AI 2.25.10 (and later) , skip this section. You do not need to perform any steps for Feature Store before you upgrade to 3.5.
 
 **Prerequisites**
 
-* You created a Feature Store Custom Resource (CR) in OpenShift AI 2.25.9 (and later) .
+* You created a Feature Store Custom Resource (CR) in OpenShift AI 2.25.10 (and later) .
 
 * You have OpenShift AI administrator access for the procedure steps and OpenShift AI user access for the verification steps.
 

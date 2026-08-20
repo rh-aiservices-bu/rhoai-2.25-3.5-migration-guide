@@ -147,7 +147,7 @@ Verify that the management state of the TrustyAI component for your Data Science
 
 ### **2.7.2. TrustyAI \- Before upgrade \- Backup metrics** {#2.7.2.-trustyai---before-upgrade---backup-metrics}
 
-You can backup scheduled TrustyAI metrics before you upgrade OpenShift AI 2.25.9 (and later) to 3.5.
+You can backup scheduled TrustyAI metrics before you upgrade OpenShift AI 2.25.10 (and later) to 3.5.
 
 **Prerequisites**
 
@@ -297,7 +297,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 
 ### **2.7.3. TrustyAI \- Before upgrade \- Backup data storage** {#2.7.3.-trustyai---before-upgrade---backup-data-storage}
 
-You can backup TrustyAI data storage before you upgrade OpenShift AI 2.25.9 (and later) to 3.5. The **rhai-cli** `trustyai.data` migration action auto-detects storage type (PVC or DATABASE) from the TrustyAIService CR and performs the appropriate backup.
+You can backup TrustyAI data storage before you upgrade OpenShift AI 2.25.10 (and later) to 3.5. The **rhai-cli** `trustyai.data` migration action auto-detects storage type (PVC or DATABASE) from the TrustyAIService CR and performs the appropriate backup.
 
 The backup for each namespace is a self-contained directory with a **metadata.json** file and the data.
 
@@ -367,7 +367,7 @@ If the action fails, it provides error messages. Common issues are: PVC not boun
 
 ### **2.7.4. TrustyAI \- Before upgrade \- Guardrails Orchestrator** {#2.7.4.-trustyai---before-upgrade---guardrails-orchestrator}
 
-Before you upgrade OpenShift AI 2.25.9 (and later) to 3.5, set the name of all TrustyAI Guardrails Orchestrator services, validate the custom resource, and check for OpenTelemetry exporters.
+Before you upgrade OpenShift AI 2.25.10 (and later) to 3.5, set the name of all TrustyAI Guardrails Orchestrator services, validate the custom resource, and check for OpenTelemetry exporters.
 
 **Prerequisites**
 

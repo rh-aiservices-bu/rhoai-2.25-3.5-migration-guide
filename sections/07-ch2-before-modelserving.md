@@ -66,7 +66,7 @@ Following is an overview of the steps that you must complete for the model servi
 
 ### **2.10.4. Prerequisites for model serving migration** {#2.10.4.-prerequisites-for-model-serving-migration}
 
-Before migrating Model Serving workloads from Red Hat OpenShift AI 2.25.9 (and later) to 3.5, verify that your environment meets the following requirements.
+Before migrating Model Serving workloads from Red Hat OpenShift AI 2.25.10 (and later) to 3.5, verify that your environment meets the following requirements.
 
 * You have cluster administrator access to the OpenShift cluster and are authenticated via the OpenShift CLI (**oc**).
 
@@ -523,7 +523,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
 
 1. Update the **DataScienceCluster** (DSC) configuration to use **RawDeployment** as the default deployment mode and disable removed components.
 
-   **Note**: These commands use the DSC v1 API field names (`modelmeshserving`, `serviceMesh`) because they are run against your OpenShift AI 2.25.9 cluster before upgrade. After upgrading to 3.5, the operator automatically converts to the v2 API.
+   **Note**: These commands use the DSC v1 API field names (`modelmeshserving`, `serviceMesh`) because they are run against your OpenShift AI 2.25.10 cluster before upgrade. After upgrading to 3.5, the operator automatically converts to the v2 API.
 
    ```bash
    export DSC_NAME=$(oc get dsc -o jsonpath='{.items[0].metadata.name}')
@@ -557,7 +557,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
    }'
    ```
 
-4. If the Serverless Operator is installed, uninstall it: 
+3. If the Serverless Operator is installed, uninstall it: 
 
    1. In the OpenShift web console, navigate to **Operators** → **Installed Operators**.
 
@@ -571,7 +571,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
 
    6. Click **Uninstall**.
 
-5. If the Service Mesh 2 Operator is installed, uninstall it:
+4. If the Service Mesh 2 Operator is installed, uninstall it:
 
    1. In the OpenShift web console, navigate to **Operators** → **Installed Operators**.
 
@@ -585,7 +585,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
 
    6. Click **Uninstall**.
 
-6. If standalone Authorino is installed, uninstall it:
+5. If standalone Authorino is installed, uninstall it:
 
    **Note**  
    In Red Hat OpenShift AI 3.x, Authorino is exclusively necessary for use with **LLMInferenceService**. If Authorino has been installed independently as a standalone component, independent from Red Hat Connectivity Link, it must be uninstalled.
@@ -663,7 +663,12 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 
    From inside the **rhai-cli** container or your terminal, execute the following commands:
 
-1. Create the Kuadrant custom resource:
+8. Create the `kuadrant-system` namespace:
+   ```bash
+   oc new-project kuadrant-system
+   ```
+   
+9. Create the Kuadrant custom resource in the `kuadrant-system` namespace:
 
    ```bash
    oc apply -f - <<EOF
@@ -675,13 +680,13 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
    EOF
    ```
 
-2. Wait for Kuadrant to become ready:
+10. Wait for Kuadrant to become ready:
 
    ```bash
    oc wait Kuadrant -n kuadrant-system kuadrant --for=condition=Ready --timeout=10m
    ```
 
-3. Add the **ServingCert** annotation to the Authorino service:
+11. Add the **ServingCert** annotation to the Authorino service:
 
    ```bash
    oc annotate svc/authorino-authorino-authorization service.beta.openshift.io/serving-cert-secret-name=authorino-server-cert -n kuadrant-system
@@ -693,7 +698,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
    sleep 2
    ```
 
-4. Update Authorino to enable SSL:
+12. Update Authorino to enable SSL:
 
    ```bash
    oc apply -f - <<EOF
@@ -716,7 +721,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
    EOF
    ```
 
-5. Verify that the Authorino pods are ready:
+13. Verify that the Authorino pods are ready:
 
    ```bash
    oc wait --for=condition=ready pod -l authorino-resource=authorino -n kuadrant-system --timeout=150s
@@ -770,7 +775,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 
 **Additional resources**
 
-* [Installing Connectivity Link on OpenShift](https://docs.redhat.com/en/documentation/red_hat_connectivity_link/1.2/html/installing_connectivity_link_on_openshift/index)
+* [Installing Connectivity Link on OpenShift](https://docs.redhat.com/en/documentation/red_hat_connectivity_link/1.0/html/installing_connectivity_link_on_openshift/index)
 
 ####  **2.10.10.2. Configure Red Hat Connectivity Link for disconnected environments** {#2.10.10.2.-configure-red-hat-connectivity-link-for-disconnected-environments}
 
@@ -969,7 +974,7 @@ In Red Hat OpenShift AI 3.5 and later, distributed inference with **LLMInference
 
 #### **2.10.10.4. Freeze LLMInferenceService configuration for upgrade** {#2.10.10.4.-freeze-llminferenceservice-configuration-for-upgrade}
 
-Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25.9 (and later) templates to prevent scheduler pod failures during the upgrade to version 3.5.
+Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25.10 (and later) templates to prevent scheduler pod failures during the upgrade to version 3.5.
 
 **Prerequisites**
 
@@ -979,7 +984,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 
 **Procedure**
 
-1. Pin **LLMInferenceService** configurations to use RHOAI 2.25.9 (and later) templates to prevent scheduler pod failures during upgrade:
+1. Pin **LLMInferenceService** configurations to use RHOAI 2.25.10 (and later) templates to prevent scheduler pod failures during upgrade:
 
    ```bash
    oc patch llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> \
@@ -1001,7 +1006,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 
    * Required configuration: Must include **\--cert-path** argument and **SSL\_CERT\_DIR** environment variable
 
-     Following is an example Diff of an LLMInferenceService configuration for the scheduler arguments and environment variables from 2.25.9 (and later) to 3.5:
+     Following is an example Diff of an LLMInferenceService configuration for the scheduler arguments and environment variables from 2.25.10 (and later) to 3.5:
 
      ```yaml
      kind: LLMInferenceService
@@ -1043,7 +1048,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 
 ### **2.10.11. Verify migration readiness** {#2.10.11.-verify-migration-readiness}
 
-Verify that all migration prerequisites have been completed and your cluster is ready for the Red Hat OpenShift AI operator upgrade from version 2.25.9 (and later) to 3.5.
+Verify that all migration prerequisites have been completed and your cluster is ready for the Red Hat OpenShift AI operator upgrade from version 2.25.10 (and later) to 3.5.
 
 **Prerequisites**
 
@@ -1077,4 +1082,4 @@ If the **rhai-cli** output identifies issues:
 
 **Important**
 
-Do not proceed with the Red Hat OpenShift AI operator upgrade from version 2.25.9 (and later) to 3.5 if the **rhai-cli** output shows any critical issues. Address all critical issues by completing the relevant component migration procedures before upgrading.
+Do not proceed with the Red Hat OpenShift AI operator upgrade from version 2.25.10 (and later) to 3.5 if the **rhai-cli** output shows any critical issues. Address all critical issues by completing the relevant component migration procedures before upgrading.

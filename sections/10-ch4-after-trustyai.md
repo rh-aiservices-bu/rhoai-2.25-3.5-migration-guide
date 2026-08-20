@@ -217,7 +217,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0
    ```
 
-5. Query the **/info** endpoint of the **GuardrailsOrchestrator** service:
+5. Query the **info** endpoint of the **GuardrailsOrchestrator** service:
 
    ```bash
    export GORCH_NAME=<gorch-name>

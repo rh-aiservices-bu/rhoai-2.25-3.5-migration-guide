@@ -2,9 +2,9 @@
 
 ## **1.1. Overview of OpenShift AI migration** {#1.1.-overview-of-openshift-ai-migration}
 
-Red Hat OpenShift AI 3.5 is the first 3.x release to support migration from OpenShift AI 2.25.9 (and later) . The OpenShift AI 3.x release introduces significant technology and component changes, making a direct upgrade from 2.25.9 (and later) technically complex.
+Red Hat OpenShift AI 3.5 is the first 3.x release to support migration from OpenShift AI 2.25.10 (and later) . The OpenShift AI 3.x release introduces significant technology and component changes, making a direct upgrade from 2.25.10 (and later) technically complex.
 
-This guide provides step-by-step instructions on how to migrate from OpenShift AI 2.25.9 (and later) to 3.5.
+This guide provides step-by-step instructions on how to migrate from OpenShift AI 2.25.10 (and later) to 3.5.
 
 ### **1.1.1. Overview of migration assessment steps**  {#1.1.1.-overview-of-migration-assessment-steps}
 
@@ -21,7 +21,7 @@ This guide provides step-by-step instructions on how to migrate from OpenShift A
 5. Deploy a long-living pod for the container image that contains the migration assessment linting CLI and migration actions for specific component migrations. See [Deploy a persistent pod on your cluster and download the rhai-cli container image.](#1.3-deploy-a-persistent-pod-on-your-cluster-that-includes-the-the-rhai-cli-container-image)
 
 6. Run the migration assessment script, as described in [Using the migration assessment script](#heading-1).  
-   The **rhai-cli** migration assessment script is a command-line utility designed to help administrators perform a gap analysis of your OpenShift AI environment. It identifies workloads and configurations that are impacted by the migration from OpenShift AI version 2.25.9 (and later) to 3.5.
+   The **rhai-cli** migration assessment script is a command-line utility designed to help administrators perform a gap analysis of your OpenShift AI environment. It identifies workloads and configurations that are impacted by the migration from OpenShift AI version 2.25.10 (and later) to 3.5.
 
 7. Submit the results of the migration assessment script to Technical Support, as described in [Submit the assessment output to Red Hat Technical Support](#1.5-submit-the-assessment-output-to-red-hat-technical-support)
 
@@ -43,11 +43,11 @@ Your OpenShift cluster must be at least version 4.19.9. If it is not, follow the
 
 **Determine your migration approach**
 
-There are two primary approaches for migrating from OpenShift AI 2.25.9 (and later) to 3.5:
+There are two primary approaches for migrating from OpenShift AI 2.25.10 (and later) to 3.5:
 
-* Side-by-side environment: This approach involves setting up a second environment that runs OpenShift AI 3.5 alongside your existing 2.25.9 (and later) environment. Because your existing OpenShift AI 2.25.9 (and later) environment is left untouched, the risk of unrecoverable cluster state is greatly minimized, and a full cluster backup of the 2.25.9 (and later) environment is not a critical requirement, merely a recommended practice. This approach allows for a period of overlap where both environments are operational. You have a much longer window to either recreate or move content from your 2.25.9 (and later) environment to your 3.5 environment.
+* Side-by-side environment: This approach involves setting up a second environment that runs OpenShift AI 3.5 alongside your existing 2.25.10 (and later) environment. Because your existing OpenShift AI 2.25.10 (and later) environment is left untouched, the risk of unrecoverable cluster state is greatly minimized, and a full cluster backup of the 2.25.10 (and later) environment is not a critical requirement, merely a recommended practice. This approach allows for a period of overlap where both environments are operational. You have a much longer window to either recreate or move content from your 2.25.10 (and later) environment to your 3.5 environment.
 
-* In-place migration: This approach involves using a single environment and executing the in-place migration steps documented in this guide. An in-place migration might be necessary if you must complete the migration within a very strict timeframe, for example, within a set maintenance window. This approach carries the highest effort and risk because the existing OpenShift AI 2.25.9 (and later) environment is directly modified. If you choose this approach, a robust, full cluster backup is mandatory because it is the only mechanism for rollback.
+* In-place migration: This approach involves using a single environment and executing the in-place migration steps documented in this guide. An in-place migration might be necessary if you must complete the migration within a very strict timeframe, for example, within a set maintenance window. This approach carries the highest effort and risk because the existing OpenShift AI 2.25.10 (and later) environment is directly modified. If you choose this approach, a robust, full cluster backup is mandatory because it is the only mechanism for rollback.
 
 **Notify users of your migration plan**
 
@@ -60,7 +60,7 @@ If you decide to use an in-place migration approach, you must create a full and 
 NOTE: If you opt for a side-by-side migration which leaves the 2.25 OpenShift AI environment completely untouched, the full and complete backup before migration is a recommendation, rather than a mandatory requirement.
 
 **Check the management status of the Kueue component**  
-The migration assessment script checks your OpenShift AI 2.25.9 (and later) installation to determine the status of the Kueue component management. In OpenShift AI 3.5, the supported Kueue management states are **Removed** and **Unmanaged**. The **Managed** state is accepted by OLM for backwards compatibility but is rejected at runtime.
+The migration assessment script checks your OpenShift AI 2.25.10 (and later) installation to determine the status of the Kueue component management. In OpenShift AI 3.5, the supported Kueue management states are **Removed** and **Unmanaged**. The **Managed** state is accepted by OLM for backwards compatibility but is rejected at runtime.
 
 Optionally, you can check the status of the Kueue component by running the following command:
 
@@ -68,9 +68,9 @@ Optionally, you can check the status of the Kueue component by running the follo
 oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}'
 ```
 
-* If the output is **Removed**, you can migrate from OpenShift AI 2.25.9 (and later) to 3.5. Kueue will be disabled after upgrade.
+* If the output is **Removed**, you can migrate from OpenShift AI 2.25.10 (and later) to 3.5. Kueue will be disabled after upgrade.
 
-* If the output is **Unmanaged**, you can migrate from OpenShift AI 2.25.9 (and later) to 3.5. OpenShift AI will integrate with an externally installed Red Hat build of Kueue (RHBOK) Operator. Before upgrading, ensure that the Red Hat build of Kueue Operator is installed and operational. You can use the `rhai-cli` RHBOK migration action to migrate from embedded Kueue to external RHBOK. See [Set Kueue management to Removed](#2.2-set-kueue-management-to-removed) for details.
+* If the output is **Unmanaged**, you can migrate from OpenShift AI 2.25.10 (and later) to 3.5. OpenShift AI will integrate with an externally installed Red Hat build of Kueue (RHBOK) Operator. Before upgrading, ensure that the Red Hat build of Kueue Operator is installed and operational. You can use the `rhai-cli` RHBOK migration action to migrate from embedded Kueue to external RHBOK. See [Set Kueue management to Removed](#2.2-set-kueue-management-to-removed) for details.
 
 * If the output is **Managed**, you must migrate to either **Removed** or **Unmanaged** before upgrading. The **Managed** state is not supported at runtime in OpenShift AI 3.5. If you want to continue using Kueue, migrate to the **Unmanaged** state with an external Red Hat build of Kueue Operator. If you do not need Kueue, set the state to **Removed**.
 
@@ -78,7 +78,7 @@ oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.manag
 
 **Coordinate permissions and planning**
 
-The process of migrating from OpenShift AI 2.25.9 (and later) to 3.5 requires internal coordination planning for your company.
+The process of migrating from OpenShift AI 2.25.10 (and later) to 3.5 requires internal coordination planning for your company.
 
 Different steps in the migration process require different roles and permissions:
 
@@ -110,7 +110,7 @@ OpenShift AI user:
 
 ## **1.3 Deploy a persistent pod on your cluster that includes the**  **the rhai-cli container image** {#1.3-deploy-a-persistent-pod-on-your-cluster-that-includes-the-the-rhai-cli-container-image}
 
-To prepare for the migration of OpenShift AI 2.25.9 (and later) to 3.5,  deploy a long-lived pod on your OpenShift cluster. This pod provides the following conditions for the migration process:
+To prepare for the migration of OpenShift AI 2.25.10 (and later) to 3.5,  deploy a long-lived pod on your OpenShift cluster. This pod provides the following conditions for the migration process:
 
 * A **StatefulSet** that runs `sleep infinity` to keep the pod alive. The pod name rhai-cli-0  is stable.
 
@@ -310,13 +310,13 @@ The following table lists the **rhai-cli migrate** actions that are registered i
 
 ## **1.4. Run the migration assessment script** {#1.4.-run-the-migration-assessment-script}
 
-The **rhai-cli** migration assessment script is a command-line utility designed to help administrators perform a gap analysis of your OpenShift AI environment. It identifies workloads and configurations that are impacted by the migration from OpenShift AI version 2.25.9 (and later) to 3.5.
+The **rhai-cli** migration assessment script is a command-line utility designed to help administrators perform a gap analysis of your OpenShift AI environment. It identifies workloads and configurations that are impacted by the migration from OpenShift AI version 2.25.10 (and later) to 3.5.
 
 **Important**
 
 **\*** The **rhai-cli** script is a diagnostic utility and will not perform any changes to your cluster. It is intended to guide your migration strategy by identifying gaps.
 
-**\*** You must run this script on your 2.25.9 (and later) cluster. If you run the **rhai-cli** script on a cluster that has already been upgraded, it will not accurately report issues or required actions.
+**\*** You must run this script on your 2.25.10 (and later) cluster. If you run the **rhai-cli** script on a cluster that has already been upgraded, it will not accurately report issues or required actions.
 
 While the lint script itself is non-intrusive, the **rhai-cli migrate** actions are designed to perform specific migration tasks and will modify resources when executed.
 
@@ -482,7 +482,7 @@ Submit the results of the migration assessment script to Technical Support.
       oc cp rhai-migration/rhai-cli-0:/tmp/rhoai-upgrade-backup/rhai-cli-output.yaml ./rhai-cli-output.yaml
       ```
 
-3. If you have not already done so, open a proactive support case through the Red Hat customer portal at [access.redhat.com](http://access.redhat.com). to let Red Hat know that you are considering upgrading Red Hat OpenShift AI 2.25.9 (and later) to 3.5 , as described in [How to submit a Proactive Case](https://access.redhat.com/articles/5387111).
+3. If you have not already done so, open a proactive support case through the Red Hat customer portal at [access.redhat.com](http://access.redhat.com). to let Red Hat know that you are considering upgrading Red Hat OpenShift AI 2.25.10 (and later) to 3.5 , as described in [How to submit a Proactive Case](https://access.redhat.com/articles/5387111).
 
 4. Upload the YAML output file as an attachment to your Red Hat support case. For more information about uploading a file to your support case, see [How to provide files to Red Hat Support](https://access.redhat.com/solutions/2112).
 

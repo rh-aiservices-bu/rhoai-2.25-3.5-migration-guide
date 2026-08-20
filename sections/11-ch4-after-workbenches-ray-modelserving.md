@@ -4,7 +4,7 @@
 
 **Important**
 
-All procedures in this section must be completed after upgrading the Red Hat OpenShift AI Operator from version 2.25.9 (and later) to 3.5. Failure to complete these steps can result in service disruptions for your workbenches.
+All procedures in this section must be completed after upgrading the Red Hat OpenShift AI Operator from version 2.25.10 (and later) to 3.5. Failure to complete these steps can result in service disruptions for your workbenches.
 
 **Prerequisites**
 
@@ -47,8 +47,8 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
    This command prompts for interactive confirmation twice: once before patching notebooks, and once before cleaning up legacy OAuth resources. Enter **y** at each prompt to proceed.
 
    As the command runs, it provides output that indicates the status of the patch process. When the command completes, you should see a messages similar to the following:  
-* **Processed 9 workbenches: all succeeded.**  
-*  **Cleanup: all 9 workbenches completed successfully.**
+* **Migration workbenched.patch-auth-model completed successfully!**  
+* **All migrations completed successfully!**
 
 3. Notify your users that any workbenches that were stopped in order to prepare for the upgrade can now be started again.
 
@@ -62,17 +62,17 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
    ```
 
    As the command runs, it provides output that indicates the status of your workbench upgrade. When the command completes, you should see a message similar to the following:  
-    **OK: All workbenches have been migrated.**
+    **All migrations completed successfully!**
 
 2. Confirm with your OpenShift AI users that they can access their workbench IDE from a web browser.
 
 ### **4.7.2. Perform a deferred workbench image migration** {#4.7.2.-perform-a-deferred-workbench-image-migration}
 
-If you are unable to stop some or all of your workbenches during the Red Hat OpenShift AI upgrade from version 2.25.9 (and later) to 3.5, your OpenShift AI users can defer their workbench image migration until after the upgrade.
+If you are unable to stop some or all of your workbenches during the Red Hat OpenShift AI upgrade from version 2.25.10 (and later) to 3.5, your OpenShift AI users can defer their workbench image migration until after the upgrade.
 
 **Important**
 
-* Workbench images left unmigrated continue to operate on the older 2.25.9 (and later) authentication layer. This hybrid environment can result in redirection loops and connectivity failures, primarily due to **NB\_PREFIX** routing conflicts for RStudio, code-server, and custom images.
+* Workbench images left unmigrated continue to operate on the older 2.25.10 (and later) authentication layer. This hybrid environment can result in redirection loops and connectivity failures, primarily due to **NB\_PREFIX** routing conflicts for RStudio, code-server, and custom images.
 
 After the upgrade to Red Hat OpenShift AI version 3.5 is complete, instruct your users to migrate their workbench images by following these steps:
 
@@ -118,7 +118,7 @@ After the upgrade to Red Hat OpenShift AI version 3.5 is complete, instruct your
 
 ## **4.8. Ray Training Operator \- After upgrade** {#4.8.-ray-training-operator---after-upgrade}
 
-After upgrading from Red Hat OpenShift AI 2.25.9 (and later) to 3.5, use the **rhai-cli** tool to migrate your Ray clusters.
+After upgrading from Red Hat OpenShift AI 2.25.10 (and later) to 3.5, use the **rhai-cli** tool to migrate your Ray clusters.
 
 **Note**
 
@@ -263,7 +263,7 @@ The commands in the following procedure include an optional **\--dry-run** argum
 
 **Troubleshooting**
 
-Use the following information to help troubleshoot problems with Ray clusters after you upgrade from Red Hat OpenShift AI 2.25.9 (and later) to 3.5.
+Use the following information to help troubleshoot problems with Ray clusters after you upgrade from Red Hat OpenShift AI 2.25.10 (and later) to 3.5.
 
 * **You did not run the Ray cluster pre-upgrade migration command**  
   If you did not run the pre-upgrade migration before you upgraded to 3.5, you can run it after upgrading to 3.5 by following the procedure described in *Ray Training Operator \- Before upgrade*.
@@ -296,7 +296,7 @@ Resolve any issues and then run the migration command again. Optionally, you can
 * **You migrated a Ray cluster and cannot access it from your bookmarked URL**  
   Instead of the bookmarked URL, use the URL provided in the output of the **raycluster.migrate** migration command.
 
-  During the migration process, the Ray cluster URL changes to use Gateway API access. The 2.25.9 (and later) route URL is no longer accessible for the Ray cluster. When you run the **raycluster.migrate** migration command, it outputs the new URL to access the migrated Ray cluster. If you did not make a note of the new URL, use the CodeFlare SDK inside a workbench to query all your Ray clusters:  
+  During the migration process, the Ray cluster URL changes to use Gateway API access. The 2.25.10 (and later) route URL is no longer accessible for the Ray cluster. When you run the **raycluster.migrate** migration command, it outputs the new URL to access the migrated Ray cluster. If you did not make a note of the new URL, use the CodeFlare SDK inside a workbench to query all your Ray clusters:  
 
   ```python
   from codeflare_sdk import list_all_clusters
@@ -320,7 +320,7 @@ Resolve any issues and then run the migration command again. Optionally, you can
   Your Ray cluster is in an unrecoverable state if, for example, it does not reach *ready* status or the dashboard URL output by the 3.5 migration command does not work.  
   If your Ray cluster is an unrecoverable state:
 
-  1. If you have not already run the **pre-upgrade** migration command to create back ups of your Ray cluster Custom Resource (CR) files, follow the procedure described in *Ray Training Operator \- Before upgrade*. You can do this step before or after upgrading from OpenShift AI 2.25.9 (and later) to 3\.
+  1. If you have not already run the **pre-upgrade** migration command to create back ups of your Ray cluster Custom Resource (CR) files, follow the procedure described in *Ray Training Operator \- Before upgrade*. You can do this step before or after upgrading from OpenShift AI 2.25.10 (and later) to 3\.
 
   2. Run the migration command with the **\--raycluster-from-backup $BACKUP\_DIR/rhoai-3.x** argument.
 
@@ -459,13 +459,13 @@ Resolve any issues and then run the migration command again. Optionally, you can
 
 Complete the model serving migration by restoring configurations and verifying that all components are functioning correctly after upgrading to Red Hat OpenShift AI 3.5.
 
-After upgrading the Red Hat OpenShift AI operator from version 2.25.9 (and later) to 3.5, you must restore management annotations on the **inferenceservice-config** **ConfigMap** and verify that all model serving components are operational.
+After upgrading the Red Hat OpenShift AI operator from version 2.25.10 (and later) to 3.5, you must restore management annotations on the **inferenceservice-config** **ConfigMap** and verify that all model serving components are operational.
 
 **Prerequisites**
 
 * You have completed all procedures in [Migrating model serving before upgrade](#2.8.-model-serving---before-upgrade).
 
-* You have successfully upgraded the Red Hat OpenShift AI operator from version 2.25.9 (and later) to 3.5.
+* You have successfully upgraded the Red Hat OpenShift AI operator from version 2.25.10 (and later) to 3.5.
 
 * The operator shows a **Succeeded** phase in the OpenShift web console.
 
@@ -481,7 +481,7 @@ If you were managing a customized **inferenceservice-config** **ConfigMap** manu
 
 **Prerequisites**
 
-* You have successfully upgraded the Red Hat OpenShift AI operator from version 2.25.9 (and later) to 3.5.
+* You have successfully upgraded the Red Hat OpenShift AI operator from version 2.25.10 (and later) to 3.5.
 
 * The operator shows a **Succeeded** phase.
 

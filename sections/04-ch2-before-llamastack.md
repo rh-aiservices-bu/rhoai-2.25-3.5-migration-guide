@@ -6,9 +6,9 @@
 Support for Llama Stack in a disconnected environment is provided starting in OpenShift AI 3.0.
 
 **Note**  
-In OpenShift AI 3.5, Llama Stack has been renamed to **OGX (Open GenAI Stack)**. The **LlamaStackDistribution** custom resource (CR) is replaced by the **OGXServer** (v1beta1) custom resource. All references to "Llama Stack" in this section refer to the component as it exists in OpenShift AI 2.25.9 (and later). After upgrading to 3.5, you will work with OGX resources instead.
+In OpenShift AI 3.5, Llama Stack has been renamed to **OGX (Open GenAI Stack)**. The **LlamaStackDistribution** custom resource (CR) is replaced by the **OGXServer** (v1beta1) custom resource. All references to "Llama Stack" in this section refer to the component as it exists in OpenShift AI 2.25.10 (and later). After upgrading to 3.5, you will work with OGX resources instead.
 
-Upgrading from OpenShift AI version 2.25.9 (and later) to 3.5 requires recreating your Llama Stack deployments as **OGXServer** custom resources. The Llama Stack component was in Technology Preview in 2.25.x and the architecture changes between OpenShift AI versions 2.25.9 (and later) and 3.5 — including the rename to OGX — are incompatible with direct upgrades or data migrations.
+Upgrading from OpenShift AI version 2.25.10 (and later) to 3.5 requires recreating your Llama Stack deployments as **OGXServer** custom resources. The Llama Stack component was in Technology Preview in 2.25.x and the architecture changes between OpenShift AI versions 2.25.10 (and later) and 3.5 — including the rename to OGX — are incompatible with direct upgrades or data migrations.
 
 Cluster administrators and **LlamaStackDistribution** owners perform different upgrade steps:
 
@@ -60,11 +60,11 @@ Since Llama Stack was in Technology Preview in 2.25.x and has been renamed to OG
 
    * Schedule a maintenance window for the upgrade.
 
-   * Provide them with the OpenShift AI 3.5 OGX documentation for recreating deployments. See [Working with Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_llama_stack/index).
+   * Provide them with the OpenShift AI 3.5 OGX documentation for recreating deployments. See [Working with Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_ogx/index).
 
 ### **2.5.2. Llama Stack upgrade steps for LlamaStackDistribution resource owners** {#2.5.2.-llama-stack-upgrade-steps-for-llamastackdistribution-resource-owners}
 
-If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (and later), you must prepare to delete the **LlamaStackDistribution** resources before upgrade and recreate them as **OGXServer** CRs after upgrade. To prepare, you must archive Llama Stack deployment data that can be used as reference when recreating your deployment.
+If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.10 (and later), you must prepare to delete the **LlamaStackDistribution** resources before upgrade and recreate them as **OGXServer** CRs after upgrade. To prepare, you must archive Llama Stack deployment data that can be used as reference when recreating your deployment.
 
 **Prerequisites**
 
@@ -129,7 +129,7 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (a
 
    1. Port the client application code and notebooks to be compatible with OGX (Open GenAI Stack) in OpenShift AI 3.5.
 
-   2. Applications built for OpenShift AI 2.25.9 (and later) will require updates to work with OpenShift AI 3.5 due to API changes. These API changes include:
+   2. Applications built for OpenShift AI 2.25.10 (and later) will require updates to work with OpenShift AI 3.5 due to API changes. These API changes include:
 
       * VectorDB API removed: Replace calls to the deprecated **VectorDB** API with the new **Vector\_IO** API.
 
@@ -139,7 +139,7 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (a
 
       * Agent API changes: Review and update agent creation and interaction code for API compatibility.
 
-   3. The usage of the **llama-stack-client** library is distinct in OpenShift AI 3.5, refer to [OpenAI-compatible APIs in Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_llama_stack/overview-of-llama-stack_rag#openai-compatible-apis-in-Llama-Stack_rag).
+   3. The usage of the **llama-stack-client** library is distinct in OpenShift AI 3.5, refer to [OpenAI-compatible APIs in Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_ogx/overview-of-ogx_rag#openai-compatible-apis-in-ogx_rag).
 
    4. It is recommended to test your new OGX deployments in an OpenShift AI 3.5 staging cluster. Testing in the staging cluster allows you to do the following:
 
