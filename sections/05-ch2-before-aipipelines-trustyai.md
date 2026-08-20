@@ -138,12 +138,15 @@ Verify that the management state of the TrustyAI component for your Data Science
    **Note**  
    If the output is **No resources found**, there are no metrics or storage data to backup. Skip to TrustyAI \- Before upgrade \- Guardrails Orchestrator.
 
-3. Create a directory for backups:
+3. Create a directory for backups on the PVC inside the **rhai-cli** pod:
 
    ```bash
    mkdir -p /tmp/rhoai-upgrade-backup/trustyai
    export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
    ```
+
+   **Note**  
+   The backup directory must reside on the PVC mounted at `/tmp/rhoai-upgrade-backup` inside the **rhai-cli** pod so that backups persist across the upgrade. The backup procedure in the next section re-creates this directory and re-exports `BACKUP_DIR` inside the pod, so you do not need to keep this shell session open.
 
 ### **2.7.2. TrustyAI \- Before upgrade \- Backup metrics** {#2.7.2.-trustyai---before-upgrade---backup-metrics}
 
@@ -161,11 +164,16 @@ You can backup scheduled TrustyAI metrics before you upgrade OpenShift AI 2.25.9
 
 **Procedure**
 
-For each namespace that has a TrustyAI service, follow these steps to backup scheduled TrustyAI metrics:
+For each namespace that has a TrustyAI service, follow these steps to backup scheduled TrustyAI metrics.
 
-1. Set the namespace:
+**Important**  
+Run this entire procedure — steps 1 through 9 **and** all of the verification steps — **inside the rhai-cli pod**, in a single shell session (for example, `oc exec -it rhai-cli-0 -n rhai-migration -- bash`, then log in as described in [Deploy the rhai-cli container image](#1.3-deploy-a-persistent-pod-on-your-cluster-that-includes-the-the-rhai-cli-container-image)). The metrics backup file must be written to the PVC mounted at `/tmp/rhoai-upgrade-backup` so that it persists across the upgrade. If you run the `curl` command in step 8 from your workstation, the file is saved to your local machine instead of the PVC, and the verification steps fail. Running every step in the same in-pod session also keeps the `BACKUP_DIR`, `NS`, and `PF_PID` variables consistent.
+
+1. Ensure the backup directory exists, then set the namespace and backup directory variables:
 
    ```bash
+   mkdir -p /tmp/rhoai-upgrade-backup/trustyai
+   export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
    export NS=<namespace>
    ```
 
@@ -267,15 +275,9 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 
 2. Validate that the backup is not empty:
 
-   **Note**
-   Run this command from your workstation (not from inside the **rhai-cli** pod). It reads the backup file from the pod's PVC and validates it with `jq` locally.
-
    ```bash
-   oc exec rhai-cli-0 -n rhai-migration -- cat ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | jq empty && echo "OK" || echo "FAIL: invalid JSON"
+   cat ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | jq empty && echo "OK" || echo "FAIL: invalid JSON"
    ```
-
-   **Note**
-   Replace `rhai-migration` with the namespace where your **rhai-cli** StatefulSet is deployed, if different.
 
    Example output:
 
@@ -286,7 +288,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 3. Verify that the backup file exists:
 
    ```bash
-   oc exec rhai-cli-0 -n rhai-migration -- ls ${BACKUP_DIR}/trustyai-metrics-${NS}-*
+   ls ${BACKUP_DIR}/trustyai-metrics-${NS}-*
    ```
 
    Example output:
