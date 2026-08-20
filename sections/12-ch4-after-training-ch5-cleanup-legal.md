@@ -60,16 +60,19 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
    `WARNING: migration training.verify-workloads has phase pre-upgrade but effective phase is post-upgrade`  
    This is a known phase registration mismatch in rhai-cli. The migration runs correctly when invoked with `--migration`.
 
-   **Note**  
-   If the training image is not cached, it can take about 7 minutes for the action to complete.
+   The action performs a read-only enumeration of your Kubeflow v1 training workloads (**PyTorchJob**, **TFJob**, **MPIJob**, and **XGBoostJob**) and reports their readiness to migrate to Kubeflow Trainer v2. It does not create any resources or run a test training job, so it completes quickly and does not pull a training image.
 
-   The output should indicate that the KFTOv1 Operator works correctly. Any failures indicate that the KFTO upgrade failed.
+   The output reports one of the following results:
+
+   * **No v1 training workloads found — nothing to migrate**, or **All v1 training jobs are completed — safe to proceed**: no action is required.
+
+   * A **\[BLOCKER\]** for any workload that is still active (in the **Running** or **Created** state): the listed jobs must complete or be stopped before you migrate them to Kubeflow Trainer v2. A blocker indicates active v1 workloads, not a failed upgrade.
 
 **Verification**
 
 * If there were running PyTorchJob resources before the upgrade to 3.5, the before-upgrade and after-upgrade lists of running PyTorchJobs contain the same set of resources.
 
-* The `training.verify-workloads` action reports that the KFTOv1 Operator works correctly.
+* The `training.verify-workloads` action completes successfully and reports either that there are no v1 training workloads to migrate, or that all v1 training jobs are completed. Any workload reported as a **\[BLOCKER\]** (still **Running** or **Created**) must complete or be stopped before you migrate it to Kubeflow Trainer v2.
 
 **Troubleshooting**
 
