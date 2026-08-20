@@ -66,7 +66,7 @@ Following is an overview of the steps that you must complete for the model servi
 
 ### **2.10.4. Prerequisites for model serving migration** {#2.10.4.-prerequisites-for-model-serving-migration}
 
-Before migrating Model Serving workloads from Red Hat OpenShift AI 2.25.9 (and later) to 3.5, verify that your environment meets the following requirements.
+Before migrating Model Serving workloads from Red Hat OpenShift AI 2.25.10 (and later) to 3.5, verify that your environment meets the following requirements.
 
 * You have cluster administrator access to the OpenShift cluster and are authenticated via the OpenShift CLI (**oc**).
 
@@ -523,7 +523,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
 
 1. Update the **DataScienceCluster** (DSC) configuration to use **RawDeployment** as the default deployment mode and disable removed components.
 
-   **Note**: These commands use the DSC v1 API field names (`modelmeshserving`, `serviceMesh`) because they are run against your OpenShift AI 2.25.9 cluster before upgrade. After upgrading to 3.5, the operator automatically converts to the v2 API.
+   **Note**: These commands use the DSC v1 API field names (`modelmeshserving`, `serviceMesh`) because they are run against your OpenShift AI 2.25.10 cluster before upgrade. After upgrading to 3.5, the operator automatically converts to the v2 API.
 
    ```bash
    export DSC_NAME=$(oc get dsc -o jsonpath='{.items[0].metadata.name}')
@@ -974,7 +974,7 @@ In Red Hat OpenShift AI 3.5 and later, distributed inference with **LLMInference
 
 #### **2.10.10.4. Freeze LLMInferenceService configuration for upgrade** {#2.10.10.4.-freeze-llminferenceservice-configuration-for-upgrade}
 
-Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25.9 (and later) templates to prevent scheduler pod failures during the upgrade to version 3.5.
+Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25.10 (and later) templates to prevent scheduler pod failures during the upgrade to version 3.5.
 
 **Prerequisites**
 
@@ -984,7 +984,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 
 **Procedure**
 
-1. Pin **LLMInferenceService** configurations to use RHOAI 2.25.9 (and later) templates to prevent scheduler pod failures during upgrade:
+1. Pin **LLMInferenceService** configurations to use RHOAI 2.25.10 (and later) templates to prevent scheduler pod failures during upgrade:
 
    ```bash
    oc patch llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> \
@@ -1006,7 +1006,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 
    * Required configuration: Must include **\--cert-path** argument and **SSL\_CERT\_DIR** environment variable
 
-     Following is an example Diff of an LLMInferenceService configuration for the scheduler arguments and environment variables from 2.25.9 (and later) to 3.5:
+     Following is an example Diff of an LLMInferenceService configuration for the scheduler arguments and environment variables from 2.25.10 (and later) to 3.5:
 
      ```yaml
      kind: LLMInferenceService
@@ -1048,7 +1048,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 
 ### **2.10.11. Verify migration readiness** {#2.10.11.-verify-migration-readiness}
 
-Verify that all migration prerequisites have been completed and your cluster is ready for the Red Hat OpenShift AI operator upgrade from version 2.25.9 (and later) to 3.5.
+Verify that all migration prerequisites have been completed and your cluster is ready for the Red Hat OpenShift AI operator upgrade from version 2.25.10 (and later) to 3.5.
 
 **Prerequisites**
 
@@ -1082,4 +1082,4 @@ If the **rhai-cli** output identifies issues:
 
 **Important**
 
-Do not proceed with the Red Hat OpenShift AI operator upgrade from version 2.25.9 (and later) to 3.5 if the **rhai-cli** output shows any critical issues. Address all critical issues by completing the relevant component migration procedures before upgrading.
+Do not proceed with the Red Hat OpenShift AI operator upgrade from version 2.25.10 (and later) to 3.5 if the **rhai-cli** output shows any critical issues. Address all critical issues by completing the relevant component migration procedures before upgrading.

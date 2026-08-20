@@ -1,6 +1,6 @@
 # **Chapter 4\. After upgrading to 3.5** {#chapter-4.-after-upgrading-to-3.5-latest}
 
-After you upgrade OpenShift AI from version 2.25.9 (and later) to 3.5, you must validate that workload migration was successful for each of the components installed on your OpenShift AI cluster.
+After you upgrade OpenShift AI from version 2.25.10 (and later) to 3.5, you must validate that workload migration was successful for each of the components installed on your OpenShift AI cluster.
 
 ##  **4.1. OpenShift AI Operator \- After upgrade** {#4.1.-openshift-ai-operator---after-upgrade}
 
@@ -14,7 +14,7 @@ After the upgrade process finishes, you must verify that the environment is stab
 
   * The Red Hat OpenShift AI 3.5 Operator is listed, in addition to dependent Operators, and its ClusterServiceVersion (CSV) status is **Succeeded**.
 
-  * The Red Hat OpenShift AI 2.25.9 (and later) Operator is no longer present.
+  * The Red Hat OpenShift AI 2.25.10 (and later) Operator is no longer present.
 
 **Procedure**
 
@@ -78,7 +78,7 @@ After the upgrade process finishes, you must verify that the environment is stab
 
 **Troubleshooting** 
 
-Use the following information to help troubleshoot problems after you upgrade from Red Hat OpenShift AI 2.25.9 (and later) to 3.5.
+Use the following information to help troubleshoot problems after you upgrade from Red Hat OpenShift AI 2.25.10 (and later) to 3.5.
 
 **OpenShift AI components that depend on OpenShift Service Mesh (OSSM)  do not become ready**
 
@@ -98,7 +98,7 @@ If you have bookmarked dashboard URLs, you must recreate redirects after the upg
 
 **What the operator handles automatically**
 
-During the upgrade from OpenShift AI 2.25.9 to 3.5, the operator automatically performs the following migrations on startup. Cluster administrators do not need to perform these steps manually:
+During the upgrade from OpenShift AI 2.25.10 to 3.5, the operator automatically performs the following migrations on startup. Cluster administrators do not need to perform these steps manually:
 
 * **HardwareProfile auto-migration**: The operator automatically migrates AcceleratorProfiles to HardwareProfiles and attaches HardwareProfile annotations to Notebooks and InferenceServices. This migration uses create-only semantics and preserves any user customizations.
 
@@ -206,13 +206,13 @@ In OpenShift AI version 3.x, the dashboard navigation changed from **Models \> m
 
 ##       **4.3. Feature Store \- After upgrade** {#4.3.-feature-store---after-upgrade}
 
-In Red Hat OpenShift AI 2.25, the Feature Store component is a Technology Preview feature. In OpenShift AI 3.5, it is a GA feature. Otherwise, the Feature Store component is unchanged between Red Hat OpenShift AI 2.25.9 (and later) and 3.5.
+In Red Hat OpenShift AI 2.25, the Feature Store component is a Technology Preview feature. In OpenShift AI 3.5, it is a GA feature. Otherwise, the Feature Store component is unchanged between Red Hat OpenShift AI 2.25.10 (and later) and 3.5.
 
 **Note**  If you did not use the Feature Store component in OpenShift AI 2.25, skip this section. You do not need to perform any steps for Feature Store after you upgrade to 3.5.
 
 If you used the Feature Store component in OpenShift AI 2.25, follow the steps in this procedure to verify that Feature Store is working correctly after you upgrade to OpenShift AI 3.5.
 
-**Note**  The URL for the OpenShift AI 3.5 dashboard uses Gateway API access and is different from the 2.25.9 (and later) URL. The 2.25.9 (and later) dashboard URL is no longer accessible. If you have bookmarked the OpenShift AI dashboard URL, you must update the bookmark to point to the 3.5 URL.
+**Note**  The URL for the OpenShift AI 3.5 dashboard uses Gateway API access and is different from the 2.25.10 (and later) URL. The 2.25.10 (and later) dashboard URL is no longer accessible. If you have bookmarked the OpenShift AI dashboard URL, you must update the bookmark to point to the 3.5 URL.
 
 **Prerequisites**
 
@@ -220,7 +220,7 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
 
 * You have OpenShift AI administrator access for the procedure steps and OpenShift AI user access for the verification steps.
 
-* You upgraded OpenShift AI 2.25.9 (and later) to 3.5.
+* You upgraded OpenShift AI 2.25.10 (and later) to 3.5.
 
 **Procedure**
 
@@ -312,7 +312,7 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
 
 1. As an OpenShift AI user, open the OpenShift AI 3.5 dashboard.  
    **Note**  
-   The URL for the OpenShift AI dashboard has changed to use Gateway API access. The 2.25.9 (and later) URL is no longer accessible.
+   The URL for the OpenShift AI dashboard has changed to use Gateway API access. The 2.25.10 (and later) URL is no longer accessible.
 
 2. Select **Develop & train** → **Feature Store**.
 
@@ -328,7 +328,7 @@ Support for Llama Stack in a disconnected environment is provided starting in Op
 **Note**  
 In OpenShift AI 3.5, the Llama Stack component has been renamed to **OGX (Open GenAI Stack)**. The **LlamaStackDistribution** custom resource is replaced by the **OGXServer** (v1beta1) custom resource.
 
-Key differences between OpenShift AI versions 2.25.9 (and later) and 3.5:
+Key differences between OpenShift AI versions 2.25.10 (and later) and 3.5:
 
 * **Component rename:** Llama Stack is now **OGX (Open GenAI Stack)**. **LlamaStackDistribution** CRs are replaced by **OGXServer** CRs.
 
@@ -338,7 +338,7 @@ Key differences between OpenShift AI versions 2.25.9 (and later) and 3.5:
 
 * **VectorDB API deprecation:** The Vector\_IO API has replaced the deprecated VectorDB API.
 
-* **Llama Stack Client version:** OpenShift AI versions 3.5 uses **llama-stack-client** version 0.4.x, previously OpenShift AI versions 2.25.9 (and later) used **llama-stack-client** version 0.2.x.
+* **Llama Stack Client version:** OpenShift AI versions 3.5 uses **llama-stack-client** version 0.4.x, previously OpenShift AI versions 2.25.10 (and later) used **llama-stack-client** version 0.2.x.
 
 * **Configuration format changes:** The **run.yaml** file has been renamed to the **config.yaml** files in application deployments.
 

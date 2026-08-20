@@ -19,13 +19,13 @@ There are two major upgrade paths to follow. As a Red Hat OpenShift AI administr
 * Workbenches created in Red Hat OpenShift AI version 2.25 or earlier are officially unsupported in the Red Hat OpenShift AI 3.5 environment unless they have been manually migrated.
 
   **Important**  
-  Workbenches that are not migrated will remain on the OpenShift AI 2.25.9 (and later) authentication layer. This legacy setup, paired with potential **NB\_PREFIX** routing conflicts, often results in redirection loops or connectivity failures—particularly for RStudio, Code Server, or custom images.
+  Workbenches that are not migrated will remain on the OpenShift AI 2.25.10 (and later) authentication layer. This legacy setup, paired with potential **NB\_PREFIX** routing conflicts, often results in redirection loops or connectivity failures—particularly for RStudio, Code Server, or custom images.
 
 ###  **2.8.2. Prepare your workbenches for migration** {#2.8.2.-prepare-your-workbenches-for-migration}
 
 **Important**
 
-All procedures in this section must be completed before upgrading the Red Hat OpenShift AI Operator from version 2.25.9 (and later) to 3.5. Failure to complete these steps can result in service disruptions for your workbenches.
+All procedures in this section must be completed before upgrading the Red Hat OpenShift AI Operator from version 2.25.10 (and later) to 3.5. Failure to complete these steps can result in service disruptions for your workbenches.
 
 **Prerequisites**
 
@@ -61,9 +61,9 @@ All procedures in this section must be completed before upgrading the Red Hat Op
 
 2. Stop your running workbenches.
 
-   * Workbench images left unmigrated continue to operate on the older 2.25.9 (and later) authentication layer. This hybrid environment may result in redirection loops and connectivity failures, primarily due to **NB\_PREFIX** routing conflicts for RStudio, code-server, and custom images.
+   * Workbench images left unmigrated continue to operate on the older 2.25.10 (and later) authentication layer. This hybrid environment may result in redirection loops and connectivity failures, primarily due to **NB\_PREFIX** routing conflicts for RStudio, code-server, and custom images.
 
-   * If your users are unable to stop all workbenches before the upgrade from OpenShift AI version 2.25.9 (and later) to 3.5, you can elect to defer image migration until after upgrading to Red Hat OpenShift AI version 3.5. Choosing to defer your image migration introduces additional complexity and risk to your upgrade process. See [Perform a deferred workbench image migration](#4.7.2.-perform-a-deferred-workbench-image-migration) for more information.
+   * If your users are unable to stop all workbenches before the upgrade from OpenShift AI version 2.25.10 (and later) to 3.5, you can elect to defer image migration until after upgrading to Red Hat OpenShift AI version 3.5. Choosing to defer your image migration introduces additional complexity and risk to your upgrade process. See [Perform a deferred workbench image migration](#4.7.2.-perform-a-deferred-workbench-image-migration) for more information.
 
 **Verification**
 
@@ -96,7 +96,7 @@ All procedures in this section must be completed before upgrading the Red Hat Op
       │ ✓       notebook  workload  workload-state                info     All Notebooks are stopped                                                        │  
       └─────────────────────────────────────────────────────────────────────────────  
       Environment:  
-      OpenShift AI version: 2.25.9 (and later) \-\> 3.5  
+      OpenShift AI version: 2.25.10 (and later) \-\> 3.5  
       OpenShift version:    4.20.0
 
       Summary:  

@@ -1,10 +1,10 @@
 ## **4.10. Kubeflow Training Operator \- After upgrade** {#4.10.-kubeflow-training-operator---after-upgrade}
 
-After you upgrade Red Hat OpenShift AI 2.25.9 (and later) to 3.5, any running PyTorchJobs should continue to run and complete as normal.
+After you upgrade Red Hat OpenShift AI 2.25.10 (and later) to 3.5, any running PyTorchJobs should continue to run and complete as normal.
 
 **Note**
 
-The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShift AI 2.25.9 (and later) and is planned to be removed in a future release. This deprecation is part of the OpenShift AI transition to Kubeflow Trainer v2, which delivers enhanced capabilities and improved functionality.
+The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShift AI 2.25.10 (and later) and is planned to be removed in a future release. This deprecation is part of the OpenShift AI transition to Kubeflow Trainer v2, which delivers enhanced capabilities and improved functionality.
 
 **Prerequisites**
 
@@ -20,7 +20,7 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
   oc auth can-i watch pods -A
   ```
 
-* You generated a list of PyTorchJob resources on your OpenShift cluster before you upgraded from OpenShift AI 2.25.9 (and later) to 3.5.
+* You generated a list of PyTorchJob resources on your OpenShift cluster before you upgraded from OpenShift AI 2.25.10 (and later) to 3.5.
 
 * You have logged in to your OpenShift cluster.
 
@@ -30,7 +30,7 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 
 1. Check that the PyTorchJob resources continue to run after you upgrade to OpenShift AI 3.5:  
    **Note**  
-   If there were no running PyTorchJob resources on OpenShift AI 2.25.9 (and later) before the upgrade to 3.5, you can skip this step.
+   If there were no running PyTorchJob resources on OpenShift AI 2.25.10 (and later) before the upgrade to 3.5, you can skip this step.
 
 1. Run the following command to get a list of PyTorchJob resources on your OpenShift cluster:  
    ```bash

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Documentation-only repo: a migration guide for Red Hat OpenShift AI EUS-to-EUS upgrade (2.25.9 to 3.5). No application code, no tests, no linting. All content is Markdown.
+Documentation-only repo: a migration guide for Red Hat OpenShift AI EUS-to-EUS upgrade (2.25.10 to 3.5). No application code, no tests, no linting. All content is Markdown.
 
 ## Build Commands
 
