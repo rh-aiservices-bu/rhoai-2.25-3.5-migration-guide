@@ -134,27 +134,34 @@ The commands in the following procedure include an optional **\--dry-run** argum
 
 **Procedure**
 
-1. List the Ray clusters on your OpenShift cluster:
+1. Preview the migration status of Ray clusters on your OpenShift cluster by using the **\--dry-run** flag:
 
    ```bash
-   rhai-cli migrate list --target-version 3.5.0
+   rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --dry-run
    ```
 
-   The status of all Ray clusters is **NEEDS MIGRATION** as shown in the following example output:
+   The output lists each Ray cluster and its migration status, as shown in the following example:
 
    ```
+   === DRY RUN MODE - No changes will be made ===
+
    Fetching RayClusters (all namespaces)...
    Found 2 RayCluster(s)
-   Analyzing clusters...
-   Analysis complete.
 
-   RayCluster Migration Status:
+   Analyzing clusters for migration status...
+     [1/2] Checking comprehensive-mixed (ns: raytest)... needs migration
+     [2/2] Checking sdk-configurations (ns: raytest)... needs migration
 
-   Name                 Namespace    Status    Workers  Migration Status
-   ----------------------------------------------------------------------
-   comprehensive-mixed  raytest      ready     2        [NEEDS MIGRATION]
-   sdk-configurations   raytest      ready     1        [NEEDS MIGRATION]
-   Migration Summary: 0 migrated, 2 need migration
+   Summary: 2 to migrate, 0 already migrated
+
+     [DRY RUN] Would migrate: comprehensive-mixed (ns: raytest)
+     [DRY RUN] Would migrate: sdk-configurations (ns: raytest)
+
+   ============================================================
+   Migration Summary:
+     Migrated: 2
+     Skipped (already migrated): 0
+     Failed: 0
    ```
 2. Choose from the following options to migrate your Ray clusters:
 
@@ -233,33 +240,38 @@ The commands in the following procedure include an optional **\--dry-run** argum
 
 1. In a web browser, verify that the Dashboard URL output by the migration command provides access to the Ray cluster.
 
-2. List the migration status of all Ray clusters:
+2. Verify the migration status of all Ray clusters by using the **\--dry-run** flag:
 
    ```bash
-   rhai-cli migrate list --target-version 3.5.0
+   rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --dry-run
    ```
 
-   Example output:
+   Example output after migrating one of three clusters:
 
    ```
-   Found 3 RayCluster(s):
+   === DRY RUN MODE - No changes will be made ===
 
-   Name                Namespace    Status  Workers  Migration Status
+   Fetching RayClusters (all namespaces)...
+   Found 3 RayCluster(s)
 
-   -------------------------------------------------------------------
+   Analyzing clusters for migration status...
+     [1/3] Checking production-cluster (ns: production)... already migrated
+     [2/3] Checking staging-cluster (ns: staging)... needs migration
+     [3/3] Checking dev-cluster (ns: dev)... needs migration
 
-   production-cluster  production   ready     5      [MIGRATED]
+   Summary: 2 to migrate, 1 already migrated
 
-   staging-cluster     staging      ready     3      [NEEDS MIGRATION]
+     [DRY RUN] Would migrate: staging-cluster (ns: staging)
+     [DRY RUN] Would migrate: dev-cluster (ns: dev)
 
-   dev-cluster         dev          ready     2      [NEEDS MIGRATION]
-
-
-
-   Migration Summary: 1 migrated, 2 need migration
+   ============================================================
+   Migration Summary:
+     Migrated: 2
+     Skipped (already migrated): 1
+     Failed: 0
    ```
 
-   If any of the listed Ray clusters have the **NEEDS MIGRATION** status, run the **raycluster.migrate** migration command for that Ray cluster.
+   If any clusters show **needs migration** status, run the **raycluster.migrate** migration command for that Ray cluster.
 
 **Troubleshooting**
 

@@ -1,6 +1,6 @@
-# **Migrate from OpenShift AI 2.25.9  (and later) to 3.5 (latest) DRAFT** 
+# **Migrate from OpenShift AI 2.25.10  (and later) to 3.5 (latest) DRAFT** 
 
-#### **Migrate from Red Hat OpenShift AI 2.25.9 (and later) to OpenShift AI 3.5 (latest)**  
+#### **Migrate from Red Hat OpenShift AI 2.25.10 (and later) to OpenShift AI 3.5 (latest)**  
 
 ## **Table of Contents**
 
@@ -173,15 +173,15 @@
 
 # **Preface** {#preface}
 
-Migrate from Red Hat OpenShift AI 2.25.9 (and later) to OpenShift AI 3.5.
+Migrate from Red Hat OpenShift AI 2.25.10 (and later) to OpenShift AI 3.5.
 
 # **Chapter 1\. Assess and plan for migration** {#chapter-1.-assess-and-plan-for-migration}
 
 ## **1.1. Overview of OpenShift AI migration** {#1.1.-overview-of-openshift-ai-migration}
 
-Red Hat OpenShift AI 3.5 is the first 3.x release to support migration from OpenShift AI 2.25.9 (and later) . The OpenShift AI 3.x release introduces significant technology and component changes, making a direct upgrade from 2.25.9 (and later) technically complex.
+Red Hat OpenShift AI 3.5 is the first 3.x release to support migration from OpenShift AI 2.25.10 (and later) . The OpenShift AI 3.x release introduces significant technology and component changes, making a direct upgrade from 2.25.10 (and later) technically complex.
 
-This guide provides step-by-step instructions on how to migrate from OpenShift AI 2.25.9 (and later) to 3.5.
+This guide provides step-by-step instructions on how to migrate from OpenShift AI 2.25.10 (and later) to 3.5.
 
 ### **1.1.1. Overview of migration assessment steps**  {#1.1.1.-overview-of-migration-assessment-steps}
 
@@ -198,7 +198,7 @@ This guide provides step-by-step instructions on how to migrate from OpenShift A
 5. Deploy a long-living pod for the container image that contains the migration assessment linting CLI and migration actions for specific component migrations. See [Deploy a persistent pod on your cluster and download the rhai-cli container image.](#1.3-deploy-a-persistent-pod-on-your-cluster-that-includes-the-the-rhai-cli-container-image)
 
 6. Run the migration assessment script, as described in [Using the migration assessment script](#heading-1).  
-   The **rhai-cli** migration assessment script is a command-line utility designed to help administrators perform a gap analysis of your OpenShift AI environment. It identifies workloads and configurations that are impacted by the migration from OpenShift AI version 2.25.9 (and later) to 3.5.
+   The **rhai-cli** migration assessment script is a command-line utility designed to help administrators perform a gap analysis of your OpenShift AI environment. It identifies workloads and configurations that are impacted by the migration from OpenShift AI version 2.25.10 (and later) to 3.5.
 
 7. Submit the results of the migration assessment script to Technical Support, as described in [Submit the assessment output to Red Hat Technical Support](#1.5-submit-the-assessment-output-to-red-hat-technical-support)
 
@@ -220,11 +220,11 @@ Your OpenShift cluster must be at least version 4.19.9. If it is not, follow the
 
 **Determine your migration approach**
 
-There are two primary approaches for migrating from OpenShift AI 2.25.9 (and later) to 3.5:
+There are two primary approaches for migrating from OpenShift AI 2.25.10 (and later) to 3.5:
 
-* Side-by-side environment: This approach involves setting up a second environment that runs OpenShift AI 3.5 alongside your existing 2.25.9 (and later) environment. Because your existing OpenShift AI 2.25.9 (and later) environment is left untouched, the risk of unrecoverable cluster state is greatly minimized, and a full cluster backup of the 2.25.9 (and later) environment is not a critical requirement, merely a recommended practice. This approach allows for a period of overlap where both environments are operational. You have a much longer window to either recreate or move content from your 2.25.9 (and later) environment to your 3.5 environment.
+* Side-by-side environment: This approach involves setting up a second environment that runs OpenShift AI 3.5 alongside your existing 2.25.10 (and later) environment. Because your existing OpenShift AI 2.25.10 (and later) environment is left untouched, the risk of unrecoverable cluster state is greatly minimized, and a full cluster backup of the 2.25.10 (and later) environment is not a critical requirement, merely a recommended practice. This approach allows for a period of overlap where both environments are operational. You have a much longer window to either recreate or move content from your 2.25.10 (and later) environment to your 3.5 environment.
 
-* In-place migration: This approach involves using a single environment and executing the in-place migration steps documented in this guide. An in-place migration might be necessary if you must complete the migration within a very strict timeframe, for example, within a set maintenance window. This approach carries the highest effort and risk because the existing OpenShift AI 2.25.9 (and later) environment is directly modified. If you choose this approach, a robust, full cluster backup is mandatory because it is the only mechanism for rollback.
+* In-place migration: This approach involves using a single environment and executing the in-place migration steps documented in this guide. An in-place migration might be necessary if you must complete the migration within a very strict timeframe, for example, within a set maintenance window. This approach carries the highest effort and risk because the existing OpenShift AI 2.25.10 (and later) environment is directly modified. If you choose this approach, a robust, full cluster backup is mandatory because it is the only mechanism for rollback.
 
 **Notify users of your migration plan**
 
@@ -237,7 +237,7 @@ If you decide to use an in-place migration approach, you must create a full and 
 NOTE: If you opt for a side-by-side migration which leaves the 2.25 OpenShift AI environment completely untouched, the full and complete backup before migration is a recommendation, rather than a mandatory requirement.
 
 **Check the management status of the Kueue component**  
-The migration assessment script checks your OpenShift AI 2.25.9 (and later) installation to determine the status of the Kueue component management. In OpenShift AI 3.5, the supported Kueue management states are **Removed** and **Unmanaged**. The **Managed** state is accepted by OLM for backwards compatibility but is rejected at runtime.
+The migration assessment script checks your OpenShift AI 2.25.10 (and later) installation to determine the status of the Kueue component management. In OpenShift AI 3.5, the supported Kueue management states are **Removed** and **Unmanaged**. The **Managed** state is accepted by OLM for backwards compatibility but is rejected at runtime.
 
 Optionally, you can check the status of the Kueue component by running the following command:
 
@@ -245,9 +245,9 @@ Optionally, you can check the status of the Kueue component by running the follo
 oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}'
 ```
 
-* If the output is **Removed**, you can migrate from OpenShift AI 2.25.9 (and later) to 3.5. Kueue will be disabled after upgrade.
+* If the output is **Removed**, you can migrate from OpenShift AI 2.25.10 (and later) to 3.5. Kueue will be disabled after upgrade.
 
-* If the output is **Unmanaged**, you can migrate from OpenShift AI 2.25.9 (and later) to 3.5. OpenShift AI will integrate with an externally installed Red Hat build of Kueue (RHBOK) Operator. Before upgrading, ensure that the Red Hat build of Kueue Operator is installed and operational. You can use the `rhai-cli` RHBOK migration action to migrate from embedded Kueue to external RHBOK. See [Set Kueue management to Removed](#2.2-set-kueue-management-to-removed) for details.
+* If the output is **Unmanaged**, you can migrate from OpenShift AI 2.25.10 (and later) to 3.5. OpenShift AI will integrate with an externally installed Red Hat build of Kueue (RHBOK) Operator. Before upgrading, ensure that the Red Hat build of Kueue Operator is installed and operational. You can use the `rhai-cli` RHBOK migration action to migrate from embedded Kueue to external RHBOK. See [Set Kueue management to Removed](#2.2-set-kueue-management-to-removed) for details.
 
 * If the output is **Managed**, you must migrate to either **Removed** or **Unmanaged** before upgrading. The **Managed** state is not supported at runtime in OpenShift AI 3.5. If you want to continue using Kueue, migrate to the **Unmanaged** state with an external Red Hat build of Kueue Operator. If you do not need Kueue, set the state to **Removed**.
 
@@ -255,7 +255,7 @@ oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.manag
 
 **Coordinate permissions and planning**
 
-The process of migrating from OpenShift AI 2.25.9 (and later) to 3.5 requires internal coordination planning for your company.
+The process of migrating from OpenShift AI 2.25.10 (and later) to 3.5 requires internal coordination planning for your company.
 
 Different steps in the migration process require different roles and permissions:
 
@@ -287,7 +287,7 @@ OpenShift AI user:
 
 ## **1.3 Deploy a persistent pod on your cluster that includes the**  **the rhai-cli container image** {#1.3-deploy-a-persistent-pod-on-your-cluster-that-includes-the-the-rhai-cli-container-image}
 
-To prepare for the migration of OpenShift AI 2.25.9 (and later) to 3.5,  deploy a long-lived pod on your OpenShift cluster. This pod provides the following conditions for the migration process:
+To prepare for the migration of OpenShift AI 2.25.10 (and later) to 3.5,  deploy a long-lived pod on your OpenShift cluster. This pod provides the following conditions for the migration process:
 
 * A **StatefulSet** that runs `sleep infinity` to keep the pod alive. The pod name rhai-cli-0  is stable.
 
@@ -487,13 +487,13 @@ The following table lists the **rhai-cli migrate** actions that are registered i
 
 ## **1.4. Run the migration assessment script** {#1.4.-run-the-migration-assessment-script}
 
-The **rhai-cli** migration assessment script is a command-line utility designed to help administrators perform a gap analysis of your OpenShift AI environment. It identifies workloads and configurations that are impacted by the migration from OpenShift AI version 2.25.9 (and later) to 3.5.
+The **rhai-cli** migration assessment script is a command-line utility designed to help administrators perform a gap analysis of your OpenShift AI environment. It identifies workloads and configurations that are impacted by the migration from OpenShift AI version 2.25.10 (and later) to 3.5.
 
 **Important**
 
 **\*** The **rhai-cli** script is a diagnostic utility and will not perform any changes to your cluster. It is intended to guide your migration strategy by identifying gaps.
 
-**\*** You must run this script on your 2.25.9 (and later) cluster. If you run the **rhai-cli** script on a cluster that has already been upgraded, it will not accurately report issues or required actions.
+**\*** You must run this script on your 2.25.10 (and later) cluster. If you run the **rhai-cli** script on a cluster that has already been upgraded, it will not accurately report issues or required actions.
 
 While the lint script itself is non-intrusive, the **rhai-cli migrate** actions are designed to perform specific migration tasks and will modify resources when executed.
 
@@ -659,7 +659,7 @@ Submit the results of the migration assessment script to Technical Support.
       oc cp rhai-migration/rhai-cli-0:/tmp/rhoai-upgrade-backup/rhai-cli-output.yaml ./rhai-cli-output.yaml
       ```
 
-3. If you have not already done so, open a proactive support case through the Red Hat customer portal at [access.redhat.com](http://access.redhat.com). to let Red Hat know that you are considering upgrading Red Hat OpenShift AI 2.25.9 (and later) to 3.5 , as described in [How to submit a Proactive Case](https://access.redhat.com/articles/5387111).
+3. If you have not already done so, open a proactive support case through the Red Hat customer portal at [access.redhat.com](http://access.redhat.com). to let Red Hat know that you are considering upgrading Red Hat OpenShift AI 2.25.10 (and later) to 3.5 , as described in [How to submit a Proactive Case](https://access.redhat.com/articles/5387111).
 
 4. Upload the YAML output file as an attachment to your Red Hat support case. For more information about uploading a file to your support case, see [How to provide files to Red Hat Support](https://access.redhat.com/solutions/2112).
 
@@ -671,7 +671,7 @@ The YAML file is an attachment that you can see in the case history for your Red
 
 # Chapter 2\. Before you upgrade {#chapter-2.-before-you-upgrade}
 
-Before you upgrade OpenShift AI from version 2.25.9 (and later) to 3.5, you must migrate workload data for each of the components installed on your OpenShift AI cluster.
+Before you upgrade OpenShift AI from version 2.25.10 (and later) to 3.5, you must migrate workload data for each of the components installed on your OpenShift AI cluster.
 
 The **rhai-cli** utility contains migration actions to assist with pre-upgrade and post-upgrade steps for the Model Serving, Workbenches, TrustyAI, Llama Stack / OGX, AI Pipelines, and Ray Training Operator components.
 
@@ -741,7 +741,7 @@ Install the cert-manager Operator for Red Hat OpenShift using one of the followi
 
 ##  **2.2 Set Kueue management to Removed or Unmanaged** {#2.2-set-kueue-management-to-removed}
 
-The migration assessment script checks your OpenShift AI 2.25.9 (and later) installation to determine the status of the Kueue component management. In OpenShift AI 3.5, the supported Kueue management states are **Removed** and **Unmanaged**. The **Managed** state is accepted by OLM for backwards compatibility but is rejected at runtime.
+The migration assessment script checks your OpenShift AI 2.25.10 (and later) installation to determine the status of the Kueue component management. In OpenShift AI 3.5, the supported Kueue management states are **Removed** and **Unmanaged**. The **Managed** state is accepted by OLM for backwards compatibility but is rejected at runtime.
 
 You must set the Kueue management state to either **Removed** or **Unmanaged** before upgrading:
 
@@ -974,16 +974,16 @@ After upgrade, the dashboard navigation will change to **AI hub \> Registry** an
 
 ## **2.4. Feature Store \- Before upgrade** {#2.4.-feature-store---before-upgrade}
 
-In Red Hat OpenShift AI 2.25.9 (and later) , the Feature Store component is a Technology Preview feature. In OpenShift AI 3.5 , it is a GA feature. Otherwise, the Feature Store component is unchanged between Red Hat OpenShift AI 2.25.9 (and later) and 3.5.
+In Red Hat OpenShift AI 2.25.10 (and later) , the Feature Store component is a Technology Preview feature. In OpenShift AI 3.5 , it is a GA feature. Otherwise, the Feature Store component is unchanged between Red Hat OpenShift AI 2.25.10 (and later) and 3.5.
 
-If you use the Feature Store component in OpenShift AI 2.25.9 (and later) , follow the steps in this procedure to verify that Feature Store is working correctly before you upgrade to OpenShift AI 3.5.
+If you use the Feature Store component in OpenShift AI 2.25.10 (and later) , follow the steps in this procedure to verify that Feature Store is working correctly before you upgrade to OpenShift AI 3.5.
 
 **Note**  
-If you do not use the Feature Store component in OpenShift AI 2.25.9 (and later) , skip this section. You do not need to perform any steps for Feature Store before you upgrade to 3.5.
+If you do not use the Feature Store component in OpenShift AI 2.25.10 (and later) , skip this section. You do not need to perform any steps for Feature Store before you upgrade to 3.5.
 
 **Prerequisites**
 
-* You created a Feature Store Custom Resource (CR) in OpenShift AI 2.25.9 (and later) .
+* You created a Feature Store Custom Resource (CR) in OpenShift AI 2.25.10 (and later) .
 
 * You have OpenShift AI administrator access for the procedure steps and OpenShift AI user access for the verification steps.
 
@@ -1095,9 +1095,9 @@ As an OpenShift AI user, for each Feature Store instance:
 Support for Llama Stack in a disconnected environment is provided starting in OpenShift AI 3.0.
 
 **Note**  
-In OpenShift AI 3.5, Llama Stack has been renamed to **OGX (Open GenAI Stack)**. The **LlamaStackDistribution** custom resource (CR) is replaced by the **OGXServer** (v1beta1) custom resource. All references to "Llama Stack" in this section refer to the component as it exists in OpenShift AI 2.25.9 (and later). After upgrading to 3.5, you will work with OGX resources instead.
+In OpenShift AI 3.5, Llama Stack has been renamed to **OGX (Open GenAI Stack)**. The **LlamaStackDistribution** custom resource (CR) is replaced by the **OGXServer** (v1beta1) custom resource. All references to "Llama Stack" in this section refer to the component as it exists in OpenShift AI 2.25.10 (and later). After upgrading to 3.5, you will work with OGX resources instead.
 
-Upgrading from OpenShift AI version 2.25.9 (and later) to 3.5 requires recreating your Llama Stack deployments as **OGXServer** custom resources. The Llama Stack component was in Technology Preview in 2.25.x and the architecture changes between OpenShift AI versions 2.25.9 (and later) and 3.5 — including the rename to OGX — are incompatible with direct upgrades or data migrations.
+Upgrading from OpenShift AI version 2.25.10 (and later) to 3.5 requires recreating your Llama Stack deployments as **OGXServer** custom resources. The Llama Stack component was in Technology Preview in 2.25.x and the architecture changes between OpenShift AI versions 2.25.10 (and later) and 3.5 — including the rename to OGX — are incompatible with direct upgrades or data migrations.
 
 Cluster administrators and **LlamaStackDistribution** owners perform different upgrade steps:
 
@@ -1149,11 +1149,11 @@ Since Llama Stack was in Technology Preview in 2.25.x and has been renamed to OG
 
    * Schedule a maintenance window for the upgrade.
 
-   * Provide them with the OpenShift AI 3.5 OGX documentation for recreating deployments. See [Working with Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_llama_stack/index).
+   * Provide them with the OpenShift AI 3.5 OGX documentation for recreating deployments. See [Working with Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_ogx/index).
 
 ### **2.5.2. Llama Stack upgrade steps for LlamaStackDistribution resource owners** {#2.5.2.-llama-stack-upgrade-steps-for-llamastackdistribution-resource-owners}
 
-If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (and later), you must prepare to delete the **LlamaStackDistribution** resources before upgrade and recreate them as **OGXServer** CRs after upgrade. To prepare, you must archive Llama Stack deployment data that can be used as reference when recreating your deployment.
+If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.10 (and later), you must prepare to delete the **LlamaStackDistribution** resources before upgrade and recreate them as **OGXServer** CRs after upgrade. To prepare, you must archive Llama Stack deployment data that can be used as reference when recreating your deployment.
 
 **Prerequisites**
 
@@ -1218,7 +1218,7 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (a
 
    1. Port the client application code and notebooks to be compatible with OGX (Open GenAI Stack) in OpenShift AI 3.5.
 
-   2. Applications built for OpenShift AI 2.25.9 (and later) will require updates to work with OpenShift AI 3.5 due to API changes. These API changes include:
+   2. Applications built for OpenShift AI 2.25.10 (and later) will require updates to work with OpenShift AI 3.5 due to API changes. These API changes include:
 
       * VectorDB API removed: Replace calls to the deprecated **VectorDB** API with the new **Vector\_IO** API.
 
@@ -1228,7 +1228,7 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.9 (a
 
       * Agent API changes: Review and update agent creation and interaction code for API compatibility.
 
-   3. The usage of the **llama-stack-client** library is distinct in OpenShift AI 3.5, refer to [OpenAI-compatible APIs in Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_llama_stack/overview-of-llama-stack_rag#openai-compatible-apis-in-Llama-Stack_rag).
+   3. The usage of the **llama-stack-client** library is distinct in OpenShift AI 3.5, refer to [OpenAI-compatible APIs in Llama Stack](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_ogx/overview-of-ogx_rag#openai-compatible-apis-in-ogx_rag).
 
    4. It is recommended to test your new OGX deployments in an OpenShift AI 3.5 staging cluster. Testing in the staging cluster allows you to do the following:
 
@@ -1389,7 +1389,7 @@ Verify that the management state of the TrustyAI component for your Data Science
 
 ### **2.7.2. TrustyAI \- Before upgrade \- Backup metrics** {#2.7.2.-trustyai---before-upgrade---backup-metrics}
 
-You can backup scheduled TrustyAI metrics before you upgrade OpenShift AI 2.25.9 (and later) to 3.5.
+You can backup scheduled TrustyAI metrics before you upgrade OpenShift AI 2.25.10 (and later) to 3.5.
 
 **Prerequisites**
 
@@ -1539,7 +1539,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 
 ### **2.7.3. TrustyAI \- Before upgrade \- Backup data storage** {#2.7.3.-trustyai---before-upgrade---backup-data-storage}
 
-You can backup TrustyAI data storage before you upgrade OpenShift AI 2.25.9 (and later) to 3.5. The **rhai-cli** `trustyai.data` migration action auto-detects storage type (PVC or DATABASE) from the TrustyAIService CR and performs the appropriate backup.
+You can backup TrustyAI data storage before you upgrade OpenShift AI 2.25.10 (and later) to 3.5. The **rhai-cli** `trustyai.data` migration action auto-detects storage type (PVC or DATABASE) from the TrustyAIService CR and performs the appropriate backup.
 
 The backup for each namespace is a self-contained directory with a **metadata.json** file and the data.
 
@@ -1609,7 +1609,7 @@ If the action fails, it provides error messages. Common issues are: PVC not boun
 
 ### **2.7.4. TrustyAI \- Before upgrade \- Guardrails Orchestrator** {#2.7.4.-trustyai---before-upgrade---guardrails-orchestrator}
 
-Before you upgrade OpenShift AI 2.25.9 (and later) to 3.5, set the name of all TrustyAI Guardrails Orchestrator services, validate the custom resource, and check for OpenTelemetry exporters.
+Before you upgrade OpenShift AI 2.25.10 (and later) to 3.5, set the name of all TrustyAI Guardrails Orchestrator services, validate the custom resource, and check for OpenTelemetry exporters.
 
 **Prerequisites**
 
@@ -1753,13 +1753,13 @@ There are two major upgrade paths to follow. As a Red Hat OpenShift AI administr
 * Workbenches created in Red Hat OpenShift AI version 2.25 or earlier are officially unsupported in the Red Hat OpenShift AI 3.5 environment unless they have been manually migrated.
 
   **Important**  
-  Workbenches that are not migrated will remain on the OpenShift AI 2.25.9 (and later) authentication layer. This legacy setup, paired with potential **NB\_PREFIX** routing conflicts, often results in redirection loops or connectivity failures—particularly for RStudio, Code Server, or custom images.
+  Workbenches that are not migrated will remain on the OpenShift AI 2.25.10 (and later) authentication layer. This legacy setup, paired with potential **NB\_PREFIX** routing conflicts, often results in redirection loops or connectivity failures—particularly for RStudio, Code Server, or custom images.
 
 ###  **2.8.2. Prepare your workbenches for migration** {#2.8.2.-prepare-your-workbenches-for-migration}
 
 **Important**
 
-All procedures in this section must be completed before upgrading the Red Hat OpenShift AI Operator from version 2.25.9 (and later) to 3.5. Failure to complete these steps can result in service disruptions for your workbenches.
+All procedures in this section must be completed before upgrading the Red Hat OpenShift AI Operator from version 2.25.10 (and later) to 3.5. Failure to complete these steps can result in service disruptions for your workbenches.
 
 **Prerequisites**
 
@@ -1795,9 +1795,9 @@ All procedures in this section must be completed before upgrading the Red Hat Op
 
 2. Stop your running workbenches.
 
-   * Workbench images left unmigrated continue to operate on the older 2.25.9 (and later) authentication layer. This hybrid environment may result in redirection loops and connectivity failures, primarily due to **NB\_PREFIX** routing conflicts for RStudio, code-server, and custom images.
+   * Workbench images left unmigrated continue to operate on the older 2.25.10 (and later) authentication layer. This hybrid environment may result in redirection loops and connectivity failures, primarily due to **NB\_PREFIX** routing conflicts for RStudio, code-server, and custom images.
 
-   * If your users are unable to stop all workbenches before the upgrade from OpenShift AI version 2.25.9 (and later) to 3.5, you can elect to defer image migration until after upgrading to Red Hat OpenShift AI version 3.5. Choosing to defer your image migration introduces additional complexity and risk to your upgrade process. See [Perform a deferred workbench image migration](#4.7.2.-perform-a-deferred-workbench-image-migration) for more information.
+   * If your users are unable to stop all workbenches before the upgrade from OpenShift AI version 2.25.10 (and later) to 3.5, you can elect to defer image migration until after upgrading to Red Hat OpenShift AI version 3.5. Choosing to defer your image migration introduces additional complexity and risk to your upgrade process. See [Perform a deferred workbench image migration](#4.7.2.-perform-a-deferred-workbench-image-migration) for more information.
 
 **Verification**
 
@@ -1830,7 +1830,7 @@ All procedures in this section must be completed before upgrading the Red Hat Op
       │ ✓       notebook  workload  workload-state                info     All Notebooks are stopped                                                        │  
       └─────────────────────────────────────────────────────────────────────────────  
       Environment:  
-      OpenShift AI version: 2.25.9 (and later) \-\> 3.5  
+      OpenShift AI version: 2.25.10 (and later) \-\> 3.5  
       OpenShift version:    4.20.0
 
       Summary:  
@@ -1984,28 +1984,18 @@ rules:
 
    * **Rhoai-3.x** \- Your Ray cluster CR configurations YAML files that are compatible with OpenShift AI 3.x.
 
-4. Get a list of the Ray clusters and check their status:
+4. Get a list of the Ray clusters on your OpenShift cluster:
 
    ```bash
-   rhai-cli migrate list --target-version 3.5.0
+   oc get rayclusters -A
    ```
 
    The output should be similar to the following:
 
    ```
-   Fetching RayClusters (all namespaces)...
-   Found 2 RayCluster(s)
-   Analyzing clusters...
-   Analysis complete.
-
-   RayCluster Migration Status:
-
-   Name                   Namespace      Status      Workers   Migration Status
-   ----------------------------------------------------------------------------
-   comprehensive-mixed    raytest        ready        2        [NEEDS MIGRATION]
-   sdk-configurations     raytest        ready        1        [NEEDS MIGRATION]
-
-   Migration Summary: 0 migrated, 2 need migration
+   NAMESPACE   NAME                  DESIRED WORKERS   AVAILABLE WORKERS   CPUS   MEMORY   GPUS   STATUS   AGE
+   raytest     comprehensive-mixed   2                 2                   6      12Gi     0      ready    5d
+   raytest     sdk-configurations    1                 1                   4      8Gi      0      ready    3d
    ```
 
 **Verification**
@@ -2133,7 +2123,7 @@ Following is an overview of the steps that you must complete for the model servi
 
 ### **2.10.4. Prerequisites for model serving migration** {#2.10.4.-prerequisites-for-model-serving-migration}
 
-Before migrating Model Serving workloads from Red Hat OpenShift AI 2.25.9 (and later) to 3.5, verify that your environment meets the following requirements.
+Before migrating Model Serving workloads from Red Hat OpenShift AI 2.25.10 (and later) to 3.5, verify that your environment meets the following requirements.
 
 * You have cluster administrator access to the OpenShift cluster and are authenticated via the OpenShift CLI (**oc**).
 
@@ -2590,7 +2580,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
 
 1. Update the **DataScienceCluster** (DSC) configuration to use **RawDeployment** as the default deployment mode and disable removed components.
 
-   **Note**: These commands use the DSC v1 API field names (`modelmeshserving`, `serviceMesh`) because they are run against your OpenShift AI 2.25.9 cluster before upgrade. After upgrading to 3.5, the operator automatically converts to the v2 API.
+   **Note**: These commands use the DSC v1 API field names (`modelmeshserving`, `serviceMesh`) because they are run against your OpenShift AI 2.25.10 cluster before upgrade. After upgrading to 3.5, the operator automatically converts to the v2 API.
 
    ```bash
    export DSC_NAME=$(oc get dsc -o jsonpath='{.items[0].metadata.name}')
@@ -2624,7 +2614,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
    }'
    ```
 
-4. If the Serverless Operator is installed, uninstall it: 
+3. If the Serverless Operator is installed, uninstall it: 
 
    1. In the OpenShift web console, navigate to **Operators** → **Installed Operators**.
 
@@ -2638,7 +2628,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
 
    6. Click **Uninstall**.
 
-5. If the Service Mesh 2 Operator is installed, uninstall it:
+4. If the Service Mesh 2 Operator is installed, uninstall it:
 
    1. In the OpenShift web console, navigate to **Operators** → **Installed Operators**.
 
@@ -2652,7 +2642,7 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
 
    6. Click **Uninstall**.
 
-6. If standalone Authorino is installed, uninstall it:
+5. If standalone Authorino is installed, uninstall it:
 
    **Note**  
    In Red Hat OpenShift AI 3.x, Authorino is exclusively necessary for use with **LLMInferenceService**. If Authorino has been installed independently as a standalone component, independent from Red Hat Connectivity Link, it must be uninstalled.
@@ -2730,7 +2720,12 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 
    From inside the **rhai-cli** container or your terminal, execute the following commands:
 
-1. Create the Kuadrant custom resource:
+8. Create the `kuadrant-system` namespace:
+   ```bash
+   oc new-project kuadrant-system
+   ```
+   
+9. Create the Kuadrant custom resource in the `kuadrant-system` namespace:
 
    ```bash
    oc apply -f - <<EOF
@@ -2742,13 +2737,13 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
    EOF
    ```
 
-2. Wait for Kuadrant to become ready:
+10. Wait for Kuadrant to become ready:
 
    ```bash
    oc wait Kuadrant -n kuadrant-system kuadrant --for=condition=Ready --timeout=10m
    ```
 
-3. Add the **ServingCert** annotation to the Authorino service:
+11. Add the **ServingCert** annotation to the Authorino service:
 
    ```bash
    oc annotate svc/authorino-authorino-authorization service.beta.openshift.io/serving-cert-secret-name=authorino-server-cert -n kuadrant-system
@@ -2760,7 +2755,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
    sleep 2
    ```
 
-4. Update Authorino to enable SSL:
+12. Update Authorino to enable SSL:
 
    ```bash
    oc apply -f - <<EOF
@@ -2783,7 +2778,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
    EOF
    ```
 
-5. Verify that the Authorino pods are ready:
+13. Verify that the Authorino pods are ready:
 
    ```bash
    oc wait --for=condition=ready pod -l authorino-resource=authorino -n kuadrant-system --timeout=150s
@@ -2837,7 +2832,7 @@ Install and configure Red Hat Connectivity Link (RHCL) to provide authentication
 
 **Additional resources**
 
-* [Installing Connectivity Link on OpenShift](https://docs.redhat.com/en/documentation/red_hat_connectivity_link/1.2/html/installing_connectivity_link_on_openshift/index)
+* [Installing Connectivity Link on OpenShift](https://docs.redhat.com/en/documentation/red_hat_connectivity_link/1.0/html/installing_connectivity_link_on_openshift/index)
 
 ####  **2.10.10.2. Configure Red Hat Connectivity Link for disconnected environments** {#2.10.10.2.-configure-red-hat-connectivity-link-for-disconnected-environments}
 
@@ -3036,7 +3031,7 @@ In Red Hat OpenShift AI 3.5 and later, distributed inference with **LLMInference
 
 #### **2.10.10.4. Freeze LLMInferenceService configuration for upgrade** {#2.10.10.4.-freeze-llminferenceservice-configuration-for-upgrade}
 
-Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25.9 (and later) templates to prevent scheduler pod failures during the upgrade to version 3.5.
+Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25.10 (and later) templates to prevent scheduler pod failures during the upgrade to version 3.5.
 
 **Prerequisites**
 
@@ -3046,7 +3041,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 
 **Procedure**
 
-1. Pin **LLMInferenceService** configurations to use RHOAI 2.25.9 (and later) templates to prevent scheduler pod failures during upgrade:
+1. Pin **LLMInferenceService** configurations to use RHOAI 2.25.10 (and later) templates to prevent scheduler pod failures during upgrade:
 
    ```bash
    oc patch llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> \
@@ -3068,7 +3063,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 
    * Required configuration: Must include **\--cert-path** argument and **SSL\_CERT\_DIR** environment variable
 
-     Following is an example Diff of an LLMInferenceService configuration for the scheduler arguments and environment variables from 2.25.9 (and later) to 3.5:
+     Following is an example Diff of an LLMInferenceService configuration for the scheduler arguments and environment variables from 2.25.10 (and later) to 3.5:
 
      ```yaml
      kind: LLMInferenceService
@@ -3110,7 +3105,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 
 ### **2.10.11. Verify migration readiness** {#2.10.11.-verify-migration-readiness}
 
-Verify that all migration prerequisites have been completed and your cluster is ready for the Red Hat OpenShift AI operator upgrade from version 2.25.9 (and later) to 3.5.
+Verify that all migration prerequisites have been completed and your cluster is ready for the Red Hat OpenShift AI operator upgrade from version 2.25.10 (and later) to 3.5.
 
 **Prerequisites**
 
@@ -3144,17 +3139,17 @@ If the **rhai-cli** output identifies issues:
 
 **Important**
 
-Do not proceed with the Red Hat OpenShift AI operator upgrade from version 2.25.9 (and later) to 3.5 if the **rhai-cli** output shows any critical issues. Address all critical issues by completing the relevant component migration procedures before upgrading.
+Do not proceed with the Red Hat OpenShift AI operator upgrade from version 2.25.10 (and later) to 3.5 if the **rhai-cli** output shows any critical issues. Address all critical issues by completing the relevant component migration procedures before upgrading.
 
 ## **2.11. Kubeflow Training Operator \- Before upgrade** {#2.11.-kubeflow-training-operator---before-upgrade}
 
-You can upgrade Red Hat OpenShift AI 2.25.9 (and later) to 3.5 while PyTorchJobs are running; the jobs continue to run during the upgrade process and complete as normal.
+You can upgrade Red Hat OpenShift AI 2.25.10 (and later) to 3.5 while PyTorchJobs are running; the jobs continue to run during the upgrade process and complete as normal.
 
 Before you upgrade to OpenShift AI 3.5, get a list of PyTorchJob resources on your OpenShift cluster. You can then use this list to compare against PyTorchJob resources on your OpenShift cluster after you upgrade to 3.5.
 
 **Note**
 
-The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShift AI 2.25.9 (and later) and is planned to be removed in a future release. This deprecation is part of the OpenShift AI transition to Kubeflow Trainer v2, which delivers enhanced capabilities and improved functionality.
+The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShift AI 2.25.10 (and later) and is planned to be removed in a future release. This deprecation is part of the OpenShift AI transition to Kubeflow Trainer v2, which delivers enhanced capabilities and improved functionality.
 
 **Prerequisites**
 
@@ -3184,21 +3179,21 @@ As a cluster administrator, if you want to perform an OpenShift Container Platfo
 
 ## **2.12. OpenShift AI Operator \- Before upgrade** {#2.12.-openshift-ai-operator---before-upgrade}
 
-Before upgrading Red Hat OpenShift AI from version 2.25.9 (and later) to 3.5, complete the following steps to ensure a successful migration of the OpenShift AI Operator.
+Before upgrading Red Hat OpenShift AI from version 2.25.10 (and later) to 3.5, complete the following steps to ensure a successful migration of the OpenShift AI Operator.
 
 **Note**
 
-If you have bookmarked dashboard URLs, you must recreate redirects **after** the upgrade is complete. For more information, see the [Resolving dashboard URL 404 errors after upgrading from 2.x to 3.x](https://access.redhat.com/solutions/7137771).
+If you have bookmarked dashboard URLs, you must create redirects **after** the upgrade is complete. For more information, see the [Resolving dashboard URL 404 errors after upgrading from 2.x to 3.x](https://access.redhat.com/solutions/7137771).
 
 **Prerequisites**
 
 * You have upgraded to OpenShift 4.19.9 or later according to OpenShift documentation on [Updating clusters](https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/updating_clusters/index).
 
-* You have set the **Update approval** for the Red Hat OpenShift AI 2.25.9 (and later) subscription to **Manual**. This prevents unintended automatic upgrades and requires you to explicitly confirm the upgrade.
+* You have set the **Update approval** for the Red Hat OpenShift AI 2.25.10 (and later) subscription to **Manual**. This prevents unintended automatic upgrades and requires you to explicitly confirm the upgrade.
 
-* Kueue is set to **Removed** or **Unmanaged** (with external Red Hat build of Kueue Operator installed).
+* Kueue is set to **Removed** or **Unmanaged** (with external Red Hat build of Kueue Operator installed) within the DSC.
 
-* You have completed the Migrate **InferenceServices** to **RawDeployment** mode steps to convert all serving deployments to **RawDeployment** mode and removed the OpenShift Service Mesh 2 Operator.
+* You have completed the Migrate **InferenceServices** to **RawDeployment** mode steps to convert all serving deployments to **RawDeployment** mode and removed the OpenShift Service Mesh 2 Operator and Serverless Operator.
 
 * You have configured Model Serving to ignore hardware profile annotations to avoid inference service restarts during the upgrade, according to Update the inferenceservice-config ConfigMap.
 
@@ -3213,9 +3208,11 @@ If you have bookmarked dashboard URLs, you must recreate redirects **after** the
 
 * You have OpenShift cluster administrator permissions to install Operators and edit **DataScienceCluster** and **DataScienceClusterInitialization** resources.
 
+* The `rhai-cli lint --target-version 3.5` does not report any errors
+
 **Procedure**
 
-1. Verify that the **Update approval** for the Red Hat OpenShift AI 2.25.9 (and later) subscription is set to **Manual**.
+1. Verify that the **Update approval** for the Red Hat OpenShift AI 2.25.10 (and later) subscription is set to **Manual**.
 
    If the **Update approval** is not set to **Manual**, you must set it now. This prevents automatic upgrade when you change the subscription channel.
 
@@ -3227,7 +3224,7 @@ If you have bookmarked dashboard URLs, you must recreate redirects **after** the
 
 **Verification**
 
-1. Verify that the Red Hat OpenShift AI 2.25.9 (and later) CSV status shows **Succeeded**.  
+1. Verify that the Red Hat OpenShift AI 2.25.10 (and later) CSV status shows **Succeeded**.  
    ```bash
    oc get csv -n redhat-ods-operator
    ```
@@ -3279,7 +3276,7 @@ After preparing your cluster and changing the subscription channel, you must man
 
 * You have completed all the before upgrade tasks and verified that the cluster is ready for upgrade.
 
-* Rerun the rh-ai  assessment script to make sure all critical issues are resolved.
+* Rerun the rhai-cli script to make sure all critical issues are resolved.
 
 * For disconnected environments, you have a mirror registry and oc-mirror v2, as described in [Mirroring images for a disconnected installation by using the oc-mirror plugin v2](https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/disconnected_environments/about-installing-oc-mirror-v2).
 
@@ -3409,7 +3406,7 @@ After preparing your cluster and changing the subscription channel, you must man
 10. For the **Upgrade channel**, select **support-required-upgrade-3.5**.
 
    **NOTE**:   
-   Several other 3.x channels might be visible in the **Change Subscription update channels** list, such as fast-3.x, stable-3.5, and stable-3.x. However, these channels do not provide a cross-major upgrade from 2.25. Only the **support-required-upgrade-3.5** channel provides an upgrade from 2.25.9 or later to 3.5. The unversioned **support-required-upgrade** channel is for upgrading from 2.25 to 3.3 only.
+   Several other 3.x channels might be visible in the **Change Subscription update channels** list, such as fast-3.x, stable-3.5, and stable-3.x. However, these channels do not provide a cross-major upgrade from 2.25. Only the **support-required-upgrade-3.5** channel provides an upgrade from 2.25.10 or later to 3.5. The unversioned **support-required-upgrade** channel is for upgrading from 2.25 to 3.3 only and should not be used here.
 
 11. Approve the install plan to begin the upgrade.
 
@@ -3418,7 +3415,7 @@ After preparing your cluster and changing the subscription channel, you must man
 
 12. While the upgrade is in progress, monitor the following:
 
-   1. Watch the operator pods as they restart to replace the version 2.25.9 (and later) Operator.  
+   1. Watch the operator pods as they restart to replace the version 2.25.10 (and later) Operator.  
    2. Verify that the new operator pods reach the **Running** state and that the **Ready** condition is **True**.
 
 13. Install the **JobSet** operator. OpenShift AI 3.5 requires the JobSet operator as a Kueue dependency. Without it, the **DataScienceCluster** remains in a **Not Ready** state with `KueueReady=False`.
@@ -3426,13 +3423,13 @@ After preparing your cluster and changing the subscription channel, you must man
    **Important**  
    The JobSet operator only supports **OwnNamespace** and **SingleNamespace** install modes. Do not install it in the `openshift-operators` namespace, which uses an **AllNamespaces** OperatorGroup.
 
-   1. Create a dedicated namespace:
+   a. Create a dedicated namespace:
 
       ```bash
       oc create namespace jobset-system
       ```
 
-   2. Create an **OwnNamespace** OperatorGroup:
+   b. Create an **OwnNamespace** OperatorGroup:
 
       ```bash
       oc apply -f - <<'EOF'
@@ -3447,7 +3444,7 @@ After preparing your cluster and changing the subscription channel, you must man
       EOF
       ```
 
-   3. Subscribe to the operator:
+   c. Subscribe to the operator:
 
       ```bash
       oc apply -f - <<'EOF'
@@ -3465,7 +3462,7 @@ After preparing your cluster and changing the subscription channel, you must man
       EOF
       ```
 
-   4. Wait for the CSV to reach **Succeeded**:
+   d. Wait for the CSV to reach **Succeeded**:
 
       ```bash
       oc wait csv jobset-operator.v1.0.0 -n jobset-system \
@@ -3475,7 +3472,7 @@ After preparing your cluster and changing the subscription channel, you must man
       **Tip**  
       If the CSV name differs from `jobset-operator.v1.0.0`, verify it with `oc get csv -n jobset-system`.
 
-   5. Create the **JobSetOperator** custom resource to deploy the operand. This installs the `jobsets.jobset.x-k8s.io` CRD that Kueue requires:
+   e. Create the **JobSetOperator** custom resource to deploy the operand. This installs the `jobsets.jobset.x-k8s.io` CRD that Kueue requires:
 
       ```bash
       oc apply -f - <<'EOF'
@@ -3490,7 +3487,7 @@ After preparing your cluster and changing the subscription channel, you must man
       EOF
       ```
 
-   6. Verify that the CRD exists and KueueReady is True:
+   f. Verify that the CRD exists and KueueReady is True:
 
       ```bash
       oc get crd jobsets.jobset.x-k8s.io
@@ -3498,6 +3495,7 @@ After preparing your cluster and changing the subscription channel, you must man
       ```
 
       Expected output: the CRD is listed and KueueReady shows **True**.
+      **Note* If the kueue component was set to `removed` in the DSC before upgrade then the above command will return **False**. For step to setting up kueue See [Set Kueue management to Unmanaged](#2.2-set-kueue-management-to-removed)
 
 14. Verify that the rhai-cli pod has cluster access for post-upgrade commands. The service account ClusterRoleBinding may need to be re-applied after the upgrade:
 
@@ -3516,7 +3514,7 @@ After preparing your cluster and changing the subscription channel, you must man
 
 # **Chapter 4\. After upgrading to 3.5** {#chapter-4.-after-upgrading-to-3.5-latest}
 
-After you upgrade OpenShift AI from version 2.25.9 (and later) to 3.5, you must validate that workload migration was successful for each of the components installed on your OpenShift AI cluster.
+After you upgrade OpenShift AI from version 2.25.10 (and later) to 3.5, you must validate that workload migration was successful for each of the components installed on your OpenShift AI cluster.
 
 ##  **4.1. OpenShift AI Operator \- After upgrade** {#4.1.-openshift-ai-operator---after-upgrade}
 
@@ -3530,7 +3528,7 @@ After the upgrade process finishes, you must verify that the environment is stab
 
   * The Red Hat OpenShift AI 3.5 Operator is listed, in addition to dependent Operators, and its ClusterServiceVersion (CSV) status is **Succeeded**.
 
-  * The Red Hat OpenShift AI 2.25.9 (and later) Operator is no longer present.
+  * The Red Hat OpenShift AI 2.25.10 (and later) Operator is no longer present.
 
 **Procedure**
 
@@ -3549,19 +3547,19 @@ After the upgrade process finishes, you must verify that the environment is stab
    **Note**  
    In the following commands, replace the default **redhat-ods-operator** and **redhat-ods-applications** with your specific namespace names.
 
-1. Verify that all Operator pods in the Operator namespace have **Status** equal to **Running** and their condition **Ready** is **True\`**.
+3. Verify that all Operator pods in the Operator namespace have **Status** equal to **Running** and their condition **Ready** is **True\`**.
 
    ```bash
    oc get pods -n redhat-ods-operator -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
    ```
 
-2. Verify that all component controller pods in the applications namespace have **Status** equal to **Running** and their condition **Ready** is **True**.
+4. Verify that all component controller pods in the applications namespace have **Status** equal to **Running** and their condition **Ready** is **True**.
 
    ```bash
    oc get pods -n redhat-ods-applications -o custom-columns='NAME:.metadata.name,READY:.status.conditions[?(@.type=="Ready")].status,STATUS:.status.phase'
    ```
 
-3. Verify that the RHOAI gateway is ready:
+5. Verify that the RHOAI gateway is ready:
 
    ```bash
    oc get gatewayconfigs --all-namespaces -o wide
@@ -3569,32 +3567,32 @@ After the upgrade process finishes, you must verify that the environment is stab
 
    Expected output is: default-gateway shows READY: True
 
-4. If the dashboard component is installed, verify that the console link exists and functions correctly.
+6. If the dashboard component is installed, verify that the console link exists and functions correctly.
 
-1. Click the **Red Hat OpenShift AI** link in the OpenShift console to go to the log in page.  
-2. Log in to the application and confirm that the dashboard is displayed.
+7. Click the **Red Hat OpenShift AI** link in the OpenShift console to go to the log in page.  
+8. Log in to the application and confirm that the dashboard is displayed.
 
-5. Change the OpenShift AI Operator update channel:
+9. Change the OpenShift AI Operator update channel:
 
-1. In the OpenShift web console, select **Operators \> Installed Operators**.
+10. In the OpenShift web console, select **Operators \> Installed Operators**.
 
-2. Select the **Red Hat OpenShift AI 3.5 Operator**. 
+11. Select the **Red Hat OpenShift AI 3.5 Operator**. 
 
-3. Select Subscriptions and then select the Upgrade channel: **support-required-upgrade-3.5** 
+12. Select Subscriptions and then select the Upgrade channel: **support-required-upgrade-3.5** 
 
-4. From the list of channels, select the 3.x channel that you want to use going forward, for example: **stable-3.5** or **stable-3.x**.
+13. From the list of channels, select the 3.x channel that you want to use going forward, for example: **stable-3.5**, **stable-3.x** or **eus-3.5**.
 
    For more information about update channels, see [Understanding update channels.](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html-single/installing_and_uninstalling_openshift_ai_self-managed/index#understanding-update-channels_install)
 
-5. Click **Save**.
+14. Click **Save**.
 
    If there are later OpenShift AI releases available, either later on the 3.5 release or for a later release, such as 3.4 or 3.5, the Operator subscription proposes install plans for them. 
 
-6. Optionally, you can select to upgrade your environment to the most current release of OpenShift AI 3.x.
+15. Optionally, you can select to upgrade your environment to the most current release of OpenShift AI 3.x.
 
 **Troubleshooting** 
 
-Use the following information to help troubleshoot problems after you upgrade from Red Hat OpenShift AI 2.25.9 (and later) to 3.5.
+Use the following information to help troubleshoot problems after you upgrade from Red Hat OpenShift AI 2.25.10 (and later) to 3.5.
 
 **OpenShift AI components that depend on OpenShift Service Mesh (OSSM)  do not become ready**
 
@@ -3607,12 +3605,14 @@ After upgrading Red Hat OpenShift AI on a disconnected cluster, the Red Hat Open
 
 For information on how to resolve this issue, see the [OpenShift Service Mesh 3.x fails to deploy on a disconnected cluster during Red Hat OpenShift AI installation](https://access.redhat.com/solutions/7141146) knowledgebase article.
 
+**Note** With the OCP release of 4.20.31+. 4.21.22+, or 4.22+ Service Mesh 3 is no longer required as a dependency operator. 
+
 **Resolving dashboard URL 404 errors**  
 If you have bookmarked dashboard URLs, you must recreate redirects after the upgrade is complete. For more information, see the [Resolving dashboard URL 404 errors after upgrading from 2.x to 3.x](https://access.redhat.com/solutions/7137771).
 
 **What the operator handles automatically**
 
-During the upgrade from OpenShift AI 2.25.9 to 3.5, the operator automatically performs the following migrations on startup. Cluster administrators do not need to perform these steps manually:
+During the upgrade from OpenShift AI 2.25.10 to 3.5, the operator automatically performs the following migrations on startup. Cluster administrators do not need to perform these steps manually:
 
 * **HardwareProfile auto-migration**: The operator automatically migrates AcceleratorProfiles to HardwareProfiles and attaches HardwareProfile annotations to Notebooks and InferenceServices. This migration uses create-only semantics and preserves any user customizations.
 
@@ -3624,39 +3624,43 @@ During the upgrade from OpenShift AI 2.25.9 to 3.5, the operator automatically p
 
 ***Kueue \- after upgrade***
 
-*After upgrading to OpenShift AI 3.5, verify that the Kueue component is properly configured and operational. If the Kueue migration to Red Hat build of Kueue was not completed before the upgrade, you must recover by completing the migration steps.*
+After upgrading to OpenShift AI 3.5, verify that the Kueue component is properly configured and operational. If the Kueue migration to Red Hat build of Kueue was not completed before the upgrade, you must recover by completing the migration steps.
 
 ***Prerequisites***
 
-* *You have cluster administrator access to the OpenShift cluster.*  
+* *You have cluster administrator access to the OpenShift cluster.  
 * *You have upgraded to OpenShift AI 3.5.*
 
 ***Procedure***
 
-1. *Check that the Kueue component is in a ready state as follows:*
+1. Check that the Kueue component is in a ready state as follows:
 
    ```bash
    read STATUS REASON < <(oc get datasciencecluster -A -o jsonpath='{.items[0].status.conditions[?(@.type=="KueueReady")].status} {.items[0].status.conditions[?(@.type=="KueueReady")].reason}'); [[ "$STATUS" == "True" || ( "$STATUS" == "False" && "$REASON" == "Removed" ) ]] && echo "Ready" || echo "Not Ready"
    ```
 
-2. *If the output is Ready, you can skip all of the remaining steps.*
+2. If the output is Ready, you can skip all of the remaining steps.
 
-   *If the output of the preceding command is Not Ready, check the Kueue component status as follows:*  
+   If the output of the preceding command is Not Ready, check the Kueue component status as follows:
    ```bash
    oc get datasciencecluster -A -o jsonpath='{.items[0].status.conditions[?(@.type=="KueueReady")].status}{"\n"}{.items[0].status.conditions[?(@.type=="KueueReady")].message}{"\n"}'
    ```  
      
-   *The following output indicates that Kueue was not migrated to Red Hat build of Kueue and that migration is required:*  
-   *False*  
-   *Kueue managementState Managed is not supported, please use Removed or Unmanaged*  
+   The following output indicates that Kueue was not migrated to Red Hat build of Kueue and that migration is required:  
+   ```bash
+   False
+   ```
+   Kueue managementState Managed is not supported, please use Removed or Unmanaged*  
      
-   *The following output indicates that you have a non-Kueue managed environment and that migration is not required:*  
-   *False*  
-   *Component ManagementState is set to Removed*  
-3. *If migration to to Red Hat build of Kueue is required, you must follow the steps in Kueue \- Before upgrade.*
+   The following output indicates that you have a non-Kueue managed environment and that migration is not required:
+   ```bash
+   False  
+   Component ManagementState is set to Removed
+   ```  
+3. If migration to Red Hat build of Kueue is required, you must follow the steps in Kueue \- Before upgrade. See [Set Kueue management to Unmanaged](#2.2-set-kueue-management-to-removed)
 
    ***Important***  
-   *Pay close attention to all steps and caveats in the migration procedure, particularly the framework configuration annotation if you are using the default Kueue configuration.*
+   Pay close attention to all steps and caveats in the migration procedure, particularly the framework configuration annotation if you are using the default Kueue configuration.
 
 ## **4.2. AI hub registry and catalog \- After upgrade** {#4.2.-ai-hub-registry-and-catalog---after-upgrade}
 
@@ -3688,9 +3692,9 @@ In OpenShift AI version 3.x, the dashboard navigation changed from **Models \> m
    oc logs <my-model-registry-pod-name> -n rhoai-model-registries -c <my-container-name>
    ```
 
-3. In the OpenShift AI dashboard, click **Settings \> Model resources and operations \> AI registry settings** to check the status of your model registries. For more information, see [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_model_registries).
+3. In the OpenShift AI dashboard, click **Settings \> Model resources and operations \> Model registry settings** to check the status of your model registries. For more information, see [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_model_registries).
 
-4. Click **AI hub \> Catalog** to check the default catalog and any custom catalogs that were created. For more information, see [Working with the model catalog](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/working_with_the_model_catalog).
+4. Click **AI hub \> Models** to check the default catalog and any custom catalogs that were created. For more information, see [Working with the model catalog](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/working_with_the_model_catalog).
 
 **Verification**
 
@@ -3704,7 +3708,7 @@ In OpenShift AI version 3.x, the dashboard navigation changed from **Models \> m
 
    * **model-catalog-postgres-xxx**
 
-2. In the OpenShift AI dashboard, on the **Settings \> Model resources and operations \> AI registry settings** page, your model registries are displayed with **Available** status.
+2. In the OpenShift AI dashboard, on the **Settings \> Model resources and operations \> Model registry settings** page, your model registries are displayed with **Available** status.
 
 3. On the **AI Hub \> Model registry** page, your model registries are displayed correctly.
 
@@ -3716,13 +3720,13 @@ In OpenShift AI version 3.x, the dashboard navigation changed from **Models \> m
 
 ##       **4.3. Feature Store \- After upgrade** {#4.3.-feature-store---after-upgrade}
 
-In Red Hat OpenShift AI 2.25, the Feature Store component is a Technology Preview feature. In OpenShift AI 3.5, it is a GA feature. Otherwise, the Feature Store component is unchanged between Red Hat OpenShift AI 2.25.9 (and later) and 3.5.
+In Red Hat OpenShift AI 2.25, the Feature Store component is a Technology Preview feature. In OpenShift AI 3.5, it is a GA feature. Otherwise, the Feature Store component is unchanged between Red Hat OpenShift AI 2.25.10 (and later) and 3.5.
 
 **Note**  If you did not use the Feature Store component in OpenShift AI 2.25, skip this section. You do not need to perform any steps for Feature Store after you upgrade to 3.5.
 
 If you used the Feature Store component in OpenShift AI 2.25, follow the steps in this procedure to verify that Feature Store is working correctly after you upgrade to OpenShift AI 3.5.
 
-**Note**  The URL for the OpenShift AI 3.5 dashboard uses Gateway API access and is different from the 2.25.9 (and later) URL. The 2.25.9 (and later) dashboard URL is no longer accessible. If you have bookmarked the OpenShift AI dashboard URL, you must update the bookmark to point to the 3.5 URL.
+**Note**  The URL for the OpenShift AI 3.5 dashboard uses Gateway API access and is different from the 2.25.10 (and later) URL. The 2.25.10 (and later) dashboard URL is no longer accessible. If you have bookmarked the OpenShift AI dashboard URL, you must update the bookmark to point to the 3.5 URL.
 
 **Prerequisites**
 
@@ -3730,7 +3734,7 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
 
 * You have OpenShift AI administrator access for the procedure steps and OpenShift AI user access for the verification steps.
 
-* You upgraded OpenShift AI 2.25.9 (and later) to 3.5.
+* You upgraded OpenShift AI 2.25.10 (and later) to 3.5.
 
 **Procedure**
 
@@ -3822,7 +3826,7 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
 
 1. As an OpenShift AI user, open the OpenShift AI 3.5 dashboard.  
    **Note**  
-   The URL for the OpenShift AI dashboard has changed to use Gateway API access. The 2.25.9 (and later) URL is no longer accessible.
+   The URL for the OpenShift AI dashboard has changed to use Gateway API access. The 2.25.10 (and later) URL is no longer accessible.
 
 2. Select **Develop & train** → **Feature Store**.
 
@@ -3838,7 +3842,7 @@ Support for Llama Stack in a disconnected environment is provided starting in Op
 **Note**  
 In OpenShift AI 3.5, the Llama Stack component has been renamed to **OGX (Open GenAI Stack)**. The **LlamaStackDistribution** custom resource is replaced by the **OGXServer** (v1beta1) custom resource.
 
-Key differences between OpenShift AI versions 2.25.9 (and later) and 3.5:
+Key differences between OpenShift AI versions 2.25.10 (and later) and 3.5:
 
 * **Component rename:** Llama Stack is now **OGX (Open GenAI Stack)**. **LlamaStackDistribution** CRs are replaced by **OGXServer** CRs.
 
@@ -3848,7 +3852,7 @@ Key differences between OpenShift AI versions 2.25.9 (and later) and 3.5:
 
 * **VectorDB API deprecation:** The Vector\_IO API has replaced the deprecated VectorDB API.
 
-* **Llama Stack Client version:** OpenShift AI versions 3.5 uses **llama-stack-client** version 0.4.x, previously OpenShift AI versions 2.25.9 (and later) used **llama-stack-client** version 0.2.x.
+* **Llama Stack Client version:** OpenShift AI versions 3.5 uses **llama-stack-client** version 0.4.x, previously OpenShift AI versions 2.25.10 (and later) used **llama-stack-client** version 0.2.x.
 
 * **Configuration format changes:** The **run.yaml** file has been renamed to the **config.yaml** files in application deployments.
 
@@ -3858,7 +3862,7 @@ Key differences between OpenShift AI versions 2.25.9 (and later) and 3.5:
 
 **Procedure**
 
-* After you complete the Llama Stack before-upgrade steps and the upgrade process, you can create new **OGXServer** CRs and applications in OpenShift AI version 3.5 using the **llsd-backup.yaml** file as a reference. This file was created in "Llama Stack upgrade steps for **LlamaStackDistribution** resource owners". Refer to the [Deploying a Llama Stack server](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_llama_stack/deploying-llama-stack-server_rag) documentation for more information.
+* After you complete the Llama Stack before-upgrade steps and the upgrade process, you can create new **OGXServer** CRs and applications in OpenShift AI version 3.5 using the **llsd-backup.yaml** file as a reference. This file was created in "Llama Stack upgrade steps for **LlamaStackDistribution** resource owners". Refer to the [Deploying a Llama Stack server](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.5/html/working_with_ogx/deploying-ogx-server_rag) documentation for more information.
 
 ##  
 
@@ -4161,7 +4165,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0
    ```
 
-5. Query the **/info** endpoint of the **GuardrailsOrchestrator** service:
+5. Query the **info** endpoint of the **GuardrailsOrchestrator** service:
 
    ```bash
    export GORCH_NAME=<gorch-name>
@@ -4565,7 +4569,7 @@ You can investigate and resolve the GPU deadlock.
 
 **Important**
 
-All procedures in this section must be completed after upgrading the Red Hat OpenShift AI Operator from version 2.25.9 (and later) to 3.5. Failure to complete these steps can result in service disruptions for your workbenches.
+All procedures in this section must be completed after upgrading the Red Hat OpenShift AI Operator from version 2.25.10 (and later) to 3.5. Failure to complete these steps can result in service disruptions for your workbenches.
 
 **Prerequisites**
 
@@ -4608,8 +4612,8 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
    This command prompts for interactive confirmation twice: once before patching notebooks, and once before cleaning up legacy OAuth resources. Enter **y** at each prompt to proceed.
 
    As the command runs, it provides output that indicates the status of the patch process. When the command completes, you should see a messages similar to the following:  
-* **Processed 9 workbenches: all succeeded.**  
-*  **Cleanup: all 9 workbenches completed successfully.**
+* **Migration workbenched.patch-auth-model completed successfully!**  
+* **All migrations completed successfully!**
 
 3. Notify your users that any workbenches that were stopped in order to prepare for the upgrade can now be started again.
 
@@ -4623,17 +4627,17 @@ All procedures in this section must be completed after upgrading the Red Hat Ope
    ```
 
    As the command runs, it provides output that indicates the status of your workbench upgrade. When the command completes, you should see a message similar to the following:  
-    **OK: All workbenches have been migrated.**
+    **All migrations completed successfully!**
 
 2. Confirm with your OpenShift AI users that they can access their workbench IDE from a web browser.
 
 ### **4.7.2. Perform a deferred workbench image migration** {#4.7.2.-perform-a-deferred-workbench-image-migration}
 
-If you are unable to stop some or all of your workbenches during the Red Hat OpenShift AI upgrade from version 2.25.9 (and later) to 3.5, your OpenShift AI users can defer their workbench image migration until after the upgrade.
+If you are unable to stop some or all of your workbenches during the Red Hat OpenShift AI upgrade from version 2.25.10 (and later) to 3.5, your OpenShift AI users can defer their workbench image migration until after the upgrade.
 
 **Important**
 
-* Workbench images left unmigrated continue to operate on the older 2.25.9 (and later) authentication layer. This hybrid environment can result in redirection loops and connectivity failures, primarily due to **NB\_PREFIX** routing conflicts for RStudio, code-server, and custom images.
+* Workbench images left unmigrated continue to operate on the older 2.25.10 (and later) authentication layer. This hybrid environment can result in redirection loops and connectivity failures, primarily due to **NB\_PREFIX** routing conflicts for RStudio, code-server, and custom images.
 
 After the upgrade to Red Hat OpenShift AI version 3.5 is complete, instruct your users to migrate their workbench images by following these steps:
 
@@ -4679,7 +4683,7 @@ After the upgrade to Red Hat OpenShift AI version 3.5 is complete, instruct your
 
 ## **4.8. Ray Training Operator \- After upgrade** {#4.8.-ray-training-operator---after-upgrade}
 
-After upgrading from Red Hat OpenShift AI 2.25.9 (and later) to 3.5, use the **rhai-cli** tool to migrate your Ray clusters.
+After upgrading from Red Hat OpenShift AI 2.25.10 (and later) to 3.5, use the **rhai-cli** tool to migrate your Ray clusters.
 
 **Note**
 
@@ -4695,27 +4699,34 @@ The commands in the following procedure include an optional **\--dry-run** argum
 
 **Procedure**
 
-1. List the Ray clusters on your OpenShift cluster:
+1. Preview the migration status of Ray clusters on your OpenShift cluster by using the **\--dry-run** flag:
 
    ```bash
-   rhai-cli migrate list --target-version 3.5.0
+   rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --dry-run
    ```
 
-   The status of all Ray clusters is **NEEDS MIGRATION** as shown in the following example output:
+   The output lists each Ray cluster and its migration status, as shown in the following example:
 
    ```
+   === DRY RUN MODE - No changes will be made ===
+
    Fetching RayClusters (all namespaces)...
    Found 2 RayCluster(s)
-   Analyzing clusters...
-   Analysis complete.
 
-   RayCluster Migration Status:
+   Analyzing clusters for migration status...
+     [1/2] Checking comprehensive-mixed (ns: raytest)... needs migration
+     [2/2] Checking sdk-configurations (ns: raytest)... needs migration
 
-   Name                 Namespace    Status    Workers  Migration Status
-   ----------------------------------------------------------------------
-   comprehensive-mixed  raytest      ready     2        [NEEDS MIGRATION]
-   sdk-configurations   raytest      ready     1        [NEEDS MIGRATION]
-   Migration Summary: 0 migrated, 2 need migration
+   Summary: 2 to migrate, 0 already migrated
+
+     [DRY RUN] Would migrate: comprehensive-mixed (ns: raytest)
+     [DRY RUN] Would migrate: sdk-configurations (ns: raytest)
+
+   ============================================================
+   Migration Summary:
+     Migrated: 2
+     Skipped (already migrated): 0
+     Failed: 0
    ```
 2. Choose from the following options to migrate your Ray clusters:
 
@@ -4794,37 +4805,42 @@ The commands in the following procedure include an optional **\--dry-run** argum
 
 1. In a web browser, verify that the Dashboard URL output by the migration command provides access to the Ray cluster.
 
-2. List the migration status of all Ray clusters:
+2. Verify the migration status of all Ray clusters by using the **\--dry-run** flag:
 
    ```bash
-   rhai-cli migrate list --target-version 3.5.0
+   rhai-cli migrate run --migration raycluster.migrate --target-version 3.5.0 --dry-run
    ```
 
-   Example output:
+   Example output after migrating one of three clusters:
 
    ```
-   Found 3 RayCluster(s):
+   === DRY RUN MODE - No changes will be made ===
 
-   Name                Namespace    Status  Workers  Migration Status
+   Fetching RayClusters (all namespaces)...
+   Found 3 RayCluster(s)
 
-   -------------------------------------------------------------------
+   Analyzing clusters for migration status...
+     [1/3] Checking production-cluster (ns: production)... already migrated
+     [2/3] Checking staging-cluster (ns: staging)... needs migration
+     [3/3] Checking dev-cluster (ns: dev)... needs migration
 
-   production-cluster  production   ready     5      [MIGRATED]
+   Summary: 2 to migrate, 1 already migrated
 
-   staging-cluster     staging      ready     3      [NEEDS MIGRATION]
+     [DRY RUN] Would migrate: staging-cluster (ns: staging)
+     [DRY RUN] Would migrate: dev-cluster (ns: dev)
 
-   dev-cluster         dev          ready     2      [NEEDS MIGRATION]
-
-
-
-   Migration Summary: 1 migrated, 2 need migration
+   ============================================================
+   Migration Summary:
+     Migrated: 2
+     Skipped (already migrated): 1
+     Failed: 0
    ```
 
-   If any of the listed Ray clusters have the **NEEDS MIGRATION** status, run the **raycluster.migrate** migration command for that Ray cluster.
+   If any clusters show **needs migration** status, run the **raycluster.migrate** migration command for that Ray cluster.
 
 **Troubleshooting**
 
-Use the following information to help troubleshoot problems with Ray clusters after you upgrade from Red Hat OpenShift AI 2.25.9 (and later) to 3.5.
+Use the following information to help troubleshoot problems with Ray clusters after you upgrade from Red Hat OpenShift AI 2.25.10 (and later) to 3.5.
 
 * **You did not run the Ray cluster pre-upgrade migration command**  
   If you did not run the pre-upgrade migration before you upgraded to 3.5, you can run it after upgrading to 3.5 by following the procedure described in *Ray Training Operator \- Before upgrade*.
@@ -4857,7 +4873,7 @@ Resolve any issues and then run the migration command again. Optionally, you can
 * **You migrated a Ray cluster and cannot access it from your bookmarked URL**  
   Instead of the bookmarked URL, use the URL provided in the output of the **raycluster.migrate** migration command.
 
-  During the migration process, the Ray cluster URL changes to use Gateway API access. The 2.25.9 (and later) route URL is no longer accessible for the Ray cluster. When you run the **raycluster.migrate** migration command, it outputs the new URL to access the migrated Ray cluster. If you did not make a note of the new URL, use the CodeFlare SDK inside a workbench to query all your Ray clusters:  
+  During the migration process, the Ray cluster URL changes to use Gateway API access. The 2.25.10 (and later) route URL is no longer accessible for the Ray cluster. When you run the **raycluster.migrate** migration command, it outputs the new URL to access the migrated Ray cluster. If you did not make a note of the new URL, use the CodeFlare SDK inside a workbench to query all your Ray clusters:  
 
   ```python
   from codeflare_sdk import list_all_clusters
@@ -4881,7 +4897,7 @@ Resolve any issues and then run the migration command again. Optionally, you can
   Your Ray cluster is in an unrecoverable state if, for example, it does not reach *ready* status or the dashboard URL output by the 3.5 migration command does not work.  
   If your Ray cluster is an unrecoverable state:
 
-  1. If you have not already run the **pre-upgrade** migration command to create back ups of your Ray cluster Custom Resource (CR) files, follow the procedure described in *Ray Training Operator \- Before upgrade*. You can do this step before or after upgrading from OpenShift AI 2.25.9 (and later) to 3\.
+  1. If you have not already run the **pre-upgrade** migration command to create back ups of your Ray cluster Custom Resource (CR) files, follow the procedure described in *Ray Training Operator \- Before upgrade*. You can do this step before or after upgrading from OpenShift AI 2.25.10 (and later) to 3\.
 
   2. Run the migration command with the **\--raycluster-from-backup $BACKUP\_DIR/rhoai-3.x** argument.
 
@@ -5020,13 +5036,13 @@ Resolve any issues and then run the migration command again. Optionally, you can
 
 Complete the model serving migration by restoring configurations and verifying that all components are functioning correctly after upgrading to Red Hat OpenShift AI 3.5.
 
-After upgrading the Red Hat OpenShift AI operator from version 2.25.9 (and later) to 3.5, you must restore management annotations on the **inferenceservice-config** **ConfigMap** and verify that all model serving components are operational.
+After upgrading the Red Hat OpenShift AI operator from version 2.25.10 (and later) to 3.5, you must restore management annotations on the **inferenceservice-config** **ConfigMap** and verify that all model serving components are operational.
 
 **Prerequisites**
 
 * You have completed all procedures in [Migrating model serving before upgrade](#2.8.-model-serving---before-upgrade).
 
-* You have successfully upgraded the Red Hat OpenShift AI operator from version 2.25.9 (and later) to 3.5.
+* You have successfully upgraded the Red Hat OpenShift AI operator from version 2.25.10 (and later) to 3.5.
 
 * The operator shows a **Succeeded** phase in the OpenShift web console.
 
@@ -5042,7 +5058,7 @@ If you were managing a customized **inferenceservice-config** **ConfigMap** manu
 
 **Prerequisites**
 
-* You have successfully upgraded the Red Hat OpenShift AI operator from version 2.25.9 (and later) to 3.5.
+* You have successfully upgraded the Red Hat OpenShift AI operator from version 2.25.10 (and later) to 3.5.
 
 * The operator shows a **Succeeded** phase.
 
@@ -5256,11 +5272,11 @@ OSSM v2 resources remain in the cluster and Gateway API resources do not functio
 
 ## **4.10. Kubeflow Training Operator \- After upgrade** {#4.10.-kubeflow-training-operator---after-upgrade}
 
-After you upgrade Red Hat OpenShift AI 2.25.9 (and later) to 3.5, any running PyTorchJobs should continue to run and complete as normal.
+After you upgrade Red Hat OpenShift AI 2.25.10 (and later) to 3.5, any running PyTorchJobs should continue to run and complete as normal.
 
 **Note**
 
-The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShift AI 2.25.9 (and later) and is planned to be removed in a future release. This deprecation is part of the OpenShift AI transition to Kubeflow Trainer v2, which delivers enhanced capabilities and improved functionality.
+The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShift AI 2.25.10 (and later) and is planned to be removed in a future release. This deprecation is part of the OpenShift AI transition to Kubeflow Trainer v2, which delivers enhanced capabilities and improved functionality.
 
 **Prerequisites**
 
@@ -5276,7 +5292,7 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
   oc auth can-i watch pods -A
   ```
 
-* You generated a list of PyTorchJob resources on your OpenShift cluster before you upgraded from OpenShift AI 2.25.9 (and later) to 3.5.
+* You generated a list of PyTorchJob resources on your OpenShift cluster before you upgraded from OpenShift AI 2.25.10 (and later) to 3.5.
 
 * You have logged in to your OpenShift cluster.
 
@@ -5286,7 +5302,7 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 
 1. Check that the PyTorchJob resources continue to run after you upgrade to OpenShift AI 3.5:  
    **Note**  
-   If there were no running PyTorchJob resources on OpenShift AI 2.25.9 (and later) before the upgrade to 3.5, you can skip this step.
+   If there were no running PyTorchJob resources on OpenShift AI 2.25.10 (and later) before the upgrade to 3.5, you can skip this step.
 
 1. Run the following command to get a list of PyTorchJob resources on your OpenShift cluster:  
    ```bash
