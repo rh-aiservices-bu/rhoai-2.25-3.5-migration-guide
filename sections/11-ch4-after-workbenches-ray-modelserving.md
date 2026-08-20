@@ -248,7 +248,7 @@ The commands in the following procedure include an optional **\--dry-run** argum
 
    -------------------------------------------------------------------
 
-   production-cluster  production   ready     5      [OK]
+   production-cluster  production   ready     5      [MIGRATED]
 
    staging-cluster     staging      ready     3      [NEEDS MIGRATION]
 

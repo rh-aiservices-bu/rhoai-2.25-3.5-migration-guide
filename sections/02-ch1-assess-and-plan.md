@@ -385,6 +385,15 @@ You can assess output items by impact:
 | warning | Potential issues or deprecated fields. | Review and remediate this item to ensure the long-term stability of your OpenShift AI environment.                                                       |
 | info | Prerequisite met or no migration required. | No action required.                                                                                                                                      |
 
+**Note**
+
+The `rhai-cli lint` command uses the following exit codes:
+
+| Exit code | Meaning |
+| :---- | :---- |
+| 0 | All checks passed with no prohibited or critical findings. |
+| 1 | One or more prohibited or critical findings were detected. This is expected behavior, not a tool error. |
+
 **Important**
 
 Before upgrading to OpenShift AI 3.5, ensure that no items with **prohibited** or **critical** impact appear in the migration assessment script output.

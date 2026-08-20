@@ -297,7 +297,7 @@ To prepare for the migration of OpenShift AI 2.25.9 (and later) to 3.5,  deploy 
 
 * As part of the pod configuration, specify the rhai-cli container image.
 
-  The container image is available at quay.io/rhoai/odh-cli-rhel9@sha256:f8111737b73673f53219057414dc7c9a9beaa76a78df0fd56e2c0e283f89f6ed.
+  The container image is available at quay.io/rhoai/odh-cli-rhel9@sha256:edc0ebe9ffeac42b9dd4d34ed3d11753b40fc33a2c4824e15aef059a536241b0.
 
   This image contains the Red Hat AI command line interface(**rhai-cli)** utility that includes the migration assessment linting CLI and migration actions to assist with pre-upgrade and post-upgrade steps for the Model Serving, Workbenches, TrustyAI, Llama Stack / OGX, AI Pipelines, and Ray Training Operator components.
 
@@ -342,7 +342,7 @@ To prepare for the migration of OpenShift AI 2.25.9 (and later) to 3.5,  deploy 
        spec:
          containers:
            - name: rhai-cli
-             image: quay.io/rhoai/odh-cli-rhel9@sha256:f8111737b73673f53219057414dc7c9a9beaa76a78df0fd56e2c0e283f89f6ed
+             image: quay.io/rhoai/odh-cli-rhel9@sha256:edc0ebe9ffeac42b9dd4d34ed3d11753b40fc33a2c4824e15aef059a536241b0
              command:
                - sleep
                - infinity
@@ -418,6 +418,7 @@ Authentication for the cluster is handled when you log in from inside the pod. T
    export KUBECONFIG=/tmp/.kubeconfig
    oc login --token=<token> --server=<api-server-url>
    ```
+**NOTE: If you have closed your session or open a new session you will need to peform the `export` and `oc login` again in the new session. 
 
 **Verification**
 
@@ -432,7 +433,7 @@ Authentication for the cluster is handled when you log in from inside the pod. T
    Expected output:
 
    ```
-   rhai-cli version: v1.26.4
+   kubectl-odh version 1.26.4 (commit: unknown, built: unknown)
    ```
 
 **Next steps**
@@ -441,7 +442,7 @@ Authentication for the cluster is handled when you log in from inside the pod. T
 
 ### **1.3.2. About the rhai-cli container image** {#1.3.2.-about-the-rhai-cli-container-image}
 
-The container image is available at **quay.io/rhoai/odh-cli-rhel9@sha256:f8111737b73673f53219057414dc7c9a9beaa76a78df0fd56e2c0e283f89f6ed**. It contains the migration assessment linting CLI and migration actions for specific component migrations.
+The container image is available at **quay.io/rhoai/odh-cli-rhel9@sha256:edc0ebe9ffeac42b9dd4d34ed3d11753b40fc33a2c4824e15aef059a536241b0**. It contains the migration assessment linting CLI and migration actions for specific component migrations.
 
 For details about the container image, including versions, see the [**rhoai/rhai-cli-rhel9** page in the Red Hat Ecosystem Catalog](https://catalog.redhat.com/en/software/containers/rhoai/rhai-cli-rhel9/69a580e6a46d08df99bffe08?image=69a7dc1675d4eb16e91cb5de).
 
@@ -542,24 +543,33 @@ The **rhai-cli** **lint** command produces a migration assessment report that in
 
 * **STATUS**: A status icon that indicates the severity of the item: ✗ for **critical**, ⚠ for **warning**, and ✓ for **info**.
 
-* **GROUP**:  The diagnostic category that classifies the assessment check. Groups include: dependency, service, component, and workload. 
+* **KIND:**  A specific OpenShift AI component, dependency, or resource. For example, kserve, notebook, cert-manager, or datasciencepipelines.
 
-* **KIND:**  A specific OpenShift AI component, dependency, or resource. For example, kserve, notebook, cert-manager, or datasciencepipelines. 
+* **GROUP**:  The diagnostic category that classifies the assessment check. Groups include: dependency, service, component, and workload. 
 
 * **CHECK**: The type of check for the item. For example, a **version-requirement** check might validate if your environment meets the minimum version requirement for a particular software.
 
-* **IMPACT**: The severity of the item. Blocking issues have a **critical** impact.
+* **IMPACT**: The severity of the item. Blocking issues have a **critical** or **prohibited** impact.
 
 * **MESSAGE**: A description of the item. For **critical** items, this field indicates required actions to resolve blocking issues.
 
 You can assess output items by impact:
 
-| Impact | Description | Action required |
-| :---- | :---- | :---- |
-| prohibited | Upgrade is not possible. | Do not continue with the upgrade. |
-| critical | A blocker for the upgrade. The component or workload will fail. | You must fix this blocking item by using the pre-upgrade steps in the respective component tab, or the **rhai-cli migrate** actions where available. |
-| warning | Potential issues or deprecated fields. | Review and remediate this item to ensure the long-term stability of your OpenShift AI environment. |
-| info | Prerequisite met or no migration required. | No action required. |
+| Impact | Description | Action required                                                                                                                                          |
+| :---- | :---- |:---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| prohibited | Upgrade is not possible. | Do not continue with the upgrade. Check the component's section of this document to see if a solution is documented. If not, check with Red Hat Support. |
+| critical | A blocker for the upgrade. The component or workload will fail. | You must fix this blocking item by using the pre-upgrade steps in the respective component tab, or the **rhai-cli migrate** actions where available.     |
+| warning | Potential issues or deprecated fields. | Review and remediate this item to ensure the long-term stability of your OpenShift AI environment.                                                       |
+| info | Prerequisite met or no migration required. | No action required.                                                                                                                                      |
+
+**Note**
+
+The `rhai-cli lint` command uses the following exit codes:
+
+| Exit code | Meaning |
+| :---- | :---- |
+| 0 | All checks passed with no prohibited or critical findings. |
+| 1 | One or more prohibited or critical findings were detected. This is expected behavior, not a tool error. |
 
 **Important**
 
@@ -579,18 +589,19 @@ For example, to perform a targeted check on the AI Pipelines component, run the 
 /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *datasciencepipelines*
 ```
 
-| Component | Value for – \- check option |
-| :---- | :---- |
-| OpenShift AI dashboard | **\*dashboard\*** |
+| Component | Value for – \- check option  |
+| :---- |:-----------------------------|
+| OpenShift AI dashboard | **\*dashboard\***            |
 | AI Pipelines | **\*datasciencepipelines\*** |
-| TrustyAI Guardrails | **\*guardrails\*** |
-| KServe | **\*kserve\*** |
-| Kueue | **\*kueue\*** |
-| Llama Stack / OGX | **\*llamastackdistribution\*** |
-| Model Serving | **\*modelmesh\*** |
-| Workbenches | **\*notebook\*** |
-| Ray Training Operator | **\*ray\*** |
-| Kubeflow Training Operator | **\*trainingoperator\*** |
+| TrustyAI Guardrails | **\*guardrails\***           |
+| KServe | **\*kserve\***               |
+| Kueue | **\*kueue\***                |
+| Llama Stack / OGX | **\*llamastack\***           |
+| Model Serving | **\*modelmesh\***            |
+| Workbenches | **\*notebook\***             |
+| Ray Training Operator | **\*ray\***                  |
+| Kubeflow Training Operator | **\*trainingoperator\***     |
+
 
 After you resolve each blocking item, re-run the **lint** command to confirm that the item no longer appears in the script output.
 
@@ -646,18 +657,18 @@ Submit the results of the migration assessment script to Technical Support.
    2. Copy the output file from the rhai-cli container to your local workstation. \<namespace\> is the namespace where you deployed the pod that includes the rhai-cli container image:
 
       ```bash
-      kubectl cp <namespace>/rhai-cli-0:/tmp/rhoai-upgrade-backup/<filename>.yaml ./<filename>.yaml
+      oc cp <namespace>/rhai-cli-0:/tmp/rhoai-upgrade-backup/<filename>.yaml ./<filename>.yaml
       ```
 
       For example, if you deployed the pod that includes the rhai-cli container image in the rhai-migration namespace, run the following command to copy a YAML file named rhai-cli-output.yaml located in the /tmp/rhoai-upgrade-backup directory of the rhai-cli container to the current directory of your local workstation:
 
       ```bash
-      kubectl cp rhai-migration/rhai-cli-0:/tmp/rhoai-upgrade-backup/rhai-cli-output.yaml ./rhai-cli-output.yaml
+      oc cp rhai-migration/rhai-cli-0:/tmp/rhoai-upgrade-backup/rhai-cli-output.yaml ./rhai-cli-output.yaml
       ```
 
 3. If you have not already done so, open a proactive support case through the Red Hat customer portal at [access.redhat.com](http://access.redhat.com). to let Red Hat know that you are considering upgrading Red Hat OpenShift AI 2.25.9 (and later) to 3.5 , as described in [How to submit a Proactive Case](https://access.redhat.com/articles/5387111).
 
-4. Upload the YAML output file as an attachment to your Red Hat support case. For more information about uploading a file to your support case, see [How to provide files to Red Hat Support](%20https://access.redhat.com/solutions/2112).
+4. Upload the YAML output file as an attachment to your Red Hat support case. For more information about uploading a file to your support case, see [How to provide files to Red Hat Support](https://access.redhat.com/solutions/2112).
 
 **Verification**
 
@@ -811,7 +822,7 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
    oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}'
    ```
 
-   * *If the output is Removed or Unmanaged, no migration is required and you can skip the remaining steps.*
+   * *If the output is Removed or Unmanaged, no migration is required and you can skip the remaining steps. Confirm using the rhai-cli script that kueue reports PASS.*
 
    * *If the output is Managed, you must migrate to Red Hat build of Kueue.*
 
@@ -939,7 +950,6 @@ If any model registries or custom model catalog sources were created before upgr
    Check the pod logs to ensure there are no error messages as follows:  
    ```bash
    oc logs <my-model-catalog-pod-name> -n rhoai-model-registries -c catalog
-   oc logs <my-model-registry-pod-name> -n rhoai-model-registries -c <my-container-name>
    ```
 
 4. In the OpenShift AI dashboard, click **Settings \> Model registry settings** to check the status of your model registries. For more information, see [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.25/html/managing_model_registries/index).
@@ -1727,6 +1737,8 @@ For each namespace that has the TrustyAI Guardrails Orchestrator service:
    ```
 
    The output should be a non-empty dictionary. If you have no additional **GuardrailsOrchestrator** instances, you have completed the Before upgrade \- Guardrails Orchestrator procedure. Otherwise, repeat the steps in this procedure for additional instances.
+
+##
 ## **2.8. Workbenches \- Before upgrade** {#2.8.-workbenches---before-upgrade}
 
 ### **2.8.1. About upgrading your workbenches** {#2.8.1.-about-upgrading-your-workbenches}
@@ -1745,7 +1757,7 @@ There are two major upgrade paths to follow. As a Red Hat OpenShift AI administr
 
 * RStudio workbenches require a new build from the RStudio BuildConfig after the upgrade. The existing image will not be compatible with the new authentication layer without this rebuild.
 
-* Workbenches created in Red Hat OpenShift AI version 2.25.9 (and later) or earlier are officially unsupported in the Red Hat OpenShift AI 3.5 environment unless they have been manually migrated.
+* Workbenches created in Red Hat OpenShift AI version 2.25 or earlier are officially unsupported in the Red Hat OpenShift AI 3.5 environment unless they have been manually migrated.
 
   **Important**  
   Workbenches that are not migrated will remain on the OpenShift AI 2.25.9 (and later) authentication layer. This legacy setup, paired with potential **NB\_PREFIX** routing conflicts, often results in redirection loops or connectivity failures—particularly for RStudio, Code Server, or custom images.
@@ -1962,11 +1974,16 @@ rules:
 
    Expected output: `Removed`
 
-2. Run a pre-upgrade check that verifies your configuration, verifies that the Ray clusters are ready for the upgrade, and backs up your Ray cluster CR configuration YAML files:  
+2. Create a folder for Ray cluster backup in `/tmp/rhoai-upgrade-backup`
+
+   ```bash
+   mkdir /tmp/rhoai-upgrade-backup/ray_cluster
+   ```
+3. Run a pre-upgrade check that verifies your configuration, verifies that the Ray clusters are ready for the upgrade, and backs up your Ray cluster CR configuration YAML files:  
    **Note**  
    The migration backs up your Ray cluster CR configuration YAML files only. It does not back up the state of your Ray clusters.  
    ```bash
-   rhai-cli migrate run --migration raycluster.backup --target-version 3.5.0
+   rhai-cli migrate run --migration raycluster.backup --target-version 3.5.0  --raycluster-output-dir /tmp/rhoai-upgrade-backup/ray_cluster
    ```
    The migration runs pre-upgrade checks. If all pre-upgrade checks succeed, then it saves your Ray cluster CR configurations to the following subdirectories under the backup directory:
 
@@ -1974,7 +1991,7 @@ rules:
 
    * **Rhoai-3.x** \- Your Ray cluster CR configurations YAML files that are compatible with OpenShift AI 3.x.
 
-3. Get a list of the Ray clusters and check their status:
+4. Get a list of the Ray clusters and check their status:
 
    ```bash
    rhai-cli migrate list --target-version 3.5.0
@@ -2105,8 +2122,6 @@ All model serving workloads must migrate to **RawDeployment** mode, which provid
 
 ### **2.10.3. Migration workflow for model serving** {#2.10.3.-migration-workflow-for-model-serving}
 
-The migration requires coordination between cluster administrators and users. The specific steps you complete depend on your cluster configuration and workloads.
-
 Following is an overview of the steps that you must complete for the model serving component before you upgrade the Red Hat OpenShift AI operator:
 
 1. Run the **rhai-cli** tool and analyze your cluster configuration, as described in [Run the rhai-cli script.](#2.10.5.-run-the-rhai-cli-tool)
@@ -2135,7 +2150,7 @@ Before migrating Model Serving workloads from Red Hat OpenShift AI 2.25.9 (and l
 
 **Important**
 
-If you cannot remove OpenShift Service Mesh v2 due to other dependencies, you must upgrade those applications to Service Mesh v3 before upgrading Red Hat OpenShift AI to version 3.5. For Service Mesh migration, see [Migrating from Service Mesh 2 to Service Mesh 3](https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.1/html/migrating_from_service_mesh_2_to_service_mesh_3/ossm-migrating-hub-recommendations-for-migrating_ossm-migrating-from-service-mesh-2-to-3).
+If you cannot remove OpenShift Service Mesh v2 due to other dependencies, you must upgrade those applications to Service Mesh v3 before upgrading Red Hat OpenShift AI to version 3.5. For Service Mesh migration, see [Migrating from Service Mesh 2 to Service Mesh 3](https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.1/html/migrating_from_service_mesh_2_to_service_mesh_3/index).
 
 If a conflicting OSSM v2.x subscription is present when you create a **GatewayClass** resource, the Cluster Ingress Operator attempts to install the required OSSM v3.x components but fails. This causes Gateway API resources to have no effect and no proxy gets configured to route traffic. Do not continue with the migration steps until after you resolve this conflict.
 
@@ -2163,13 +2178,13 @@ All migration commands must be executed within the **rhai-cli** container, as it
 
    Example output:
 
-| STATUS | GROUP | KIND | CHECK | IMPACT | MESSAGE |
+| STATUS | KIND | GROUP | CHECK | IMPACT | MESSAGE |
 | :---- | :---- | :---- | :---- | :---- | :---- |
-| ✗ | component | kserve | serverless-removal | critical | KServe serverless mode enabled but will be removed |
-| ✗ | component | modelmeshserving | removal | critical | ModelMesh is enabled but will be removed |
-| ✓ | workload | kserve | impacted-workloads | info | No Serverless InferenceService(s) found |
-| ✓ | workload | kserve | impacted-workloads | info | No ModelMesh InferenceService(s) found |
-| ⚠ | dependency | servicemesh-operator-v2 | upgrade | warning | Service Mesh Operator v2 no longer required |
+| ✗ | kserve | component | serverless-removal | critical | KServe serverless mode enabled but will be removed |
+| ✗ | modelmeshserving | component | removal | critical | ModelMesh is enabled but will be removed |
+| ✓ | kserve | workload | impacted-workloads | info | No Serverless InferenceService(s) found |
+| ✓ | kserve | workload | impacted-workloads | info | No ModelMesh InferenceService(s) found |
+| ⚠ | servicemesh-operator-v2 | dependency | upgrade | warning | Service Mesh Operator v2 no longer required |
 
    The output shows the status of your cluster configuration:  
    **✓ (checkmark)**  
@@ -2209,7 +2224,6 @@ Run this backup command on your local machine, not inside the **rhai-cli** conta
 1. Create the backup directory and back up the **inferenceservice-config** **ConfigMap**:
 
    ```bash
-   mkdir -p /tmp/rhoai-upgrade-backup
    oc get configmap inferenceservice-config -n redhat-ods-applications -o yaml > /tmp/rhoai-upgrade-backup/inferenceservice-config-backup.yaml
    ```
 
@@ -2301,7 +2315,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 
    The command handles resource transformation, authentication resources (ServiceAccount, Role, RoleBinding), and storage credentials automatically across all namespaces.
 
-4. Verify that the converted InferenceServices are ready:
+4. Verify that the converted InferenceServices are ready (run from your workstation due to the need for `jq`):
 
    ```bash
    oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
@@ -2319,7 +2333,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 
 5. Delete the legacy Serverless InferenceServices:
 
-   1. Preview what will be deleted:
+   1. Preview what will be deleted (run from your workstation due to the need for `jq`):
 
       ```bash
       oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name'
@@ -2332,7 +2346,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
       another-sl-model
       ```
 
-   2. Delete them:
+   2. Delete them (run from your workstation due to the need for `jq`):
 
       ```bash
       oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name' | while read -r name; do echo "Deleting  Serverless InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
@@ -2442,7 +2456,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    Migration helper completed!
    ```
 
-4. Verify that the converted InferenceServices are ready:
+4. Verify that the converted InferenceServices are ready (run from your workstation due to the need for `jq`):
 
    ```bash
    oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
@@ -2459,7 +2473,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 
 5. Delete the legacy ModelMesh InferenceServices and ServingRuntimes after confirming the new RawDeployment services are working.
 
-   1. Preview the ModelMesh InferenceServices that will be deleted:
+   1. Preview the ModelMesh InferenceServices that will be deleted (run from your workstation due to the need for `jq`):
 
       ```bash
       oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name'
@@ -2471,7 +2485,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
       My-modelmesh-isvc
       ```
 
-   2. Delete them:
+   2. Delete them (run from your workstation due to the need for `jq`):
 
       ```bash
       oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name' | while read -r name; do echo "Deleting ModelMesh InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
@@ -2484,7 +2498,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
       inferenceservice.serving.kserve.io "my-modelmesh-isvc" deleted
       ```
 
-   3. Delete the ModelMesh ServingRuntimes (multi-model runtimes):
+   3. Delete the ModelMesh ServingRuntimes (multi-model runtimes) (run from your workstation due to the need for `jq`):
 
       ```bash
       oc get servingruntimes.serving.kserve.io -n <namespace> -o json | jq -r '.items[] | select(.spec.multiModel==true) | .metadata.name' | while read -r name; do echo "Deleting ServingRuntime: $name"; oc delete servingruntime "$name" -n <namespace>; done
@@ -4802,7 +4816,7 @@ The commands in the following procedure include an optional **\--dry-run** argum
 
    -------------------------------------------------------------------
 
-   production-cluster  production   ready     5      [OK]
+   production-cluster  production   ready     5      [MIGRATED]
 
    staging-cluster     staging      ready     3      [NEEDS MIGRATION]
 
