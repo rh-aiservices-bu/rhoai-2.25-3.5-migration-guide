@@ -265,13 +265,24 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
    Stopped
    ```
 
-2. Validate that the backup is not empty:
+2. Verify that the backup file exists:
+
+   ```bash
+   ls ${BACKUP_DIR}/trustyai-metrics-${NS}-*
+   ```
+
+   Example output:
+
+   ```
+   /tmp/rhoai-upgrade-backup/trustyai/trustyai-metrics-test-trustyaiservice-upgrade-20260218-175450.json
+   ```
+3. Now take this output and validate that the backup is not empty:
 
    **Note**
    Run this command from your workstation (not from inside the **rhai-cli** pod). It reads the backup file from the pod's PVC and validates it with `jq` locally.
 
    ```bash
-   oc exec rhai-cli-0 -n rhai-migration -- cat ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | jq empty && echo "OK" || echo "FAIL: invalid JSON"
+   oc exec rhai-cli-0 -n rhai-migration -- cat <output_from_previous_step> | jq empty && echo "OK" || echo "FAIL: invalid JSON"
    ```
 
    **Note**
@@ -282,19 +293,6 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
    ```
    OK
    ```
-
-3. Verify that the backup file exists:
-
-   ```bash
-   oc exec rhai-cli-0 -n rhai-migration -- ls ${BACKUP_DIR}/trustyai-metrics-${NS}-*
-   ```
-
-   Example output:
-
-   ```
-   /tmp/rhoai-upgrade-backup/trustyai/trustyai-metrics-test-trustyaiservice-upgrade-20260218-175450.json
-   ```
-
 ### **2.7.3. TrustyAI \- Before upgrade \- Backup data storage** {#2.7.3.-trustyai---before-upgrade---backup-data-storage}
 
 You can backup TrustyAI data storage before you upgrade OpenShift AI 2.25.10 (and later) to 3.5. The **rhai-cli** `trustyai.data` migration action auto-detects storage type (PVC or DATABASE) from the TrustyAIService CR and performs the appropriate backup.

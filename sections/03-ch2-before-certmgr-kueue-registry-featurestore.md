@@ -119,50 +119,50 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
 
 ***Kueue \- Before upgrade***
 
-*Before starting the upgrade to OpenShift AI 3.5, if you are currently using embedded Kueue (managementState: Managed), you must migrate to either Red Hat build of Kueue (managementState: Unmanaged) or disable Kueue entirely (managementState: Removed). Embedded Kueue is not supported in OpenShift AI 3.5 -- the Managed state is accepted by OLM for backwards compatibility but is rejected at runtime.*
+Before starting the upgrade to OpenShift AI 3.5, if you are currently using embedded Kueue (managementState: Managed), you must migrate to either Red Hat build of Kueue (managementState: Unmanaged) or disable Kueue entirely (managementState: Removed). Embedded Kueue is not supported in OpenShift AI 3.5 -- the Managed state is accepted by OLM for backwards compatibility but is rejected at runtime.
 
-*Important*  
-*You must perform the migration to Red Hat build of Kueue independently and in advance of the OpenShift AI version upgrade. Completing this migration before upgrade will simplify planning and reduce the overall upgrade time.*
+**Important**  
+You must perform the migration to Red Hat build of Kueue independently and in advance of the OpenShift AI version upgrade. Completing this migration before upgrade will simplify planning and reduce the overall upgrade time.
 
-*The upgrade to OpenShift AI 3.5 assumes that embedded Kueue has already been migrated to Red Hat build of Kueue and does not include or perform this migration automatically. Ensure that the migration to Red Hat build of Kueue is fully completed and validated before proceeding with the upgrade to OpenShift AI 3.5.*
+The upgrade to OpenShift AI 3.5 assumes that embedded Kueue has already been migrated to Red Hat build of Kueue and does not include or perform this migration automatically. Ensure that the migration to Red Hat build of Kueue is fully completed and validated before proceeding with the upgrade to OpenShift AI 3.5.
 
-*Prerequisites*
+**Prerequisites**
 
-* *You have cluster administrator access to the OpenShift cluster.*  
-* *The DataScienceCluster resource has the Kueue component in a Ready state.*
+* You have cluster administrator access to the OpenShift cluster.  
+* The DataScienceCluster resource has the Kueue component in a Ready state.
 
-*Procedure*
+**Procedure**
 
-1. *Check that the Kueue component is in a ready state as follows:*
+1. Check that the Kueue component is in a ready state as follows:
 
    ```bash
    read STATUS REASON < <(oc get datasciencecluster -A -o jsonpath='{.items[0].status.conditions[?(@.type=="KueueReady")].status} {.items[0].status.conditions[?(@.type=="KueueReady")].reason}'); [[ "$STATUS" == "True" || ( "$STATUS" == "False" && "$REASON" == "Removed" ) ]] && echo "Ready" || echo "Not Ready"
    ```
 
-   *The command output must be Ready.*
+   The command output must be `Ready`.
 
-2. *Check that Kueue has been migrated to Red Hat build of Kueue as follows:*  
+2. Check that Kueue has been migrated to Red Hat build of Kueue as follows:  
    ```bash
    oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}'
    ```
 
-   * *If the output is Removed or Unmanaged, no migration is required and you can skip the remaining steps. Confirm using the rhai-cli script that kueue reports PASS.*
+   * If the output is Removed or Unmanaged, no migration is required and you can skip the remaining steps. Confirm using the rhai-cli script that kueue reports PASS.
 
-   * *If the output is Managed, you must migrate to Red Hat build of Kueue.*
+   * If the output is Managed, you must migrate to Red Hat build of Kueue.
 
-3. *If you are using the default OpenShift AI Kueue configuration and have not modified the kueue-manager-config config map in your applications namespace, annotate the config map to preserve the enabled frameworks as follows:*
+3. If you are using the default OpenShift AI Kueue configuration and have not modified the kueue-manager-config config map in your applications namespace, annotate the config map to preserve the enabled frameworks as follows:
 
    ```bash
    oc annotate configmap kueue-manager-config -n <applications_namespace> opendatahub.io/managed=false
    ```
 
-   *\<applications\_namespace\> specifies the namespace where your Kueue applications are deployed. The default is redhat-ods-applications.*
+   `\<applications\_namespace\>` specifies the namespace where your Kueue applications are deployed. The default is `redhat-ods-applications`.
 
-   *Important*
+   **Important**
 
-   *This annotation ensures that your enabled frameworks remain unchanged during migration. Without this annotation, the enabled frameworks will change.*
+   This annotation ensures that your enabled frameworks remain unchanged during migration. Without this annotation, the enabled frameworks will change.
 
-         *Before migration, the enabled frameworks are as follows:*
+   Before migration, the enabled frameworks are as follows:
 
    * *batch/job*  
    * *kubeflow.org/mpijob*  
@@ -175,26 +175,26 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
    * *kubeflow.org/xgboostjob*  
    * *workload.codeflare.dev/appwrapper*
 
-   *After migration, without this annotation, the enabled frameworks will change as follows:*
+   After migration, without this annotation, the enabled frameworks will change as follows:
 
-* *Deployment*  
-* *Pod*  
-* *PyTorchJob*  
-* *RayCluster*  
-* *RayJob*  
-* *StatefulSet*
+   * *Deployment*  
+   * *Pod*  
+   * *PyTorchJob*  
+   * *RayCluster*  
+   * *RayJob*  
+   * *StatefulSet*
 
-4. *Perform the steps in [Migrating to the Red Hat build of Kueue Operator](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.25/html/managing_openshift_ai/managing-workloads-with-kueue#migrating-to-the-rhbok-operator_kueue).*
+4. Perform the steps in [Migrating to the Red Hat build of Kueue Operator](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.25/html/managing_openshift_ai/managing-workloads-with-kueue#migrating-to-the-rhbok-operator_kueue).
 
-   *Important*  
-   *Do not follow the Next steps section in the Operator migration guide. Return to this procedure after completing the Operator migration steps.*
+   **Important**  
+   Do not follow the Next steps section in the Operator migration guide. Return to this procedure after completing the Operator migration steps.
 
-   *Note*  
-   *When you activate the Red Hat build of Kueue Operator in the DataScienceCluster resource, define custom names for your local queues and cluster queues instead of using the name `default`. The Red Hat build of Kueue treats the name `default` as a system identifier for enabled frameworks. When Kueue transitions to Unmanaged, workloads in kueue-managed namespaces that are not explicitly assigned to a queue are implicitly placed on the LocalQueue named `default`. If that name is already in use for other purposes, workloads can be scheduled to unintended queues.*
+   **Note**  
+   When you activate the Red Hat build of Kueue Operator in the DataScienceCluster resource, define custom names for your local queues and cluster queues instead of using the name `default`. The Red Hat build of Kueue treats the name `default` as a system identifier for enabled frameworks. When Kueue transitions to Unmanaged, workloads in kueue-managed namespaces that are not explicitly assigned to a queue are implicitly placed on the LocalQueue named `default`. If that name is already in use for other purposes, workloads can be scheduled to unintended queues.
 
-   *Using custom queue names (for example, `rhoai-kueue-default` or `my-project-default`) avoids potential conflicts and ensures correct resource allocation across frameworks.*
+   Using custom queue names (for example, `rhoai-kueue-default` or `my-project-default`) avoids potential conflicts and ensures correct resource allocation across frameworks.
 
-   *To use predefined queue names, apply the following configuration:*
+   To use predefined queue names, apply the following configuration:
 
    ```yaml
    spec:
@@ -203,7 +203,7 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
          managementState: Unmanaged
    ```
 
-   *To specify custom queue names (recommended), apply the following configuration:*
+   To specify custom queue names (recommended), apply the following configuration:
 
    ```yaml
    spec:
@@ -214,14 +214,14 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
          defaultLocalQueueName: <example-local-queue>
    ```
 
-5. *Enable Kueue management for existing projects using Kueue by applying the `kueue.openshift.io/managed=true` label to each project namespace:*
+5. Enable Kueue management for existing projects using Kueue by applying the `kueue.openshift.io/managed=true` label to each project namespace:
 
    ```bash
    oc label namespace <project-namespace> kueue.openshift.io/managed=true --overwrite
    ```
 
-   *Warning*  
-   *Kueue validation and queue enforcement apply only to workloads in namespaces labeled with `kueue.openshift.io/managed=true`.*
+   **Warning**  
+   Kueue validation and queue enforcement apply only to workloads in namespaces labeled with `kueue.openshift.io/managed=true`.
 
    *After you apply this label, ensure that the following resources within that namespace have the `kueue.x-k8s.io/queue-name` annotation set to the relevant Kueue queue name:*
 
@@ -232,19 +232,21 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
    * *inferenceservice*
    * *llminferenceservice*
 
-   *If this annotation is missing in a managed namespace, any subsequent modification or creation of these resources will be rejected by the admission controller.*
+   If this annotation is missing in a managed namespace, any subsequent modification or creation of these resources will be rejected by the admission controller.
 
-*Verification*
+**Verification**
 
-* *Verify that the migration to Red Hat build of Kueue was successful as follows:*
+* Verify that the migration to Red Hat build of Kueue was successful as follows:
 
   ```bash
   oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}{.items[0].status.conditions[?(@.type=="KueueReady")].status}{"\n"}'
   ```
 
-  *The command output must be the following:*  
-  *Unmanaged*  
-      *True*
+  The command output must be the following:  
+  ```bash
+  Unmanaged
+  True
+  ```
 
 ## 
 
