@@ -236,6 +236,15 @@ The commands in the following procedure include an optional **\--dry-run** argum
 
 3. Make a note of the Dashboard URL that is output by the migration command. Share this URL with users that want to access the Ray cluster.
 
+   **Important**
+   The Dashboard URL uses Gateway API routing. For the URL to be accessible, the **AIGateway** component must be enabled (set to **Managed**) in the DataScienceCluster. If AIGateway is set to **Removed**, the HTTPRoute will be created but will not be programmed and the Dashboard URL will return HTTP 503. Verify:
+
+   ```bash
+   oc get datasciencecluster default-dsc -o jsonpath='{.spec.components.aigateway.managementState}' && echo
+   ```
+
+   Expected output: `Managed`
+
 **Verification**
 
 1. In a web browser, verify that the Dashboard URL output by the migration command provides access to the Ray cluster.
