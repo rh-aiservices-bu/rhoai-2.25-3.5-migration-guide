@@ -279,15 +279,13 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 3. Now take this output and validate that the backup is not empty:
 
    **Note**
-   Run this command from your workstation (not from inside the **rhai-cli** pod). It reads the backup file from the pod's PVC and validates it with `jq` locally.
+   Run this command from your workstation (not from inside the **rhai-cli** pod). It reads the backup file from the pod's PVC and validates it with `jq` locally. Set `RHAI_CLI_NS` to the namespace where your **rhai-cli** StatefulSet is deployed.
 
    ```bash
-   METRICS=$(oc exec rhai-cli-0 -n <rhai-cli-namespace> -- cat <output_from_previous_step> 2>/dev/null)
+   export RHAI_CLI_NS=<rhai-cli-namespace>
+   METRICS=$(oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- cat <output_from_previous_step> 2>/dev/null)
    [ -n "$METRICS" ] && echo "$METRICS" | jq empty 2>/dev/null && echo "OK" || echo "FAIL: missing or invalid JSON"
    ```
-
-   **Note**
-   Replace `<rhai-cli-namespace>` with the namespace where your **rhai-cli** StatefulSet is deployed.
 
    Example output:
 
