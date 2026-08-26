@@ -49,7 +49,7 @@ Since Llama Stack was in Technology Preview in 2.25.x and has been renamed to OG
 2. For each namespace with Llama Stack deployments, identify the owners of the namespace with the following command:
 
    ```bash
-   oc get rolebindings -n <NAMESPACE> -o wide
+   oc get rolebindings -n <namespace> -o wide
    ```
 
 3. Once you have identified all **LlamaStackDistribution** CRs and their owners, contact each owner and inform them of the following:
@@ -122,7 +122,7 @@ If you are a **LlamaStackDistribution** resource owner in OpenShift AI 2.25.10 (
    For each llsd:
 
    ```bash
-   oc delete -n <NAMESPACE> llsd/<LLSD_RESOURCE_NAME>
+   oc delete -n <namespace> llsd/<llsd-resource-name>
    ```
 
 3. During the recreation of deployments as **OGXServer** resources in OpenShift AI 3.5, you must complete and understand the following:

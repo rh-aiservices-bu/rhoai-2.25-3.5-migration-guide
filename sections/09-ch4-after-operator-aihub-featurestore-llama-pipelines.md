@@ -174,8 +174,8 @@ In OpenShift AI version 3.x, the dashboard navigation changed from **Models \> m
 
    You can also get more information on a specific pod if needed by using the following commands:  
    ```bash
-   oc logs <MY_MODEL_CATALOG_POD_NAME> -n rhoai-model-registries -c catalog
-   oc logs <MY_MODEL_REGISTRY_POD_NAME> -n rhoai-model-registries -c <MY_CONTAINER_NAME>
+   oc logs <my-model-catalog-pod-name> -n rhoai-model-registries -c catalog
+   oc logs <my-model-registry-pod-name> -n rhoai-model-registries -c <my-container-name>
    ```
 
 3. In the OpenShift AI dashboard, click **Settings \> Model resources and operations \> Model registry settings** to check the status of your model registries. For more information, see [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/3.4/html/managing_model_registries).
@@ -186,9 +186,9 @@ In OpenShift AI version 3.x, the dashboard navigation changed from **Models \> m
 
 1. In OpenShift, there are no errors in the following pods:
 
-   * **\<MY_MODEL_REGISTRY\>-xxx**
+   * **\<my-model-registry\>-xxx**
 
-   * **db-\<MY_MODEL_REGISTRY\>-xxx**
+   * **db-\<my-model-registry\>-xxx**
 
    * **model-catalog-xxx**
 
@@ -254,9 +254,9 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
 
 3. As an OpenShift AI administrator, follow these steps for each Feature Store instance:
 
-1. List CronJobs for the namespace that has a Feature Store instance by running the following command and replacing **\<NAMESPACE\>** with the name of the namespace:  
+1. List CronJobs for the namespace that has a Feature Store instance by running the following command and replacing **\<namespace\>** with the name of the namespace:  
    ```bash
-   oc get cronjobs -n <NAMESPACE>
+   oc get cronjobs -n <namespace>
    ```
 
    For example:
@@ -272,9 +272,9 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
    feast-sample-git  @yearly    <none>     True      0        <none>          74m
    ```
 
-2. Create a Job by running the following command. Replace **\<JOB_NAME\>** with the name of the job and replace **\<CRONJOB_NAME\>** with the name of a CronJob output from the previous step:  
+2. Create a Job by running the following command. Replace **\<job-name\>** with the name of the job and replace **\<cronjob-name\>** with the name of a CronJob output from the previous step:  
    ```bash
-   oc create job <JOB_NAME> --from=cronjob/<CRONJOB_NAME> -n <NAMESPACE>
+   oc create job <job-name> --from=cronjob/<cronjob-name> -n <namespace>
    ```
 
    For example:
@@ -291,7 +291,7 @@ If you used the Feature Store component in OpenShift AI 2.25, follow the steps i
 
 3. Check that the CronJob for the Feature Store instance ran the Job successfully. View a list of jobs and their status by running the following command:  
    ```bash
-   oc get jobs -n <NAMESPACE>
+   oc get jobs -n <namespace>
    ```
 
    For example:
@@ -381,7 +381,7 @@ After upgrading to OpenShift AI 3.5, confirm that the AI Pipelines platform is h
 
    ```bash
    oc get dspa -A
-   oc get pods -n <DSPA_NAMESPACE> | grep ds-pipeline
+   oc get pods -n <dspa-namespace> | grep ds-pipeline
    ```
 
    Confirm that all pipeline server pods are **Running** with all containers ready, then skip to step 3.

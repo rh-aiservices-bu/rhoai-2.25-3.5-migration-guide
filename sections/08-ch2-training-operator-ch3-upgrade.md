@@ -149,7 +149,7 @@ After preparing your cluster and changing the subscription channel, you must man
 2. For disconnected environments:
 
    Identify the OSSM version the Cluster Ingress Operator requires.  
-   In the following steps, replace **\<OSSM_VERSION\>**  with this value (for example, servicemeshoperator3.v3.1.0):
+   In the following steps, replace \<ossm-version\>  with this value (for example, servicemeshoperator3.v3.1.0):
 
    ```bash
    oc set env deployment/ingress-operator -n openshift-ingress-operator --list \
@@ -158,7 +158,7 @@ After preparing your cluster and changing the subscription channel, you must man
    ```
 
 3. Identify the OSSM channel the Cluster Ingress Operator uses to install OSSM.   
-   In the following steps  replace **\<OSSM_CHANNEL\>** with this value (for example,  stable):
+   In the following steps  replace \<ossm-channel\> with this value (for example,  stable):
 
    ```bash
    oc set env deployment/ingress-operator -n openshift-ingress-operator --list \
@@ -169,7 +169,7 @@ After preparing your cluster and changing the subscription channel, you must man
 ### 
 
 4. Mirror the exact OSSM version identified in Step 2 into the disconnected registry:  
-   1. Create the ImageSetConfiguration. Replace **\<OCP_VERSION\>**, **\<OSSM_VERSION\>** and **\<OSSM_CHANNEL\>** with your values:
+   1. Create the ImageSetConfiguration. Replace \<ocp-version\>, \<ossm-version\> and \<ossm-channel\> with your values:
 
       ```bash
       cat > imageset-config.yaml <<EOF
@@ -177,26 +177,26 @@ After preparing your cluster and changing the subscription channel, you must man
       kind: ImageSetConfiguration
       mirror:
         operators:
-          - catalog: registry.redhat.io/redhat/redhat-operator-index:v<OCP_VERSION>
+          - catalog: registry.redhat.io/redhat/redhat-operator-index:v<ocp-version>
             packages:
               - name: servicemeshoperator3
                 channels:
-                  - name: <OSSM_CHANNEL>
-                    minVersion: <OSSM_VERSION>
-                    maxVersion: <OSSM_VERSION>
+                  - name: <ossm-channel>
+                    minVersion: <ossm-version>
+                    maxVersion: <ossm-version>
       EOF
       ```
 
       
 
-      **b.** Run oc-mirror to mirror the images. Replace **\<MIRROR_REGISTRY\>** with your registry URL:
+      **b.** Run oc-mirror to mirror the images. Replace \<mirror-registry\> with your registry URL:
 
       
 
       ```bash
       oc-mirror --v2 --config=imageset-config.yaml \
           --workspace file://oc-mirror-workspace \
-          docker://<MIRROR_REGISTRY>
+          docker://<mirror-registry>
       ```
 
    
@@ -214,30 +214,30 @@ After preparing your cluster and changing the subscription channel, you must man
    **d.** Verify that the required version of OSSM is available in the required channel in the mirrored CatalogSource named redhat-operators:
 
    ```bash
-   oc get packagemanifest -o json | jq '.items[] | select (.metadata.name == "servicemeshoperator3" and .status.catalogSource == "redhat-operators") | .status.channels[] | select (.name == "<OSSM_CHANNEL>") | .entries[].name'
+   oc get packagemanifest -o json | jq '.items[] | select (.metadata.name == "servicemeshoperator3" and .status.catalogSource == "redhat-operators") | .status.channels[] | select (.name == "<ossm-channel>") | .entries[].name'
    ```
 
    
 
-   The output should include the **\<OSSM_VERSION\>** from Step 2\. If it doesn’t include the version from Step 2, make sure that the CatalogSource named redhat-operators references it.
+   The output should include the \<ossm-version\> from Step 2\. If it doesn’t include the version from Step 2, make sure that the CatalogSource named redhat-operators references it.
 
 5. **FBC (File-Based Catalog) environments only:** If you installed Red Hat OpenShift AI using a custom FBC CatalogSource (for example, for pre-release testing), you must update the CatalogSource image to the target version before switching channels. The source FBC fragment only contains channels up to the source version.
 
    ```bash
-   oc patch catalogsource <CATALOG_NAME> -n openshift-marketplace \
-     --type=merge -p '{"spec":{"image":"<TARGET_FBC_FRAGMENT_IMAGE>"}}'
+   oc patch catalogsource <catalog-name> -n openshift-marketplace \
+     --type=merge -p '{"spec":{"image":"<target-fbc-fragment-image>"}}'
    ```
 
    Delete the catalog pod to force OLM to rebuild its cache. Without this step, OLM may serve stale channel data even after the CatalogSource reports READY:
 
    ```bash
-   oc delete pod -n openshift-marketplace -l olm.catalogSource=<CATALOG_NAME>
+   oc delete pod -n openshift-marketplace -l olm.catalogSource=<catalog-name>
    ```
 
    Wait for the CatalogSource to reach **READY** state:
 
    ```bash
-   oc get catalogsource <CATALOG_NAME> -n openshift-marketplace \
+   oc get catalogsource <catalog-name> -n openshift-marketplace \
      -o jsonpath='{.status.connectionState.lastObservedState}'
    ```
 
@@ -246,7 +246,7 @@ After preparing your cluster and changing the subscription channel, you must man
    ```bash
    oc get packagemanifest -n openshift-marketplace -o json | \
        jq -r '.items[] | select(.metadata.name == "rhods-operator" and
-       .status.catalogSource == "<CATALOG_NAME>") |
+       .status.catalogSource == "<catalog-name>") |
        .status.channels[].name' | grep support
    ```
 

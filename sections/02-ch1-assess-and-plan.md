@@ -144,10 +144,10 @@ To prepare for the migration of OpenShift AI 2.25.10 (and later) to 3.5,  deploy
 **Procedure**
 
 1. In a terminal window, log in to your OpenShift cluster.  
-2. Create the StatefulSet, replacing **<NAMESPACE>** with the name of the target namespace:
+2. Create the StatefulSet, replacing `<namespace>` with the name of the target namespace:
 
    ```bash
-   cat <<'EOF' | oc apply -n <NAMESPACE> -f -
+   cat <<'EOF' | oc apply -n <namespace> -f -
    apiVersion: apps/v1
    kind: StatefulSet
    metadata:
@@ -182,7 +182,7 @@ To prepare for the migration of OpenShift AI 2.25.10 (and later) to 3.5,  deploy
          spec:
            accessModes:
              - ReadWriteOnce
-           # storageClassName: <YOUR_STORAGE_CLASS>  # set if PVC stays Pending
+           # storageClassName: <your-storage-class>  # set if PVC stays Pending
            resources:
              requests:
                storage: 1Gi
@@ -194,14 +194,14 @@ To prepare for the migration of OpenShift AI 2.25.10 (and later) to 3.5,  deploy
 3.  Wait for the pod to be ready:
 
    ```bash
-   oc wait pod/rhai-cli-0 -n <NAMESPACE> --for=condition=Ready --timeout=120s
+   oc wait pod/rhai-cli-0 -n <namespace> --for=condition=Ready --timeout=120s
    ```
 
    If the wait times out, run the following commands
 
    ```bash
-   oc get pods -n <NAMESPACE>
-   oc describe pod rhai-cli-0 -n <NAMESPACE>
+   oc get pods -n <namespace>
+   oc describe pod rhai-cli-0 -n <namespace>
    ```
 
 4. Depending on your cluster policy and workload, customize the container (`cpu`/`memory`) and PVC (`storage`) `resources.requests` values.
@@ -232,14 +232,14 @@ Authentication for the cluster is handled when you log in from inside the pod. T
 1. Open a shell in the pod:
 
    ```bash
-   oc exec -it rhai-cli-0 -n <NAMESPACE> -- /bin/bash
+   oc exec -it rhai-cli-0 -n <namespace> -- /bin/bash
    ```
 
 2.  Inside that shell, point `KUBECONFIG` to a writable path and log in:
 
    ```bash
    export KUBECONFIG=/tmp/.kubeconfig
-   oc login --token=<TOKEN> --server=<API_SERVER_URL>
+   oc login --token=<token> --server=<api-server-url>
    ```
 **NOTE: If you have closed your session or open a new session you will need to peform the `export` and `oc login` again in the new session. 
 
@@ -404,7 +404,7 @@ Before upgrading to OpenShift AI 3.5, ensure that no items with **prohibited** o
 To reduce output noise, you can also run a focused check for a specific component by using the \--checks flag for a component listed in the following table.  Enclose the component string value with wildcard (\*) characters:
 
 ```bash
-/opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *<COMPONENT_STRING>*
+/opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --checks *<component-string>*
 ```
 
 For example, to perform a targeted check on the AI Pipelines component, run the following command :
@@ -457,7 +457,7 @@ Submit the results of the migration assessment script to Technical Support.
 1. Run the following command that sends the output of the migration script to a YAML file.
 
    ```bash
-   /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --output yaml > /tmp/rhoai-upgrade-backup/<FILENAME>.yaml
+   /opt/rhai-cli/bin/rhai-cli lint --target-version 3.5 --output yaml > /tmp/rhoai-upgrade-backup/<filename>.yaml
    ```
 
    For example,  to send the output of the migration script to a YAML file named rhai-cli-output.yaml:
@@ -470,10 +470,10 @@ Submit the results of the migration assessment script to Technical Support.
 
    1. Open a new terminal window for your local workstation.
 
-   2. Copy the output file from the rhai-cli container to your local workstation. **\<NAMESPACE\>** is the namespace where you deployed the pod that includes the rhai-cli container image:
+   2. Copy the output file from the rhai-cli container to your local workstation. \<namespace\> is the namespace where you deployed the pod that includes the rhai-cli container image:
 
       ```bash
-      oc cp <NAMESPACE>/rhai-cli-0:/tmp/rhoai-upgrade-backup/<FILENAME>.yaml ./<FILENAME>.yaml
+      oc cp <namespace>/rhai-cli-0:/tmp/rhoai-upgrade-backup/<filename>.yaml ./<filename>.yaml
       ```
 
       For example, if you deployed the pod that includes the rhai-cli container image in the rhai-migration namespace, run the following command to copy a YAML file named rhai-cli-output.yaml located in the /tmp/rhoai-upgrade-backup directory of the rhai-cli container to the current directory of your local workstation:

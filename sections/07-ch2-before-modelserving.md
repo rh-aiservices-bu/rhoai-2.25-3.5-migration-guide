@@ -244,7 +244,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 4. Verify that the converted InferenceServices are ready (run from your workstation due to the need for `jq`):
 
    ```bash
-   oc get isvc -n <NAMESPACE> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
+   oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
    ```
 
    Expected output:
@@ -262,7 +262,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    1. Preview what will be deleted (run from your workstation due to the need for `jq`):
 
       ```bash
-      oc get isvc -n <NAMESPACE> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name'
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name'
       ```
 
       Expected output:
@@ -275,7 +275,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    2. Delete them (run from your workstation due to the need for `jq`):
 
       ```bash
-      oc get isvc -n <NAMESPACE> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name' | while read -r name; do echo "Deleting  Serverless InferenceService: $name"; oc delete isvc "$name" -n <NAMESPACE>; done
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "Serverless" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "Serverless") | .metadata.name' | while read -r name; do echo "Deleting  Serverless InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
       ```
 
       Expected output:
@@ -385,7 +385,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
 4. Verify that the converted InferenceServices are ready (run from your workstation due to the need for `jq`):
 
    ```bash
-   oc get isvc -n <NAMESPACE> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
+   oc get isvc -n <namespace> -o json | jq -r '["NAME","DEPLOYMENT_MODE","READY"], (.items[] | [.metadata.name, .status.deploymentMode, (.status.conditions[] | select(.type=="Ready") | .status)]) | @tsv' | column -t
    ```
 
    Expected output:
@@ -402,7 +402,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    1. Preview the ModelMesh InferenceServices that will be deleted (run from your workstation due to the need for `jq`):
 
       ```bash
-      oc get isvc -n <NAMESPACE> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name'
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name'
       ```
 
       Expected output:
@@ -414,7 +414,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    2. Delete them (run from your workstation due to the need for `jq`):
 
       ```bash
-      oc get isvc -n <NAMESPACE> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name' | while read -r name; do echo "Deleting ModelMesh InferenceService: $name"; oc delete isvc "$name" -n <NAMESPACE>; done
+      oc get isvc -n <namespace> -o json | jq -r '.items[] | select(.status.deploymentMode == "ModelMesh" or .metadata.annotations["serving.kserve.io/deploymentMode"] == "ModelMesh") | .metadata.name' | while read -r name; do echo "Deleting ModelMesh InferenceService: $name"; oc delete isvc "$name" -n <namespace>; done
       ```
 
       Expected output:
@@ -427,7 +427,7 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    3. Delete the ModelMesh ServingRuntimes (multi-model runtimes) (run from your workstation due to the need for `jq`):
 
       ```bash
-      oc get servingruntimes.serving.kserve.io -n <NAMESPACE> -o json | jq -r '.items[] | select(.spec.multiModel==true) | .metadata.name' | while read -r name; do echo "Deleting ServingRuntime: $name"; oc delete servingruntime "$name" -n <NAMESPACE>; done
+      oc get servingruntimes.serving.kserve.io -n <namespace> -o json | jq -r '.items[] | select(.spec.multiModel==true) | .metadata.name' | while read -r name; do echo "Deleting ServingRuntime: $name"; oc delete servingruntime "$name" -n <namespace>; done
       ```
 
       Expected output:
@@ -810,11 +810,11 @@ Complete this procedure only if you are running distributed inference in a disco
        oc apply -n openshift-ingress -f -
    ```
 
-3. Configure Kuadrant Operator Subscription with mirrored WASM image by running the following command, replacing **\<WASM_SHIM_SHA\>** with the SHA of the wasm-shim image that you identified in Step 1\.
+3. Configure Kuadrant Operator Subscription with mirrored WASM image by running the following command, replacing \<wasm-shim-sha\> with the SHA of the wasm-shim image that you identified in Step 1\.
 
    ```bash
-   export MIRROR_REGISTRY="<BASTION_MIRROR_REGISTRY>:<BASTION_MIRROR_REGISTRY_PORT>"
-   export WASM_IMAGE_DIGEST="<WASM_SHIM_SHA>"
+   export MIRROR_REGISTRY="<bastion-mirror-registry>:<bastion-mirror-registry-port>"
+   export WASM_IMAGE_DIGEST="<wasm-shim-sha>"
    oc patch subscription rhcl-operator -n kuadrant-system --type=merge -p '{
      "spec": {
        "config": {
@@ -836,8 +836,8 @@ Complete this procedure only if you are running distributed inference in a disco
 4. Configure the Gateway to trust the mirror registry certificate by creating a ConfigMap that injects the WASM\_INSECURE\_REGISTRIES environment variable into the Gateway pod, using the following commands:
 
    ```bash
-   export MIRROR_REGISTRY="<BASTION_MIRROR_REGISTRY>:<BASTION_MIRROR_REGISTRY_PORT>"
-   export GATEWAY_NAME=<YOUR_GATEWAY_NAME>
+   export MIRROR_REGISTRY="<bastion-mirror-registry>:<bastion-mirror-registry-port>"
+   export GATEWAY_NAME=<your-gateway-name>
    oc apply -f - <<EOF
        apiVersion: v1
        kind: ConfigMap
@@ -901,10 +901,10 @@ Configure authentication for your **LLMInferenceService** resources to handle se
    If you don't need authentication for your model, disable it by annotating the **LLMInferenceService**:
 
    ```bash
-   oc annotate llminferenceservice <LLMISVC_NAME> -n <LLMISVC_NAMESPACE> security.opendatahub.io/enable-auth=false
+   oc annotate llminferenceservice <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> security.opendatahub.io/enable-auth=false
    ```
 
-   Replace **\<LLMISVC_NAME\>** with your **LLMInferenceService** name and **\<LLMISVC_NAMESPACE\>** with your project namespace.  
+   Replace *\<LLMISVC-NAME\>* with your **LLMInferenceService** name and *\<LLMISVC-NAMESPACE\>* with your project namespace.  
    The model becomes public and no authentication tokens are required.  
    **Method 2: Configure RBAC access control (Recommended)**  
    To keep the model secure, create a **ServiceAccount** with permissions to access the **LLMInferenceService**:
@@ -916,7 +916,7 @@ Configure authentication for your **LLMInferenceService** resources to handle se
    kind: ServiceAccount
    metadata:
      name: my-llmisvc-sa
-     namespace: <MY_PROJECT>
+     namespace: <my-project>
    ```
 
 3. Create a **Role** with **get** permission:
@@ -926,11 +926,11 @@ Configure authentication for your **LLMInferenceService** resources to handle se
    kind: Role
    metadata:
      name: my-llmisvc-role
-     namespace: <MY_PROJECT>
+     namespace: <my-project>
    rules:
    - apiGroups: ["serving.kserve.io"]
      resources: ["llminferenceservices"]
-     resourceNames: ["<MY_LLM_NAME>"]
+     resourceNames: ["<my-llm-name>"]
      verbs: ["get"]
    ```
 
@@ -941,7 +941,7 @@ Configure authentication for your **LLMInferenceService** resources to handle se
    kind: RoleBinding
    metadata:
      name: my-llmisvc-rolebinding
-     namespace: <MY_PROJECT>
+     namespace: <my-project>
    subjects:
    - kind: ServiceAccount
      name: my-llmisvc-sa
@@ -954,8 +954,8 @@ Configure authentication for your **LLMInferenceService** resources to handle se
    Update your client applications to include the **Authorization** header:
 
    ```bash
-   TOKEN=$(oc create token my-llmisvc-sa -n <MY_PROJECT>)
-   curl -H "Authorization: Bearer $TOKEN" https://<MODEL_URL>/v2/models/...
+   TOKEN=$(oc create token my-llmisvc-sa -n <my-project>)
+   curl -H "Authorization: Bearer $TOKEN" https://<model-url>/v2/models/...
    ```
 
 **Verification**
@@ -987,13 +987,13 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 1. Pin **LLMInferenceService** configurations to use RHOAI 2.25.10 (and later) templates to prevent scheduler pod failures during upgrade:
 
    ```bash
-   oc patch llmisvc <LLMISVC_NAME> -n <LLMISVC_NAMESPACE> \
+   oc patch llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> \
        --subresource=status \
        --type=merge \
        -p '{ "status": { "annotations": { "serving.kserve.io/config-llm-template": "kserve-config-llm-template", "serving.kserve.io/config-llm-decode-template": "kserve-config-llm-decode-template", "serving.kserve.io/config-llm-worker-data-parallel": "kserve-config-llm-worker-data-parallel", "serving.kserve.io/config-llm-decode-worker-data-parallel": "kserve-config-llm-decode-worker-data-parallel", "serving.kserve.io/config-llm-prefill-template": "kserve-config-llm-prefill-template", "serving.kserve.io/config-llm-prefill-worker-data-parallel": "kserve-config-llm-prefill-worker-data-parallel", "serving.kserve.io/config-llm-scheduler": "kserve-config-llm-scheduler", "serving.kserve.io/config-llm-router-route": "kserve-config-llm-router-route" } } }'
    ```
 
-   Replace **\<LLMISVC_NAME\>** with your **LLMInferenceService** name and **\<LLMISVC_NAMESPACE\>** with your project namespace.
+   Replace *\<LLMISVC-NAME\>* with your **LLMInferenceService** name and *\<LLMISVC-NAMESPACE\>* with your project namespace.
 
    **Important**  
    If you are overriding **LLMInferenceService** scheduler arguments, you must update them for Red Hat OpenShift AI 3.x compatibility. The following breaking changes apply in Red Hat OpenShift AI 3.5 and later:
@@ -1033,7 +1033,7 @@ Pin your **LLMInferenceService** configurations to use Red Hat OpenShift AI 2.25
 * Verify that the **LLMInferenceService** configuration has been frozen:
 
   ```bash
-  oc get llmisvc <LLMISVC_NAME> -n <LLMISVC_NAMESPACE> -o jsonpath='{.status.annotations}'
+  oc get llmisvc <LLMISVC-NAME> -n <LLMISVC-NAMESPACE> -o jsonpath='{.status.annotations}'
   ```
 
   The output displays the pinned template annotations.
