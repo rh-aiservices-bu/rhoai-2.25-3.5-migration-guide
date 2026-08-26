@@ -59,7 +59,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
    If the command fails with a timeout error, inspect the Operator pod for more details:
 
    ```bash
-   oc get pods -n redhat-ods-applications -l control-plane=controller-manager -o wide
+   oc get pods -n redhat-ods-applications -l 'control-plane in (controller-manager,trustyai-service-operator)' -o wide
    ```
 
 4. List the namespaces for which you have backups:
@@ -81,6 +81,9 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
 
 5. For each namespace that has a backup, check whether data was lost:
 
+   **Note**
+   Run this from your workstation (it uses `jq`, which is not in the **rhai-cli** pod). `BACKUP_DIR` is the path *inside the **rhai-cli** pod* where you saved the backups; the command reads the backup file out of the pod with `oc exec`. Replace `<rhai-cli-namespace>` with the namespace where the **rhai-cli** StatefulSet is deployed.
+
    ```bash
    export NS=<namespace>
    export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
@@ -89,7 +92,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
    export PF_PID=$!
    export CURRENT=$(curl -sk -H "Authorization: Bearer $(oc whoami -t)" \
      "http://localhost:8080/metrics/all/requests" | jq '.requests | length')
-   export BACKUP=$(jq '.requests | length' "$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)")
+   export BACKUP=$(oc exec rhai-cli-0 -n <rhai-cli-namespace> -- sh -c "cat \$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)" | jq '.requests | length')
    kill $PF_PID 2>/dev/null
    echo "Current: $CURRENT | Backup: $BACKUP"
    [ "$CURRENT" -ge "$BACKUP" ] && echo "OK: no data loss" || echo "DATA LOSS: restore needed"
@@ -208,7 +211,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    guardrails-orchestrator-otel: already on new otelExporter schema
    ```
 
-   If all **GuardrailsOrchestrator** CRs report as **already on new otelExporter schema**, skip to step 5\.  
+   If all **GuardrailsOrchestrator** CRs report as **already on new otelExporter schema**, skip to step 5 to verify and, if necessary, restore the exporter configuration.  
    Otherwise, continue to the next step.
 
 4. Run the migration that patches the existing **GuardrailsOrchestrator** deployments by updating the keys under **spec.otelExporter**:
@@ -217,7 +220,47 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0
    ```
 
-5. Query the **info** endpoint of the **GuardrailsOrchestrator** service:
+5. Restore your traces and metrics exporter configuration from the backup you created in [TrustyAI \- Before upgrade \- Guardrails Orchestrator](#2.7.4.-trustyai---before-upgrade---guardrails-orchestrator).
+
+   The upgrade carries over only `protocol` (as `otlpProtocol`) and drops the other **spec.otelExporter** keys. Because `otlpProtocol` is present, `trustyai.migrate-gorch-otel-exporter` reports **already on new otelExporter schema** and does not restore them. Migrate them from your backup, mapping to the 3.5 schema, by running the following command:
+
+   **Note**  
+   Run this from your workstation, not the **rhai-cli** pod, which does not have `jq`. Replace `<rhai-cli-namespace>` with the namespace where the **rhai-cli** StatefulSet is deployed.
+
+   ```bash
+   oc patch guardrailsorchestrator "$GORCH_NAME" -n "$NS" --type merge -p "$(
+     oc exec rhai-cli-0 -n <rhai-cli-namespace> -- cat "${BACKUP_DIR}/${GORCH_NAME}-${NS}-otelExporter-backup.json" | jq '{
+       spec: {
+         otelExporter: {
+           otlpProtocol: (.protocol // "grpc"),
+           otlpTracesEndpoint: (.tracesEndpoint // .otlpEndpoint),
+           otlpMetricsEndpoint: (.metricsEndpoint // .otlpEndpoint),
+           enableTraces: ((.otlpExport // "") | test("traces")),
+           enableMetrics: ((.otlpExport // "") | test("metrics"))
+         }
+       }
+     } | del(.spec.otelExporter[] | select(. == null or . == ""))'
+   )"
+   ```
+
+   Read back `spec.otelExporter` to confirm the restore:
+
+   ```bash
+   oc get guardrailsorchestrator "$GORCH_NAME" -n "$NS" -o jsonpath='{.spec.otelExporter}{"\n"}'
+   ```
+
+   If the patch was successful, the output is similar to the following example, and the old keys (`protocol`, `otlpEndpoint`, `otlpExport`) are gone:
+
+   ```
+   {"enableMetrics":true,"enableTraces":true,"otlpProtocol":"grpc","otlpTracesEndpoint":"http://my-otelcol-collector...:4317"}
+   ```
+
+   If the old keys are still present, the 3.5 CRD is not installed yet.
+
+   **Note**  
+   The running pod keeps the OpenTelemetry settings from the 2.25 deployment, so traces continue to flow immediately after upgrade. This restore ensures the configuration survives a later reconcile of the CR.
+
+6. Query the **info** endpoint of the **GuardrailsOrchestrator** service:
 
    ```bash
    export GORCH_NAME=<gorch-name>
@@ -348,7 +391,7 @@ Follow these steps for each namespace that lost data:
 7. Find the backup file for this namespace:
 
    ```bash
-   ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1
+   oc exec rhai-cli-0 -n <rhai-cli-namespace> -- sh -c "ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1"
    ```
 
    If the output provides a file path, continue to the next step.  
@@ -357,7 +400,7 @@ Follow these steps for each namespace that lost data:
 8. Set the backup file path:
 
    ```bash
-   export BACKUP_FILE=$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)
+   export BACKUP_FILE=$(oc exec rhai-cli-0 -n <rhai-cli-namespace> -- sh -c "ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1")
    echo "BACKUP_FILE=$BACKUP_FILE"
    ```
 
@@ -369,8 +412,11 @@ Follow these steps for each namespace that lost data:
 
 9. Get the number of metrics that are in the backup:
 
+   **Note**
+   Run this from your workstation (it uses `jq`, which is not in the **rhai-cli** pod). It reads the backup file out of the pod with `oc exec`. Replace `<rhai-cli-namespace>` with the namespace where the **rhai-cli** StatefulSet is deployed.
+
    ```bash
-   jq '.requests | length' "$BACKUP_FILE"
+   oc exec rhai-cli-0 -n <rhai-cli-namespace> -- cat "$BACKUP_FILE" | jq '.requests | length'
    ```
 
    Example output:
@@ -436,10 +482,10 @@ Follow these steps for each namespace that lost data:
 
     
 
-13. Dry-run the restore:
+13. Dry-run the restore. Pass the backup file with `--metrics-file` (without it, the action reports "No --metrics-file specified; nothing to restore" and does nothing) and the route label with `--metrics-route-label`:
 
     ```bash
-    rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run
+    oc exec rhai-cli-0 -n <rhai-cli-namespace> -- rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL" --dry-run
     ```
 
     Example output:
@@ -482,7 +528,7 @@ Follow these steps for each namespace that lost data:
 14. Run the restore:
 
     ```bash
-    rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0
+    oc exec rhai-cli-0 -n <rhai-cli-namespace> -- rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL"
     ```
 
 **Verification**

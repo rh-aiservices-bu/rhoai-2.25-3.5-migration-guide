@@ -282,11 +282,12 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
    Run this command from your workstation (not from inside the **rhai-cli** pod). It reads the backup file from the pod's PVC and validates it with `jq` locally.
 
    ```bash
-   oc exec rhai-cli-0 -n rhai-migration -- cat <output_from_previous_step> | jq empty && echo "OK" || echo "FAIL: invalid JSON"
+   METRICS=$(oc exec rhai-cli-0 -n <rhai-cli-namespace> -- cat <output_from_previous_step> 2>/dev/null)
+   [ -n "$METRICS" ] && echo "$METRICS" | jq empty 2>/dev/null && echo "OK" || echo "FAIL: missing or invalid JSON"
    ```
 
    **Note**
-   Replace `rhai-migration` with the namespace where your **rhai-cli** StatefulSet is deployed, if different.
+   Replace `<rhai-cli-namespace>` with the namespace where your **rhai-cli** StatefulSet is deployed.
 
    Example output:
 
@@ -457,22 +458,23 @@ For each namespace that has the TrustyAI Guardrails Orchestrator service:
 
    The output should show **OK**. If the output shows **FAIL**, ensure you followed all previous steps and they produced the expected result.
 
-2. Check whether you are collecting traces and metrics from your **GuardrailsOrchestrator** instance:
-
-1. Check the **spec.otelExporter** field configuration in your **GuardrailsOrchestrator** CR:
+2. Check whether you are collecting traces and metrics by inspecting the **spec.otelExporter** field in your **GuardrailsOrchestrator** CR:
 
    ```bash
-   export OTEL_SPEC=$(oc get guardrailsorchestrator "$GORCH_NAME" -n "$NS" -o jsonpath='{.spec.otelExporter}' 2>/dev/null || true)
-   export OTEL_LEN=$(echo "$OTEL_SPEC" | jq -r 'keys | length' 2>/dev/null)
-   [ "$OTEL_LEN" -gt 0 ] 2>/dev/null && echo "spec.otelExporter present" || echo "spec.otelExporter missing"
+   if [ -z "$NS" ] || [ -z "$GORCH_NAME" ]; then
+     echo "NS or GORCH_NAME is not set; set both before running this check"
+   else
+     export OTEL_SPEC=$(oc get guardrailsorchestrator "$GORCH_NAME" -n "$NS" -o jsonpath='{.spec.otelExporter}' 2>/dev/null || true)
+     [ -n "$OTEL_SPEC" ] && echo "spec.otelExporter present" || echo "spec.otelExporter missing"
+   fi
    ```
 
-   The output is one of the following results:  
+   The output is one of the following results:
+   * **NS or GORCH_NAME is not set**: set both variables from the previous steps, then run the check again.
    * **spec.otelExporter missing**: If you have additional **GuardrailsOrchestrator** instances, repeat the steps in this procedure. If you have no additional instances, you have completed the Before upgrade \- Guardrails Orchestrator steps.
+   * **spec.otelExporter present**: Continue to the next step to backup your **spec.otelExporter** keys.
 
-     * **spec.otelExporter present**. Continue to the next step to backup your **spec.otelExporter** keys.
-
-2. If **spec.otelExporter** is present, backup your traces and metrics exporter configuration by saving it to **${BACKUP\_DIR}/$GORCH\_NAME-$NS-otelExporter-backup.json**:
+3. If **spec.otelExporter** is present, backup your traces and metrics exporter configuration by saving it to **${BACKUP\_DIR}/$GORCH\_NAME-$NS-otelExporter-backup.json**:
 
    ```bash
    oc get guardrailsorchestrator $GORCH_NAME -n $NS -o jsonpath='{.spec.otelExporter}' > ${BACKUP_DIR}/$GORCH_NAME-$NS-otelExporter-backup.json
