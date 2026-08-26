@@ -36,7 +36,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
 
 **Procedure**
 
-**Note**
+**Note - Workstation Procedure**\
 Run every command in this procedure from your workstation. The commands read the backups out of the **rhai-cli** pod with `oc exec` and pipe them to `jq`, which is the only tool used here that is not installed in the pod. Set the environment variables in the first step in the same shell so they are available to the later steps.
 
 1. Set the backup directory and the namespace where the **rhai-cli** StatefulSet is deployed:
@@ -85,9 +85,6 @@ Run every command in this procedure from your workstation. The commands read the
 
 5. For each namespace that has a backup, check whether data was lost:
 
-   **Note**
-   Run this from your workstation (it uses `jq`, which is not in the **rhai-cli** pod). `BACKUP_DIR` is the path *inside the **rhai-cli** pod* where you saved the backups; the command reads the backup file out of the pod with `oc exec`.
-
    ```bash
    export NS=<NAMESPACE>
    export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
@@ -107,6 +104,8 @@ Run every command in this procedure from your workstation. The commands read the
 If the result is OK, no data was lost and the service is running successfully. Repeat this step for each namespace that has a backup, then continue to [TrustyAI \- After upgrade \- Guardrails](#4.6.2.-trustyai---after-upgrade---guardrails).
 
 If the result is DATA LOSS, see [TrustyAI \- After upgrade \- Restore data](#4.6.3.-trustyai---after-upgrade---restore-data).
+
+**Note - Repeat the above steps for the other TrustyAI Namespaces**
 
 ### **4.6.2. TrustyAI \- After upgrade \- Guardrails** {#4.6.2.-trustyai---after-upgrade---guardrails}
 
@@ -175,22 +174,31 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
       Example output:
 
       ```
-      [INFO] Checking GuardrailsOrchestrator guardrails-orchestrator-otel in namespace model-namespace
-      [INFO] Patching deployment guardrails-orchestrator-otel in namespace model-namespace
-      deployment.apps/guardrails-orchestrator-otel patched
+      Auto-detected phase: post-upgrade
+      Current OpenShift AI version: 3.5.0
+      Target OpenShift AI version: 3.5.0
+      Phase: post-upgrade
 
-      [INFO] Waiting for rollout to complete...
 
-      Waiting for deployment "guardrails-orchestrator-otel" rollout to finish: 1 old replicas are pending termination...
-      Waiting for deployment "guardrails-orchestrator-otel" rollout to finish: 1 old replicas are pending termination...
-      deployment "guardrails-orchestrator-otel" successfully rolled out
+      trustyai.patch-guardrails:
 
-      Successfully patched deployment guardrails-orchestrator-otel
+      Preparing migration: trustyai.patch-guardrails
 
-      ==========================================
-      GuardrailsOrchestrator Deployment Patch Summary
-      =========================================
-      OK: guardrails-orchestrator-otel patched successfully!
+        → Patch GuardrailsOrchestrator readinessProbe
+        → Found 1 GuardrailsOrchestrator CR(s)
+          ✓ Found 1 GuardrailsOrchestrator CR(s)
+        → Check test-guardrails-hf-upgrade/guardrails-orchestrator
+          ✓ test-guardrails-hf-upgrade/guardrails-orchestrator needs readinessProbe patch
+
+      About to patch readinessProbe on 1 deployment(s)
+      Proceed with patching? [y/N]: y
+        → Patch test-guardrails-hf-upgrade/guardrails-orchestrator
+          ✓ Patched test-guardrails-hf-upgrade/guardrails-orchestrator
+          ✓ Patched 1/1 deployment(s)
+
+      Migration trustyai.patch-guardrails completed successfully!
+
+      All migrations completed successfully!
       ```
 
 3. Check whether **GuardrailsOrchestrator** CRs are exporting traces and metrics:
@@ -210,11 +218,27 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    Example output:
 
    ```
-   Checking for GuardrailsOrchestrator CRs in namespace model-namespace
-   Found 2 GuardrailsOrchestrator CR(s) in namespace model-namespace
+   Auto-detected phase: post-upgrade
+   Current OpenShift AI version: 3.5.0
+   Target OpenShift AI version: 3.5.0
+   Phase: post-upgrade
 
-   guardrails-orchestrator: already on new otelExporter schema
-   guardrails-orchestrator-otel: already on new otelExporter schema
+   WARNING: migration trustyai.migrate-gorch-otel-exporter has phase pre-upgrade but effective phase is post-upgrade; proceeding because --migration was explicit
+
+   trustyai.migrate-gorch-otel-exporter:
+
+   DRY RUN MODE: No changes will be made to the cluster
+
+     → Migrate otelExporter schema
+     → Found 1 GuardrailsOrchestrator CR(s)
+       ✓ Found 1 GuardrailsOrchestrator CR(s)
+     → Check test-guardrails-hf-upgrade/guardrails-orchestrator
+       → guardrails-orchestrator: already on new otelExporter schema
+       ✓ No GuardrailsOrchestrator CRs need otelExporter migration
+
+   Migration trustyai.migrate-gorch-otel-exporter completed with skipped steps
+
+   All migrations completed (some steps were skipped).
    ```
 
    If all **GuardrailsOrchestrator** CRs report as **already on new otelExporter schema**, skip to step 5 to verify and, if necessary, restore the exporter configuration.  
@@ -226,11 +250,36 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0
    ```
 
+   Example output:
+   ```
+   Auto-detected phase: post-upgrade
+   Current OpenShift AI version: 3.5.0
+   Target OpenShift AI version: 3.5.0
+   Phase: post-upgrade
+
+   WARNING: migration trustyai.migrate-gorch-otel-exporter has phase pre-upgrade but effective phase is post-upgrade; proceeding because --migration was explicit
+
+   trustyai.migrate-gorch-otel-exporter:
+
+   Preparing migration: trustyai.migrate-gorch-otel-exporter
+
+     → Migrate otelExporter schema
+     → Found 1 GuardrailsOrchestrator CR(s)
+       ✓ Found 1 GuardrailsOrchestrator CR(s)
+     → Check test-guardrails-hf-upgrade/guardrails-orchestrator
+       → guardrails-orchestrator: already on new otelExporter schema
+       ✓ No GuardrailsOrchestrator CRs need otelExporter migration
+
+   Migration trustyai.migrate-gorch-otel-exporter completed with skipped steps
+
+   All migrations completed (some steps were skipped).
+   ```
+
 5. Restore your traces and metrics exporter configuration from the backup you created in [TrustyAI \- Before upgrade \- Guardrails Orchestrator](#2.7.4.-trustyai---before-upgrade---guardrails-orchestrator).
 
    The upgrade carries over only `protocol` (as `otlpProtocol`) and drops the other **spec.otelExporter** keys. Because `otlpProtocol` is present, `trustyai.migrate-gorch-otel-exporter` reports **already on new otelExporter schema** and does not restore them. Migrate them from your backup, mapping to the 3.5 schema, by running the following command:
 
-   **Note**  
+   **Note - Workstation Step**  
    Run this from your workstation, not the **rhai-cli** pod, which does not have `jq`. Set `RHAI_CLI_NS` to the namespace where the **rhai-cli** StatefulSet is deployed, `NS` to the namespace of the **GuardrailsOrchestrator**, `GORCH_NAME` to its name, and `BACKUP_DIR` to the backup path inside the **rhai-cli** pod.
 
    ```bash
@@ -254,6 +303,11 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
        }
      } | del(.spec.otelExporter[] | select(. == null or . == ""))'
    )"
+   ```
+
+   Example output:
+   ```
+   guardrailsorchestrator.trustyai.opendatahub.io/guardrails-orchestrator patched
    ```
 
    Read back `spec.otelExporter` to confirm the restore:
@@ -459,32 +513,33 @@ Follow these steps for each namespace that lost data:
     Example output:
 
     ```
-    [INFO] Starting TrustyAI metrics restore...
-    [INFO] Namespace: test-trustyaiservice-upgrade
-    [INFO] Backup file: backups/trustyai-metrics-test-trustyaiservice-upgrade-20260218-175450.json
-    [WARN] DRY RUN MODE - No changes will be made
-    [INFO] Validating backup file...
-    [INFO] Found 1 metric(s) to restore
-    [INFO] Checking cluster connectivity...
-    [INFO] Fetching TrustyAI service route...
-    [INFO] TrustyAI route: trustyai-service-test-trustyaiservice-upgrade.apps.rosa.trustyai-scyril.w4n4.p3.openshiftapps.com
-    [INFO] Retrieving authentication token...
-    [INFO] Checking TrustyAI service health...
-    [INFO] Processing metrics...
+      Auto-detected phase: post-upgrade
+      Current OpenShift AI version: 3.5.0
+      Target OpenShift AI version: 3.5.0
+      Phase: post-upgrade
 
-    [INFO] Processing: MEANSHIFT for model gaussian-credit-model (original ID: 5166c098-d2f9-4285-8303-7879a645ac26)
-    [INFO]   [DRY RUN] Would POST to: https://trustyai-service-test-trustyaiservice-upgrade.apps.rosa.trustyai-scyril.w4n4.p3.openshiftapps.com/metrics/drift/meanshift/request
-    [DEBUG]   [DRY RUN] Payload: {"@type":"MeanshiftMetricRequest","modelId":"gaussian-credit-model","requestName":null,"metricName":"MEANSHIFT","batchSize":5000,"thresholdDelta":0.05,"referenceTag":"TRAINING","fitColumns":["credit_inputs-2","credit_inputs-3","predict-0","credit_inputs-0","credit_inputs-1"],"fitting":{"credit_inputs-2":{"mean":12.032881584334207,"variance":3.9188251284489697,"n":1000,"max":0.0,"min":0.0,"sum":0.0,"standardDeviation":1.9796022652161644},"credit_inputs-3":{"mean":19.844397164842988,"variance":24.4671876962395,"n":1000,"max":0.0,"min":0.0,"sum":0.0,"standardDeviation":4.946431814574977},"predict-0":{"mean":0.20297420065215557,"variance":0.014778104214330515,"n":1000,"max":0.0,"min":0.0,"sum":0.0,"standardDeviation":0.12156522617233316},"credit_inputs-0":{"mean":44.919118954557185,"variance":24.541570407096373,"n":1000,"max":0.0,"min":0.0,"sum":0.0,"standardDeviation":4.953944933797344},"credit_inputs-1":{"mean":502.487550504219,"variance":2620.225933216063,"n":1000,"max":0.0,"min":0.0,"sum":0.0,"standardDeviation":51.18814250601464}}}
+      WARNING: migration trustyai.metrics has phase pre-upgrade but effective phase is post-upgrade; proceeding because --migration was explicit
 
-    [INFO] ==========================================
-    [INFO] Restoration Summary
-    [INFO] ==========================================
-    [INFO] Total metrics in backup: 1
-    [INFO] Successfully restored:   1
-    [INFO] Failed:                  0
-    [INFO] Skipped:                 0
-    [INFO] ==========================================
-    [INFO] DRY RUN completed - no changes were made
+      trustyai.metrics:
+
+      DRY RUN MODE: No changes will be made to the cluster
+
+        → Restore TrustyAI scheduled metrics
+        → Found 1 metric(s) in backup file
+          ✓ Found 1 metric(s) in backup file
+        → Restore metrics to test-trustyaiservice-upgrade
+        → Would POST MEANSHIFT for model gaussian-credit-model to /metrics/drift/meanshift/request
+          → Would POST MEANSHIFT for model gaussian-credit-model to /metrics/drift/meanshift/request
+          → Would restore 1 metric(s) to test-trustyaiservice-upgrade
+        → Restore metrics to test-trustyaiservice-db-upgrade
+        → Would POST MEANSHIFT for model gaussian-credit-model to /metrics/drift/meanshift/request
+          → Would POST MEANSHIFT for model gaussian-credit-model to /metrics/drift/meanshift/request
+          → Would restore 1 metric(s) to test-trustyaiservice-db-upgrade
+          ✓ Metrics restore complete
+
+      Migration trustyai.metrics completed with skipped steps
+
+      All migrations completed (some steps were skipped).
     ```
 
     The output lists each metric that the script would restore. The `Found N metric(s) to restore` and `Total metrics in backup` lines report how many metrics are in the backup. If the count is 0, there are no metrics to restore; restart this procedure for the next namespace that lost data, if any.
@@ -524,10 +579,19 @@ Follow these steps for each namespace that lost data:
   rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL" --dry-run 2>&1 | tail -5
   ```
 
+  Example output:
+  ```
+      ✓ Metrics restore complete
+
+   Migration trustyai.metrics completed with skipped steps
+
+   All migrations completed (some steps were skipped).
+  ```
+
   The **Current scheduled metrics** count should be greater than or equal to the number of metrics reported in the dry-run (Step 10).
 
   **Note**  
-  Restored metrics receive new UUIDs; original IDs from the backup are not preserved.
+  Restored metrics receive new UUIDs; original IDs from the backup are not preserved. Rerun the restore for other namespaces backed up.
 
 ### 
 

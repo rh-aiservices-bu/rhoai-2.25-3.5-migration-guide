@@ -278,7 +278,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
    ```
 3. Now take this output and validate that the backup is not empty:
 
-   **Note**
+   **Note - Workstation Step**\
    Run this command from your workstation (not from inside the **rhai-cli** pod). It reads the backup file from the pod's PVC and validates it with `jq` locally. Set `RHAI_CLI_NS` to the namespace where your **rhai-cli** StatefulSet is deployed.
 
    ```bash
@@ -361,6 +361,8 @@ For each namespace that has a TrustyAI service, follow these steps to backup Tru
 The action ends with **Preparation trustyai.data completed successfully\!**.
 
 If the action fails, it provides error messages. Common issues are: PVC not bound, MariaDB pod not running, or missing credentials secret.
+
+**Note - Repeat the above steps for the other TrustyAI Namespaces**
 
 ### **2.7.4. TrustyAI \- Before upgrade \- Guardrails Orchestrator** {#2.7.4.-trustyai---before-upgrade---guardrails-orchestrator}
 
