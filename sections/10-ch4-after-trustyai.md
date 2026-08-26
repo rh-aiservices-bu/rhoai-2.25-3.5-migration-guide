@@ -231,10 +231,16 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    The upgrade carries over only `protocol` (as `otlpProtocol`) and drops the other **spec.otelExporter** keys. Because `otlpProtocol` is present, `trustyai.migrate-gorch-otel-exporter` reports **already on new otelExporter schema** and does not restore them. Migrate them from your backup, mapping to the 3.5 schema, by running the following command:
 
    **Note**  
-   Run this from your workstation, not the **rhai-cli** pod, which does not have `jq`. Set `RHAI_CLI_NS` to the namespace where the **rhai-cli** StatefulSet is deployed.
+   Run this from your workstation, not the **rhai-cli** pod, which does not have `jq`. Set `RHAI_CLI_NS` to the namespace where the **rhai-cli** StatefulSet is deployed, `NS` to the namespace of the **GuardrailsOrchestrator**, `GORCH_NAME` to its name, and `BACKUP_DIR` to the backup path inside the **rhai-cli** pod.
 
    ```bash
    export RHAI_CLI_NS=<rhai-cli-namespace>
+   export NS=<namespace>
+   export GORCH_NAME=<gorch-name>
+   export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
+   : "${NS:?NS is not set. Set it with: export NS=<namespace>}"
+   : "${GORCH_NAME:?GORCH_NAME is not set. Set it with: export GORCH_NAME=<gorch-name>}"
+   : "${BACKUP_DIR:?BACKUP_DIR is not set. Set it to the backup path inside the rhai-cli pod, e.g. export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai}"
    oc patch guardrailsorchestrator "$GORCH_NAME" -n "$NS" --type merge -p "$(
      oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- cat "${BACKUP_DIR}/${GORCH_NAME}-${NS}-otelExporter-backup.json" | jq '{
        spec: {
