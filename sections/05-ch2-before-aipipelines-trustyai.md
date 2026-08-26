@@ -166,7 +166,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
 1. Set the namespace:
 
    ```bash
-   export NS=<namespace>
+   export NS=<NAMESPACE>
    ```
 
 2. Set the **TrustyAIService** name:
@@ -215,10 +215,10 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
    https:443
    ```
 
-6. In the following command, replace \<port\> with the port number (for example, **80**):
+6. In the following command, replace **\<PORT\>** with the port number (for example, **80**):
 
    ```bash
-   export SVC_PORT=<port>
+   export SVC_PORT=<PORT>
    ```
 
 7. Port-forward the TrustyAI service:
@@ -282,8 +282,8 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
    Run this command from your workstation (not from inside the **rhai-cli** pod). It reads the backup file from the pod's PVC and validates it with `jq` locally. Set `RHAI_CLI_NS` to the namespace where your **rhai-cli** StatefulSet is deployed.
 
    ```bash
-   export RHAI_CLI_NS=<rhai-cli-namespace>
-   METRICS=$(oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- cat <output_from_previous_step> 2>/dev/null)
+   export RHAI_CLI_NS=<RHAI_CLI_NAMESPACE>
+   METRICS=$(oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- cat <OUTPUT_FROM_PREVIOUS_STEP> 2>/dev/null)
    [ -n "$METRICS" ] && echo "$METRICS" | jq empty 2>/dev/null && echo "OK" || echo "FAIL: missing or invalid JSON"
    ```
 
@@ -315,7 +315,7 @@ For each namespace that has a TrustyAI service, follow these steps to backup Tru
 1. If the namespace is not already set, set it:
 
    ```bash
-   export NS=<namespace>
+   export NS=<NAMESPACE>
    ```
 
 2. Run the TrustyAI data backup action:
@@ -401,13 +401,13 @@ Before you upgrade OpenShift AI 2.25.10 (and later) to 3.5, set the name of all 
 1. Set the namespace:
 
    ```bash
-   export NS=<namespace>
+   export NS=<NAMESPACE>
    ```
 
 2. Set the **GuardrailsOrchestrator** name:
 
    ```bash
-   export GORCH_NAME=<orchestrator-name>
+   export GORCH_NAME=<ORCHESTRATOR_NAME>
    ```
 
 3.  Check that **GORCH\_NAME** and **NS** environment variables are properly set:

@@ -153,10 +153,10 @@ The upgrade to OpenShift AI 3.5 assumes that embedded Kueue has already been mig
 3. If you are using the default OpenShift AI Kueue configuration and have not modified the kueue-manager-config config map in your applications namespace, annotate the config map to preserve the enabled frameworks as follows:
 
    ```bash
-   oc annotate configmap kueue-manager-config -n <applications_namespace> opendatahub.io/managed=false
+   oc annotate configmap kueue-manager-config -n <APPLICATIONS_NAMESPACE> opendatahub.io/managed=false
    ```
 
-   `\<applications\_namespace\>` specifies the namespace where your Kueue applications are deployed. The default is `redhat-ods-applications`.
+   **\<APPLICATIONS\_NAMESPACE\>** specifies the namespace where your Kueue applications are deployed. The default is `redhat-ods-applications`.
 
    **Important**
 
@@ -210,14 +210,14 @@ The upgrade to OpenShift AI 3.5 assumes that embedded Kueue has already been mig
      components:
        kueue:
          managementState: Unmanaged
-         defaultClusterQueueName: <example-cluster-queue>
-         defaultLocalQueueName: <example-local-queue>
+         defaultClusterQueueName: <EXAMPLE_CLUSTER_QUEUE>
+         defaultLocalQueueName: <EXAMPLE_LOCAL_QUEUE>
    ```
 
 5. Enable Kueue management for existing projects using Kueue by applying the `kueue.openshift.io/managed=true` label to each project namespace:
 
    ```bash
-   oc label namespace <project-namespace> kueue.openshift.io/managed=true --overwrite
+   oc label namespace <PROJECT_NAMESPACE> kueue.openshift.io/managed=true --overwrite
    ```
 
    **Warning**  
@@ -275,7 +275,7 @@ If any model registries or custom model catalog sources were created before upgr
 
    Check the pod logs to ensure there are no error messages as follows:  
    ```bash
-   oc logs <my-model-catalog-pod-name> -n rhoai-model-registries -c catalog
+   oc logs <MY_MODEL_CATALOG_POD_NAME> -n rhoai-model-registries -c catalog
    ```
 
 4. In the OpenShift AI dashboard, click **Settings \> Model registry settings** to check the status of your model registries. For more information, see [Managing model registries](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.25/html/managing_model_registries/index).
@@ -286,9 +286,9 @@ If any model registries or custom model catalog sources were created before upgr
 
 1. In OpenShift, there are no errors in the following pods:
 
-   * **\<my-model-registry\>-xxx**
+   * **\<MY_MODEL_REGISTRY\>-xxx**
 
-   * **db-\<my-model-registry\>-xxx**
+   * **db-\<MY_MODEL_REGISTRY\>-xxx**
 
    * **model-catalog-xxx**
 
@@ -337,10 +337,10 @@ If you do not use the Feature Store component in OpenShift AI 2.25.10 (and later
    ```
 
 2. As an OpenShift AI administrator, follow these steps for each Feature Store instance:  
-   1. Check that the Feature Store instance is in the **Ready** state. Get the status of a Feature Store instance by running the following command and replacing **\<namespace\>** with the namespace that has the Feature Store instance:
+   1. Check that the Feature Store instance is in the **Ready** state. Get the status of a Feature Store instance by running the following command and replacing **\<NAMESPACE\>** with the namespace that has the Feature Store instance:
 
       ```bash
-      oc get featurestores -n <namespace>
+      oc get featurestores -n <NAMESPACE>
       ```
 
       For example, given the example output from Step 1, to see the status of **my-featurestore**, run the following command:
@@ -356,10 +356,10 @@ If you do not use the Feature Store component in OpenShift AI 2.25.10 (and later
       my-featurestore         Ready    5d
       ```
 
-   2. List CronJobs for a namespace that has a Feature Store instance by running the following command and replacing **\<namespace\>** with the name of the namespace:
+   2. List CronJobs for a namespace that has a Feature Store instance by running the following command and replacing **\<NAMESPACE\>** with the name of the namespace:
 
       ```bash
-      oc get cronjobs -n <namespace>
+      oc get cronjobs -n <NAMESPACE>
       ```
 
       For example:
@@ -375,10 +375,10 @@ If you do not use the Feature Store component in OpenShift AI 2.25.10 (and later
       feast-sample-git  @yearly    <none>     True      0        <none>          74m
       ```
 
-   3. Create a Job by running the following command. Replace **\<job-name\>** with the name of the job and replace **\<cronjob-name\>** with the name of a CronJob output from the previous step:
+   3. Create a Job by running the following command. Replace **\<JOB_NAME\>** with the name of the job and replace **\<CRONJOB_NAME\>** with the name of a CronJob output from the previous step:
 
       ```bash
-      oc create job <job-name> --from=cronjob/<cronjob-name> -n <namespace>
+      oc create job <JOB_NAME> --from=cronjob/<CRONJOB_NAME> -n <NAMESPACE>
       ```
 
       For example:
@@ -396,7 +396,7 @@ If you do not use the Feature Store component in OpenShift AI 2.25.10 (and later
    4. Check that the CronJob for the Feature Store instance ran the Job successfully. View a list of jobs and their status by running the following command:
 
       ```bash
-      oc get jobs -n <namespace>
+      oc get jobs -n <NAMESPACE>
       ```
 
       For example:

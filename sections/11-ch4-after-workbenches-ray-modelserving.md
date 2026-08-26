@@ -526,7 +526,7 @@ If you were managing a customized **inferenceservice-config** **ConfigMap** manu
    2. For each namespace that has an InferenceService:
 
       ```bash
-      oc get replicasets -n <namespace> -o custom-columns=NAME:.metadata.name,CREATED:.metadata.creationTimestamp,REPLICAS:.status.replicas
+      oc get replicasets -n <NAMESPACE> -o custom-columns=NAME:.metadata.name,CREATED:.metadata.creationTimestamp,REPLICAS:.status.replicas
       ```
 
 **Verification**

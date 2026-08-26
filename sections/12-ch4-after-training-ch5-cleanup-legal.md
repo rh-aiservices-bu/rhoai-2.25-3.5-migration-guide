@@ -102,8 +102,8 @@ The Kubeflow Training Operator (KFTO) v1 is deprecated starting with theOpenShif
 Cleanup
 
 ```bash
-oc delete statefulset rhai-cli -n <namespace>
-oc delete pvc backup-rhai-cli-0 -n <namespace>
+oc delete statefulset rhai-cli -n <NAMESPACE>
+oc delete pvc backup-rhai-cli-0 -n <NAMESPACE>
 ```
 
 ## **Legal Notice** {#legal-notice}

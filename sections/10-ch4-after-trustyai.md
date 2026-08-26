@@ -43,7 +43,7 @@ Run every command in this procedure from your workstation. The commands read the
 
    ```bash
    export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
-   export RHAI_CLI_NS=<rhai-cli-namespace>
+   export RHAI_CLI_NS=<RHAI_CLI_NAMESPACE>
    ```
 
 3. Check that the TrustyAI Operator is healthy:
@@ -89,10 +89,10 @@ Run every command in this procedure from your workstation. The commands read the
    Run this from your workstation (it uses `jq`, which is not in the **rhai-cli** pod). `BACKUP_DIR` is the path *inside the **rhai-cli** pod* where you saved the backups; the command reads the backup file out of the pod with `oc exec`.
 
    ```bash
-   export NS=<namespace>
+   export NS=<NAMESPACE>
    export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
    export SVC_PORT=$(oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
-   : "${NS:?NS is not set. Set it with: export NS=<namespace>}"
+   : "${NS:?NS is not set. Set it with: export NS=<NAMESPACE>}"
    : "${BACKUP_DIR:?BACKUP_DIR is not set. Set it to the backup path inside the rhai-cli pod, e.g. export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai}"
    oc port-forward -n "$NS" "svc/$TAS_NAME" 8080:${SVC_PORT} &
    export PF_PID=$!
@@ -234,12 +234,12 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    Run this from your workstation, not the **rhai-cli** pod, which does not have `jq`. Set `RHAI_CLI_NS` to the namespace where the **rhai-cli** StatefulSet is deployed, `NS` to the namespace of the **GuardrailsOrchestrator**, `GORCH_NAME` to its name, and `BACKUP_DIR` to the backup path inside the **rhai-cli** pod.
 
    ```bash
-   export RHAI_CLI_NS=<rhai-cli-namespace>
-   export NS=<namespace>
-   export GORCH_NAME=<gorch-name>
+   export RHAI_CLI_NS=<RHAI_CLI_NAMESPACE>
+   export NS=<NAMESPACE>
+   export GORCH_NAME=<GORCH_NAME>
    export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
-   : "${NS:?NS is not set. Set it with: export NS=<namespace>}"
-   : "${GORCH_NAME:?GORCH_NAME is not set. Set it with: export GORCH_NAME=<gorch-name>}"
+   : "${NS:?NS is not set. Set it with: export NS=<NAMESPACE>}"
+   : "${GORCH_NAME:?GORCH_NAME is not set. Set it with: export GORCH_NAME=<GORCH_NAME>}"
    : "${BACKUP_DIR:?BACKUP_DIR is not set. Set it to the backup path inside the rhai-cli pod, e.g. export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai}"
    oc patch guardrailsorchestrator "$GORCH_NAME" -n "$NS" --type merge -p "$(
      oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- cat "${BACKUP_DIR}/${GORCH_NAME}-${NS}-otelExporter-backup.json" | jq '{
@@ -276,7 +276,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
 6. Query the **info** endpoint of the **GuardrailsOrchestrator** service:
 
    ```bash
-   export GORCH_NAME=<gorch-name>
+   export GORCH_NAME=<GORCH_NAME>
    export GORCH_ROUTE_HEALTH=$(oc get routes -n $NS "${GORCH_NAME}-health" -o jsonpath='{.spec.host}')
    curl -sSk "https://${GORCH_ROUTE_HEALTH}/info" -H "Authorization: Bearer $(oc whoami -t)" | jq .
    ```
@@ -330,7 +330,6 @@ Follow these steps for each namespace that lost data:
 
    ```bash
    export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
-   : "${BACKUP_DIR:?BACKUP_DIR is not set. Set it to the backup path, e.g. export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai}"
    ```
 
 2. Verify that you have a backup for the namespace:
@@ -350,11 +349,10 @@ Follow these steps for each namespace that lost data:
    **Note**  
    If the namespace that lost data is not listed, you cannot complete this procedure because there is no backup.
 
-3. Set the namespace, replacing \<namespace\> with a namespace that lost data:
+3. Set the namespace, replacing **\<NAMESPACE\>** with a namespace that lost data:
 
    ```bash
-   export NS=<namespace>
-   : "${NS:?NS is not set. Set it with: export NS=<namespace>}"
+   export NS=<NAMESPACE>
    ```
 
 4. Get the TrustyAIService name:
@@ -436,10 +434,10 @@ Follow these steps for each namespace that lost data:
     trustyai-service        trustyai-service-test-trustyaiservice-upgrade.<...>.openshiftapps.com               trustyai-service-tls              oauth-proxy   reencrypt/Redirect   None       trustyai-service-name=trustyai-service
     ```
 
-9. Set the route label by replacing **\<label\_key\>=\<label\_value\>:** with your **TrustyAI service label pair:**
+9. Set the route label by replacing **\<LABEL\_KEY\>=\<LABEL\_VALUE\>:** with your **TrustyAI service label pair:**
 
     ```bash
-    export ROUTE_LABEL='<label_key>=<label_value>'
+    export ROUTE_LABEL='<LABEL_KEY>=<LABEL_VALUE>'
     ```
 
     For example:
@@ -523,7 +521,7 @@ Follow these steps for each namespace that lost data:
 * Verify that the restore count matches the backup:
 
   ```bash
-  rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run 2>&1 | tail -5
+  rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL" --dry-run 2>&1 | tail -5
   ```
 
   The **Current scheduled metrics** count should be greater than or equal to the number of metrics reported in the dry-run (Step 10).
