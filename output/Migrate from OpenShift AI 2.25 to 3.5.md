@@ -4264,7 +4264,9 @@ If you ran the TrustyAI \- After upgrade \- Check Backups procedure for a namesp
 **Procedure**
 
 **Note**
-Run every command in this procedure from your workstation. The steps that inspect the backups pipe them to `jq`, which is the only tool used here that is not installed in the **rhai-cli** pod; the metrics restore itself runs `rhai-cli` inside the pod with `oc exec`. Set the environment variables in the first step in the same shell so they are available to the later steps.
+This entire procedure runs inside the **rhai-cli** pod. Each command is issued from your workstation with `oc exec`, so it executes as the pod's serviceaccount, and the backup files (under `BACKUP_DIR`) are read directly from the pod. Because everything runs in the pod, no `jq` is required — all tools the procedure uses are available there.
+
+The pod's serviceaccount must be able to read **TrustyAIService** and **Route** resources and list **ClusterServiceVersion** resources, which `rhai-cli` uses to detect the cluster version. If any command fails with a `... is forbidden` error, grant the **rhai-cli** pod's serviceaccount the missing read access. Set the environment variables in the first step in the same shell; they are expanded into each `oc exec` command on your workstation.
 
 Follow these steps for each namespace that lost data:
 
@@ -4304,7 +4306,7 @@ Follow these steps for each namespace that lost data:
 4. Get the TrustyAIService name:
 
    ```bash
-   export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
+   export TAS_NAME=$(oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
    echo "TAS_NAME=$TAS_NAME"
    ```
 
@@ -4320,7 +4322,7 @@ Follow these steps for each namespace that lost data:
 5. Verify that TrustyAIService is running:
 
    ```bash
-   oc get trustyaiservice -n "$NS" "$TAS_NAME" -o jsonpath='{.status.phase}'
+   oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- oc get trustyaiservice -n "$NS" "$TAS_NAME" -o jsonpath='{.status.phase}'
    ```
 
    Example output:
@@ -4329,13 +4331,13 @@ Follow these steps for each namespace that lost data:
    Ready
    ```
 
-   If the output is **Ready**, skip to Step 5\.  
-   If the output is other than **Ready**:
+   If the output is **Ready**, skip ahead to the dry-run step.  
+   If the output is other than **Ready**, continue to the next step:
 
 6. Run the following command:
 
    ```bash
-   oc wait --for=jsonpath='{.status.phase}'=Ready trustyaiservice/"$TAS_NAME" -n "$NS" --timeout=300s
+   oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- oc wait --for=jsonpath='{.status.phase}'=Ready trustyaiservice/"$TAS_NAME" -n "$NS" --timeout=300s
    ```
 
    Example output:
@@ -4347,7 +4349,7 @@ Follow these steps for each namespace that lost data:
    If the wait times out, the TrustyAIService might not be healthy. Check its status:
 
    ```bash
-   oc describe trustyaiservice "$TAS_NAME" -n "$NS"
+   oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- oc describe trustyaiservice "$TAS_NAME" -n "$NS"
    ```
 
 7. Find the backup file for this namespace:
@@ -4372,52 +4374,10 @@ Follow these steps for each namespace that lost data:
    BACKUP_FILE=/tmp/rhoai-upgrade-backup/trustyai/trustyai-metrics-test-trustyaiservice-upgrade-20260218-175450.json
    ```
 
-9. Get the number of metrics that are in the backup:
-
-   **Note**
-   Run this from your workstation (it uses `jq`, which is not in the **rhai-cli** pod). It reads the backup file out of the pod with `oc exec`.
-
-   ```bash
-   oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- cat "$BACKUP_FILE" | jq '.requests | length'
-   ```
-
-   Example output:
-
-   ```
-   1
-   ```
-
-   The result should be a number greater than 0\. Continue to the next step.  
-   If the result is 0, there are no metrics to restore. Restart the steps in this procedure for the next namespace that lost data, if any.
-
-10. Find the TrustyAI route and its label:
+9. Find the route label:
 
     ```bash
-    export ROUTE_LABEL=$(oc get route -n "$NS" -o json | jq -r --arg tas "$TAS_NAME" '
-        .items[] | select(.spec.to.name==$tas)
-        | (.metadata.labels // {}) as $l
-        | if $l["trustyai-service-name"] then "trustyai-service-name=\($l["trustyai-service-name"])"
-          elif $l["app.kubernetes.io/name"] then "app.kubernetes.io/name=\($l["app.kubernetes.io/name"])"
-          elif $l["app"] then "app=\($l["app"])"
-          else empty end
-      ' | head -1)
-    echo "ROUTE_LABEL=$ROUTE_LABEL"
-    ```
-
-    The output should be a label selector, as shown in the following example. Continue to Step 9\.
-
-    ```
-    trustyai-service-name=trustyai-service
-    ```
-
-    If the output is empty (ROUTE\_LABEL=), find and set the route label manually.
-
-    
-
-11. Find the route label:
-
-    ```bash
-    oc get route -n "$NS" --show-labels
+    oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- oc get route -n "$NS" --show-labels
     ```
 
     Example output:
@@ -4428,7 +4388,7 @@ Follow these steps for each namespace that lost data:
     trustyai-service        trustyai-service-test-trustyaiservice-upgrade.<...>.openshiftapps.com               trustyai-service-tls              oauth-proxy   reencrypt/Redirect   None       trustyai-service-name=trustyai-service
     ```
 
-12. Set the route label by replacing **\<label\_key\>=\<label\_value\>:** with your **TrustyAI service label pair:**
+10. Set the route label by replacing **\<label\_key\>=\<label\_value\>:** with your **TrustyAI service label pair:**
 
     ```bash
     export ROUTE_LABEL='<label_key>=<label_value>'
@@ -4444,10 +4404,7 @@ Follow these steps for each namespace that lost data:
 
     
 
-13. Dry-run the restore. Pass the backup file with `--metrics-file` (without it, the action reports "No --metrics-file specified; nothing to restore" and does nothing) and the route label with `--metrics-route-label`:
-
-    **Note**
-    This runs `rhai-cli` inside the **rhai-cli** pod with `oc exec`, because the backup file (`$BACKUP_FILE`) is a path inside the pod. The in-pod `rhai-cli` uses the pod's serviceaccount, which must be able to detect the cluster version. If the command fails with `clusterserviceversions.operators.coreos.com is forbidden`, grant the **rhai-cli** pod's serviceaccount read access to **ClusterServiceVersion** resources (for example, bind a role that allows `get`/`list` on `clusterserviceversions` in the `operators.coreos.com` API group).
+11. Dry-run the restore. Pass the backup file with `--metrics-file` (without it, the action reports "No --metrics-file specified; nothing to restore" and does nothing) and the route label with `--metrics-route-label`:
 
     ```bash
     oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL" --dry-run
@@ -4484,13 +4441,13 @@ Follow these steps for each namespace that lost data:
     [INFO] DRY RUN completed - no changes were made
     ```
 
-    The output lists each metric that the script would restore.
+    The output lists each metric that the script would restore. The `Found N metric(s) to restore` and `Total metrics in backup` lines report how many metrics are in the backup. If the count is 0, there are no metrics to restore; restart this procedure for the next namespace that lost data, if any.
 
-    **NOTE:** if the TrustyAI Service reports an **"UNKNOWN"** status, check to make sure that you selected the correct route label in step 12\.
+    **NOTE:** if the TrustyAI Service reports an **"UNKNOWN"** status, check to make sure that you selected the correct route label in Step 10\.
 
      If any metric has an **Unknown** metric type, it might not be supported in this version.  
       
-14. Run the restore:
+12. Run the restore:
 
     ```bash
     oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL"
@@ -4506,22 +4463,22 @@ Follow these steps for each namespace that lost data:
 
   Examples of common failures:
 
-  Route not found: Double-check ROUTE\_LABEL from step 7 in the procedure.  
+  Route not found: Double-check ROUTE\_LABEL from Step 10 in the procedure.  
   HTTP 400: Request body format may have changed between versions.
 
   HTTP 500: Model data may not be loaded yet. Check with:
 
   ```bash
-  curl -sk "https://$(oc get route -n "$NS" -l "$ROUTE_LABEL" -o jsonpath='{.items[0].spec.host}')/info" -H "Authorization: Bearer $(oc whoami -t)" | jq .
+  oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- sh -c "curl -sk \"https://\$(oc get route -n $NS -l $ROUTE_LABEL -o jsonpath='{.items[0].spec.host}')/info\" -H \"Authorization: Bearer \$(oc whoami -t)\""
   ```
 
 * Verify that the restore count matches the backup:
 
   ```bash
-  rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run 2>&1 | tail -5
+  oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run 2>&1 | tail -5
   ```
 
-  The **Current scheduled metrics** count should be greater than or equal to the backup count from Step 8 in the procedure.
+  The **Current scheduled metrics** count should be greater than or equal to the number of metrics reported in the dry-run (Step 11).
 
   **Note**  
   Restored metrics receive new UUIDs; original IDs from the backup are not preserved.
