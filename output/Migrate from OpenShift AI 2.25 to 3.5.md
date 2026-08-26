@@ -297,7 +297,7 @@ To prepare for the migration of OpenShift AI 2.25.10 (and later) to 3.5,  deploy
 
 * As part of the pod configuration, specify the rhai-cli container image.
 
-  The container image is available at quay.io/rhoai/odh-cli-rhel9@sha256:edc0ebe9ffeac42b9dd4d34ed3d11753b40fc33a2c4824e15aef059a536241b0.
+  The container image is available at {{RHAI_CLI_IMAGE}}.
 
   This image contains the Red Hat AI command line interface(**rhai-cli)** utility that includes the migration assessment linting CLI and migration actions to assist with pre-upgrade and post-upgrade steps for the Model Serving, Workbenches, TrustyAI, Llama Stack / OGX, AI Pipelines, and Ray Training Operator components.
 
@@ -342,7 +342,7 @@ To prepare for the migration of OpenShift AI 2.25.10 (and later) to 3.5,  deploy
        spec:
          containers:
            - name: rhai-cli
-             image: quay.io/rhoai/odh-cli-rhel9@sha256:edc0ebe9ffeac42b9dd4d34ed3d11753b40fc33a2c4824e15aef059a536241b0
+             image: {{RHAI_CLI_IMAGE}}
              command:
                - sleep
                - infinity
@@ -442,7 +442,7 @@ Authentication for the cluster is handled when you log in from inside the pod. T
 
 ### **1.3.2. About the rhai-cli container image** {#1.3.2.-about-the-rhai-cli-container-image}
 
-The container image is available at **quay.io/rhoai/odh-cli-rhel9@sha256:edc0ebe9ffeac42b9dd4d34ed3d11753b40fc33a2c4824e15aef059a536241b0**. It contains the migration assessment linting CLI and migration actions for specific component migrations.
+The container image is available at **{{RHAI_CLI_IMAGE}}**. It contains the migration assessment linting CLI and migration actions for specific component migrations.
 
 For details about the container image, including versions, see the [**rhoai/rhai-cli-rhel9** page in the Red Hat Ecosystem Catalog](https://catalog.redhat.com/en/software/containers/rhoai/rhai-cli-rhel9/69a580e6a46d08df99bffe08?image=69a7dc1675d4eb16e91cb5de).
 
@@ -788,50 +788,50 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
 
 ***Kueue \- Before upgrade***
 
-*Before starting the upgrade to OpenShift AI 3.5, if you are currently using embedded Kueue (managementState: Managed), you must migrate to either Red Hat build of Kueue (managementState: Unmanaged) or disable Kueue entirely (managementState: Removed). Embedded Kueue is not supported in OpenShift AI 3.5 -- the Managed state is accepted by OLM for backwards compatibility but is rejected at runtime.*
+Before starting the upgrade to OpenShift AI 3.5, if you are currently using embedded Kueue (managementState: Managed), you must migrate to either Red Hat build of Kueue (managementState: Unmanaged) or disable Kueue entirely (managementState: Removed). Embedded Kueue is not supported in OpenShift AI 3.5 -- the Managed state is accepted by OLM for backwards compatibility but is rejected at runtime.
 
-*Important*  
-*You must perform the migration to Red Hat build of Kueue independently and in advance of the OpenShift AI version upgrade. Completing this migration before upgrade will simplify planning and reduce the overall upgrade time.*
+**Important**  
+You must perform the migration to Red Hat build of Kueue independently and in advance of the OpenShift AI version upgrade. Completing this migration before upgrade will simplify planning and reduce the overall upgrade time.
 
-*The upgrade to OpenShift AI 3.5 assumes that embedded Kueue has already been migrated to Red Hat build of Kueue and does not include or perform this migration automatically. Ensure that the migration to Red Hat build of Kueue is fully completed and validated before proceeding with the upgrade to OpenShift AI 3.5.*
+The upgrade to OpenShift AI 3.5 assumes that embedded Kueue has already been migrated to Red Hat build of Kueue and does not include or perform this migration automatically. Ensure that the migration to Red Hat build of Kueue is fully completed and validated before proceeding with the upgrade to OpenShift AI 3.5.
 
-*Prerequisites*
+**Prerequisites**
 
-* *You have cluster administrator access to the OpenShift cluster.*  
-* *The DataScienceCluster resource has the Kueue component in a Ready state.*
+* You have cluster administrator access to the OpenShift cluster.  
+* The DataScienceCluster resource has the Kueue component in a Ready state.
 
-*Procedure*
+**Procedure**
 
-1. *Check that the Kueue component is in a ready state as follows:*
+1. Check that the Kueue component is in a ready state as follows:
 
    ```bash
    read STATUS REASON < <(oc get datasciencecluster -A -o jsonpath='{.items[0].status.conditions[?(@.type=="KueueReady")].status} {.items[0].status.conditions[?(@.type=="KueueReady")].reason}'); [[ "$STATUS" == "True" || ( "$STATUS" == "False" && "$REASON" == "Removed" ) ]] && echo "Ready" || echo "Not Ready"
    ```
 
-   *The command output must be Ready.*
+   The command output must be `Ready`.
 
-2. *Check that Kueue has been migrated to Red Hat build of Kueue as follows:*  
+2. Check that Kueue has been migrated to Red Hat build of Kueue as follows:  
    ```bash
    oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}'
    ```
 
-   * *If the output is Removed or Unmanaged, no migration is required and you can skip the remaining steps. Confirm using the rhai-cli script that kueue reports PASS.*
+   * If the output is Removed or Unmanaged, no migration is required and you can skip the remaining steps. Confirm using the rhai-cli script that kueue reports PASS.
 
-   * *If the output is Managed, you must migrate to Red Hat build of Kueue.*
+   * If the output is Managed, you must migrate to Red Hat build of Kueue.
 
-3. *If you are using the default OpenShift AI Kueue configuration and have not modified the kueue-manager-config config map in your applications namespace, annotate the config map to preserve the enabled frameworks as follows:*
+3. If you are using the default OpenShift AI Kueue configuration and have not modified the kueue-manager-config config map in your applications namespace, annotate the config map to preserve the enabled frameworks as follows:
 
    ```bash
    oc annotate configmap kueue-manager-config -n <applications_namespace> opendatahub.io/managed=false
    ```
 
-   *\<applications\_namespace\> specifies the namespace where your Kueue applications are deployed. The default is redhat-ods-applications.*
+   `\<applications\_namespace\>` specifies the namespace where your Kueue applications are deployed. The default is `redhat-ods-applications`.
 
-   *Important*
+   **Important**
 
-   *This annotation ensures that your enabled frameworks remain unchanged during migration. Without this annotation, the enabled frameworks will change.*
+   This annotation ensures that your enabled frameworks remain unchanged during migration. Without this annotation, the enabled frameworks will change.
 
-         *Before migration, the enabled frameworks are as follows:*
+   Before migration, the enabled frameworks are as follows:
 
    * *batch/job*  
    * *kubeflow.org/mpijob*  
@@ -844,26 +844,26 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
    * *kubeflow.org/xgboostjob*  
    * *workload.codeflare.dev/appwrapper*
 
-   *After migration, without this annotation, the enabled frameworks will change as follows:*
+   After migration, without this annotation, the enabled frameworks will change as follows:
 
-* *Deployment*  
-* *Pod*  
-* *PyTorchJob*  
-* *RayCluster*  
-* *RayJob*  
-* *StatefulSet*
+   * *Deployment*  
+   * *Pod*  
+   * *PyTorchJob*  
+   * *RayCluster*  
+   * *RayJob*  
+   * *StatefulSet*
 
-4. *Perform the steps in [Migrating to the Red Hat build of Kueue Operator](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.25/html/managing_openshift_ai/managing-workloads-with-kueue#migrating-to-the-rhbok-operator_kueue).*
+4. Perform the steps in [Migrating to the Red Hat build of Kueue Operator](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_self-managed/2.25/html/managing_openshift_ai/managing-workloads-with-kueue#migrating-to-the-rhbok-operator_kueue).
 
-   *Important*  
-   *Do not follow the Next steps section in the Operator migration guide. Return to this procedure after completing the Operator migration steps.*
+   **Important**  
+   Do not follow the Next steps section in the Operator migration guide. Return to this procedure after completing the Operator migration steps.
 
-   *Note*  
-   *When you activate the Red Hat build of Kueue Operator in the DataScienceCluster resource, define custom names for your local queues and cluster queues instead of using the name `default`. The Red Hat build of Kueue treats the name `default` as a system identifier for enabled frameworks. When Kueue transitions to Unmanaged, workloads in kueue-managed namespaces that are not explicitly assigned to a queue are implicitly placed on the LocalQueue named `default`. If that name is already in use for other purposes, workloads can be scheduled to unintended queues.*
+   **Note**  
+   When you activate the Red Hat build of Kueue Operator in the DataScienceCluster resource, define custom names for your local queues and cluster queues instead of using the name `default`. The Red Hat build of Kueue treats the name `default` as a system identifier for enabled frameworks. When Kueue transitions to Unmanaged, workloads in kueue-managed namespaces that are not explicitly assigned to a queue are implicitly placed on the LocalQueue named `default`. If that name is already in use for other purposes, workloads can be scheduled to unintended queues.
 
-   *Using custom queue names (for example, `rhoai-kueue-default` or `my-project-default`) avoids potential conflicts and ensures correct resource allocation across frameworks.*
+   Using custom queue names (for example, `rhoai-kueue-default` or `my-project-default`) avoids potential conflicts and ensures correct resource allocation across frameworks.
 
-   *To use predefined queue names, apply the following configuration:*
+   To use predefined queue names, apply the following configuration:
 
    ```yaml
    spec:
@@ -872,7 +872,7 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
          managementState: Unmanaged
    ```
 
-   *To specify custom queue names (recommended), apply the following configuration:*
+   To specify custom queue names (recommended), apply the following configuration:
 
    ```yaml
    spec:
@@ -883,14 +883,14 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
          defaultLocalQueueName: <example-local-queue>
    ```
 
-5. *Enable Kueue management for existing projects using Kueue by applying the `kueue.openshift.io/managed=true` label to each project namespace:*
+5. Enable Kueue management for existing projects using Kueue by applying the `kueue.openshift.io/managed=true` label to each project namespace:
 
    ```bash
    oc label namespace <project-namespace> kueue.openshift.io/managed=true --overwrite
    ```
 
-   *Warning*  
-   *Kueue validation and queue enforcement apply only to workloads in namespaces labeled with `kueue.openshift.io/managed=true`.*
+   **Warning**  
+   Kueue validation and queue enforcement apply only to workloads in namespaces labeled with `kueue.openshift.io/managed=true`.
 
    *After you apply this label, ensure that the following resources within that namespace have the `kueue.x-k8s.io/queue-name` annotation set to the relevant Kueue queue name:*
 
@@ -901,19 +901,21 @@ If you want to continue using Kueue with an externally managed Red Hat build of 
    * *inferenceservice*
    * *llminferenceservice*
 
-   *If this annotation is missing in a managed namespace, any subsequent modification or creation of these resources will be rejected by the admission controller.*
+   If this annotation is missing in a managed namespace, any subsequent modification or creation of these resources will be rejected by the admission controller.
 
-*Verification*
+**Verification**
 
-* *Verify that the migration to Red Hat build of Kueue was successful as follows:*
+* Verify that the migration to Red Hat build of Kueue was successful as follows:
 
   ```bash
   oc get datasciencecluster -A -o jsonpath='{.items[0].spec.components.kueue.managementState}{"\n"}{.items[0].status.conditions[?(@.type=="KueueReady")].status}{"\n"}'
   ```
 
-  *The command output must be the following:*  
-  *Unmanaged*  
-      *True*
+  The command output must be the following:  
+  ```bash
+  Unmanaged
+  True
+  ```
 
 ## 
 
@@ -1507,28 +1509,10 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
    Stopped
    ```
 
-2. Validate that the backup is not empty:
-
-   **Note**
-   Run this command from your workstation (not from inside the **rhai-cli** pod). It reads the backup file from the pod's PVC and validates it with `jq` locally.
+2. Verify that the backup file exists:
 
    ```bash
-   oc exec rhai-cli-0 -n rhai-migration -- cat ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | jq empty && echo "OK" || echo "FAIL: invalid JSON"
-   ```
-
-   **Note**
-   Replace `rhai-migration` with the namespace where your **rhai-cli** StatefulSet is deployed, if different.
-
-   Example output:
-
-   ```
-   OK
-   ```
-
-3. Verify that the backup file exists:
-
-   ```bash
-   oc exec rhai-cli-0 -n rhai-migration -- ls ${BACKUP_DIR}/trustyai-metrics-${NS}-*
+   ls ${BACKUP_DIR}/trustyai-metrics-${NS}-*
    ```
 
    Example output:
@@ -1536,7 +1520,24 @@ For each namespace that has a TrustyAI service, follow these steps to backup sch
    ```
    /tmp/rhoai-upgrade-backup/trustyai/trustyai-metrics-test-trustyaiservice-upgrade-20260218-175450.json
    ```
+3. Now take this output and validate that the backup is not empty:
 
+   **Note**
+   Run this command from your workstation (not from inside the **rhai-cli** pod). It reads the backup file from the pod's PVC and validates it with `jq` locally.
+
+   ```bash
+   METRICS=$(oc exec rhai-cli-0 -n <rhai-cli-namespace> -- cat <output_from_previous_step> 2>/dev/null)
+   [ -n "$METRICS" ] && echo "$METRICS" | jq empty 2>/dev/null && echo "OK" || echo "FAIL: missing or invalid JSON"
+   ```
+
+   **Note**
+   Replace `<rhai-cli-namespace>` with the namespace where your **rhai-cli** StatefulSet is deployed.
+
+   Example output:
+
+   ```
+   OK
+   ```
 ### **2.7.3. TrustyAI \- Before upgrade \- Backup data storage** {#2.7.3.-trustyai---before-upgrade---backup-data-storage}
 
 You can backup TrustyAI data storage before you upgrade OpenShift AI 2.25.10 (and later) to 3.5. The **rhai-cli** `trustyai.data` migration action auto-detects storage type (PVC or DATABASE) from the TrustyAIService CR and performs the appropriate backup.
@@ -1701,22 +1702,23 @@ For each namespace that has the TrustyAI Guardrails Orchestrator service:
 
    The output should show **OK**. If the output shows **FAIL**, ensure you followed all previous steps and they produced the expected result.
 
-2. Check whether you are collecting traces and metrics from your **GuardrailsOrchestrator** instance:
-
-1. Check the **spec.otelExporter** field configuration in your **GuardrailsOrchestrator** CR:
+2. Check whether you are collecting traces and metrics by inspecting the **spec.otelExporter** field in your **GuardrailsOrchestrator** CR:
 
    ```bash
-   export OTEL_SPEC=$(oc get guardrailsorchestrator "$GORCH_NAME" -n "$NS" -o jsonpath='{.spec.otelExporter}' 2>/dev/null || true)
-   export OTEL_LEN=$(echo "$OTEL_SPEC" | jq -r 'keys | length' 2>/dev/null)
-   [ "$OTEL_LEN" -gt 0 ] 2>/dev/null && echo "spec.otelExporter present" || echo "spec.otelExporter missing"
+   if [ -z "$NS" ] || [ -z "$GORCH_NAME" ]; then
+     echo "NS or GORCH_NAME is not set; set both before running this check"
+   else
+     export OTEL_SPEC=$(oc get guardrailsorchestrator "$GORCH_NAME" -n "$NS" -o jsonpath='{.spec.otelExporter}' 2>/dev/null || true)
+     [ -n "$OTEL_SPEC" ] && echo "spec.otelExporter present" || echo "spec.otelExporter missing"
+   fi
    ```
 
-   The output is one of the following results:  
+   The output is one of the following results:
+   * **NS or GORCH_NAME is not set**: set both variables from the previous steps, then run the check again.
    * **spec.otelExporter missing**: If you have additional **GuardrailsOrchestrator** instances, repeat the steps in this procedure. If you have no additional instances, you have completed the Before upgrade \- Guardrails Orchestrator steps.
+   * **spec.otelExporter present**: Continue to the next step to backup your **spec.otelExporter** keys.
 
-     * **spec.otelExporter present**. Continue to the next step to backup your **spec.otelExporter** keys.
-
-2. If **spec.otelExporter** is present, backup your traces and metrics exporter configuration by saving it to **${BACKUP\_DIR}/$GORCH\_NAME-$NS-otelExporter-backup.json**:
+3. If **spec.otelExporter** is present, backup your traces and metrics exporter configuration by saving it to **${BACKUP\_DIR}/$GORCH\_NAME-$NS-otelExporter-backup.json**:
 
    ```bash
    oc get guardrailsorchestrator $GORCH_NAME -n $NS -o jsonpath='{.spec.otelExporter}' > ${BACKUP_DIR}/$GORCH_NAME-$NS-otelExporter-backup.json
@@ -4007,7 +4009,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
    If the command fails with a timeout error, inspect the Operator pod for more details:
 
    ```bash
-   oc get pods -n redhat-ods-applications -l control-plane=controller-manager -o wide
+   oc get pods -n redhat-ods-applications -l 'control-plane in (controller-manager,trustyai-service-operator)' -o wide
    ```
 
 4. List the namespaces for which you have backups:
@@ -4029,7 +4031,11 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
 
 5. For each namespace that has a backup, check whether data was lost:
 
+   **Note**
+   Run this from your workstation (it uses `jq`, which is not in the **rhai-cli** pod). `BACKUP_DIR` is the path *inside the **rhai-cli** pod* where you saved the backups; the command reads the backup file out of the pod with `oc exec`. Replace `<rhai-cli-namespace>` with the namespace where the **rhai-cli** StatefulSet is deployed.
+
    ```bash
+   : "${BACKUP_DIR:?BACKUP_DIR is not set. Set it to the backup path inside the rhai-cli pod, e.g. export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai}"
    export NS=<namespace>
    export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
    export SVC_PORT=$(oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
@@ -4037,7 +4043,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
    export PF_PID=$!
    export CURRENT=$(curl -sk -H "Authorization: Bearer $(oc whoami -t)" \
      "http://localhost:8080/metrics/all/requests" | jq '.requests | length')
-   export BACKUP=$(jq '.requests | length' "$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)")
+   export BACKUP=$(oc exec rhai-cli-0 -n <rhai-cli-namespace> -- sh -c "cat \$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)" | jq '.requests | length')
    kill $PF_PID 2>/dev/null
    echo "Current: $CURRENT | Backup: $BACKUP"
    [ "$CURRENT" -ge "$BACKUP" ] && echo "OK: no data loss" || echo "DATA LOSS: restore needed"
@@ -4156,7 +4162,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    guardrails-orchestrator-otel: already on new otelExporter schema
    ```
 
-   If all **GuardrailsOrchestrator** CRs report as **already on new otelExporter schema**, skip to step 5\.  
+   If all **GuardrailsOrchestrator** CRs report as **already on new otelExporter schema**, skip to step 5 to verify and, if necessary, restore the exporter configuration.  
    Otherwise, continue to the next step.
 
 4. Run the migration that patches the existing **GuardrailsOrchestrator** deployments by updating the keys under **spec.otelExporter**:
@@ -4165,7 +4171,47 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI Guardrails
    rhai-cli migrate run --migration trustyai.migrate-gorch-otel-exporter --target-version 3.5.0
    ```
 
-5. Query the **info** endpoint of the **GuardrailsOrchestrator** service:
+5. Restore your traces and metrics exporter configuration from the backup you created in [TrustyAI \- Before upgrade \- Guardrails Orchestrator](#2.7.4.-trustyai---before-upgrade---guardrails-orchestrator).
+
+   The upgrade carries over only `protocol` (as `otlpProtocol`) and drops the other **spec.otelExporter** keys. Because `otlpProtocol` is present, `trustyai.migrate-gorch-otel-exporter` reports **already on new otelExporter schema** and does not restore them. Migrate them from your backup, mapping to the 3.5 schema, by running the following command:
+
+   **Note**  
+   Run this from your workstation, not the **rhai-cli** pod, which does not have `jq`. Replace `<rhai-cli-namespace>` with the namespace where the **rhai-cli** StatefulSet is deployed.
+
+   ```bash
+   oc patch guardrailsorchestrator "$GORCH_NAME" -n "$NS" --type merge -p "$(
+     oc exec rhai-cli-0 -n <rhai-cli-namespace> -- cat "${BACKUP_DIR}/${GORCH_NAME}-${NS}-otelExporter-backup.json" | jq '{
+       spec: {
+         otelExporter: {
+           otlpProtocol: (.protocol // "grpc"),
+           otlpTracesEndpoint: (.tracesEndpoint // .otlpEndpoint),
+           otlpMetricsEndpoint: (.metricsEndpoint // .otlpEndpoint),
+           enableTraces: ((.otlpExport // "") | test("traces")),
+           enableMetrics: ((.otlpExport // "") | test("metrics"))
+         }
+       }
+     } | del(.spec.otelExporter[] | select(. == null or . == ""))'
+   )"
+   ```
+
+   Read back `spec.otelExporter` to confirm the restore:
+
+   ```bash
+   oc get guardrailsorchestrator "$GORCH_NAME" -n "$NS" -o jsonpath='{.spec.otelExporter}{"\n"}'
+   ```
+
+   If the patch was successful, the output is similar to the following example, and the old keys (`protocol`, `otlpEndpoint`, `otlpExport`) are gone:
+
+   ```
+   {"enableMetrics":true,"enableTraces":true,"otlpProtocol":"grpc","otlpTracesEndpoint":"http://my-otelcol-collector...:4317"}
+   ```
+
+   If the old keys are still present, the 3.5 CRD is not installed yet.
+
+   **Note**  
+   The running pod keeps the OpenTelemetry settings from the 2.25 deployment, so traces continue to flow immediately after upgrade. This restore ensures the configuration survives a later reconcile of the CR.
+
+6. Query the **info** endpoint of the **GuardrailsOrchestrator** service:
 
    ```bash
    export GORCH_NAME=<gorch-name>
@@ -4296,7 +4342,7 @@ Follow these steps for each namespace that lost data:
 7. Find the backup file for this namespace:
 
    ```bash
-   ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1
+   oc exec rhai-cli-0 -n <rhai-cli-namespace> -- sh -c "ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1"
    ```
 
    If the output provides a file path, continue to the next step.  
@@ -4305,7 +4351,7 @@ Follow these steps for each namespace that lost data:
 8. Set the backup file path:
 
    ```bash
-   export BACKUP_FILE=$(ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1)
+   export BACKUP_FILE=$(oc exec rhai-cli-0 -n <rhai-cli-namespace> -- sh -c "ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1")
    echo "BACKUP_FILE=$BACKUP_FILE"
    ```
 
@@ -4317,8 +4363,11 @@ Follow these steps for each namespace that lost data:
 
 9. Get the number of metrics that are in the backup:
 
+   **Note**
+   Run this from your workstation (it uses `jq`, which is not in the **rhai-cli** pod). It reads the backup file out of the pod with `oc exec`. Replace `<rhai-cli-namespace>` with the namespace where the **rhai-cli** StatefulSet is deployed.
+
    ```bash
-   jq '.requests | length' "$BACKUP_FILE"
+   oc exec rhai-cli-0 -n <rhai-cli-namespace> -- cat "$BACKUP_FILE" | jq '.requests | length'
    ```
 
    Example output:
@@ -4384,10 +4433,10 @@ Follow these steps for each namespace that lost data:
 
     
 
-13. Dry-run the restore:
+13. Dry-run the restore. Pass the backup file with `--metrics-file` (without it, the action reports "No --metrics-file specified; nothing to restore" and does nothing) and the route label with `--metrics-route-label`:
 
     ```bash
-    rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --dry-run
+    oc exec rhai-cli-0 -n <rhai-cli-namespace> -- rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL" --dry-run
     ```
 
     Example output:
@@ -4430,7 +4479,7 @@ Follow these steps for each namespace that lost data:
 14. Run the restore:
 
     ```bash
-    rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0
+    oc exec rhai-cli-0 -n <rhai-cli-namespace> -- rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL"
     ```
 
 **Verification**
@@ -4800,6 +4849,15 @@ The commands in the following procedure include an optional **\--dry-run** argum
   ```
 
 3. Make a note of the Dashboard URL that is output by the migration command. Share this URL with users that want to access the Ray cluster.
+
+   **Important**
+   The Dashboard URL uses Gateway API routing. For the URL to be accessible, the **AIGateway** component must be enabled (set to **Managed**) in the DataScienceCluster. If AIGateway is set to **Removed**, the HTTPRoute will be created but will not be programmed and the Dashboard URL will return HTTP 503. Verify:
+
+   ```bash
+   oc get datasciencecluster default-dsc -o jsonpath='{.spec.components.aigateway.managementState}' && echo
+   ```
+
+   Expected output: `Managed`
 
 **Verification**
 
