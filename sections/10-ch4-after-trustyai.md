@@ -92,10 +92,11 @@ Run every command in this procedure from your workstation, not from inside the *
    Run this from your workstation (it uses `jq`, which is not in the **rhai-cli** pod). `BACKUP_DIR` is the path *inside the **rhai-cli** pod* where you saved the backups; the command reads the backup file out of the pod with `oc exec`.
 
    ```bash
-   : "${BACKUP_DIR:?BACKUP_DIR is not set. Set it to the backup path inside the rhai-cli pod, e.g. export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai}"
    export NS=<namespace>
    export TAS_NAME=$(oc get trustyaiservice -n "$NS" -o jsonpath='{.items[0].metadata.name}')
    export SVC_PORT=$(oc get svc -n "$NS" "$TAS_NAME" -o jsonpath='{.spec.ports[?(@.name=="http")].port}')
+   : "${NS:?NS is not set. Set it with: export NS=<namespace>}"
+   : "${BACKUP_DIR:?BACKUP_DIR is not set. Set it to the backup path inside the rhai-cli pod, e.g. export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai}"
    oc port-forward -n "$NS" "svc/$TAS_NAME" 8080:${SVC_PORT} &
    export PF_PID=$!
    export CURRENT=$(curl -sk -H "Authorization: Bearer $(oc whoami -t)" \
