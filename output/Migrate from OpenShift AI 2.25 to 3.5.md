@@ -3985,7 +3985,7 @@ After upgrading OpenShift AI to 3.5, check the status of the TrustyAI component 
 **Procedure**
 
 **Note**
-Run every command in this procedure from your workstation, not from inside the **rhai-cli** pod. The commands read the backups out of the pod with `oc exec` and process them locally with tools such as `jq`, `sed`, and `sort`, which are not installed in the pod. Set the environment variables in the first step in the same shell so they are available to the later steps.
+Run every command in this procedure from your workstation. The commands read the backups out of the **rhai-cli** pod with `oc exec` and pipe them to `jq`, which is the only tool used here that is not installed in the pod. Set the environment variables in the first step in the same shell so they are available to the later steps.
 
 1. Set the backup directory and the namespace where the **rhai-cli** StatefulSet is deployed:
 
@@ -4014,10 +4014,7 @@ Run every command in this procedure from your workstation, not from inside the *
    oc get pods -n redhat-ods-applications -l 'control-plane in (controller-manager,trustyai-service-operator)' -o wide
    ```
 
-4. List the namespaces for which you have backups:
-
-   **Note**
-   Run this from your workstation. It lists the backups inside the **rhai-cli** pod with `oc exec` (where `BACKUP_DIR` lives), then formats the output locally with `sed` and `sort`, which are not in the pod.
+4. List the namespaces for which you have backups. This lists the backups inside the **rhai-cli** pod with `oc exec` (where `BACKUP_DIR` lives) and formats the output with `sed` and `sort`:
 
    ```bash
    oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- sh -c "ls ${BACKUP_DIR}/trustyai-metrics-*.json 2>/dev/null" \
@@ -4267,7 +4264,7 @@ If you ran the TrustyAI \- After upgrade \- Check Backups procedure for a namesp
 **Procedure**
 
 **Note**
-Run every command in this procedure from your workstation, not from inside the **rhai-cli** pod. The commands read the backups out of the pod with `oc exec` and process them locally with tools such as `jq`, `sed`, and `sort`, which are not installed in the pod. Set the environment variables in the first step in the same shell so they are available to the later steps.
+Run every command in this procedure from your workstation. The steps that inspect the backups pipe them to `jq`, which is the only tool used here that is not installed in the **rhai-cli** pod; the metrics restore itself runs `rhai-cli` inside the pod with `oc exec`. Set the environment variables in the first step in the same shell so they are available to the later steps.
 
 Follow these steps for each namespace that lost data:
 
@@ -4276,12 +4273,11 @@ Follow these steps for each namespace that lost data:
    ```bash
    export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai
    export RHAI_CLI_NS=<rhai-cli-namespace>
+   : "${BACKUP_DIR:?BACKUP_DIR is not set. Set it to the backup path inside the rhai-cli pod, e.g. export BACKUP_DIR=/tmp/rhoai-upgrade-backup/trustyai}"
+   : "${RHAI_CLI_NS:?RHAI_CLI_NS is not set. Set it to the namespace where the rhai-cli StatefulSet is deployed}"
    ```
 
-2. Verify that you have a backup for the namespace:
-
-   **Note**
-   Run this from your workstation. It lists the backups inside the **rhai-cli** pod with `oc exec` (where `BACKUP_DIR` lives), then formats the output locally with `sed` and `sort`, which are not in the pod.
+2. Verify that you have a backup for the namespace. This lists the backups inside the **rhai-cli** pod with `oc exec` (where `BACKUP_DIR` lives) and formats the output with `sed` and `sort`:
 
    ```bash
    oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- sh -c "ls ${BACKUP_DIR}/trustyai-metrics-*.json 2>/dev/null" \
@@ -4302,6 +4298,7 @@ Follow these steps for each namespace that lost data:
 
    ```bash
    export NS=<namespace>
+   : "${NS:?NS is not set. Set it with: export NS=<namespace>}"
    ```
 
 4. Get the TrustyAIService name:
@@ -4448,6 +4445,9 @@ Follow these steps for each namespace that lost data:
     
 
 13. Dry-run the restore. Pass the backup file with `--metrics-file` (without it, the action reports "No --metrics-file specified; nothing to restore" and does nothing) and the route label with `--metrics-route-label`:
+
+    **Note**
+    This runs `rhai-cli` inside the **rhai-cli** pod with `oc exec`, because the backup file (`$BACKUP_FILE`) is a path inside the pod. The in-pod `rhai-cli` uses the pod's serviceaccount, which must be able to detect the cluster version. If the command fails with `clusterserviceversions.operators.coreos.com is forbidden`, grant the **rhai-cli** pod's serviceaccount read access to **ClusterServiceVersion** resources (for example, bind a role that allows `get`/`list` on `clusterserviceversions` in the `operators.coreos.com` API group).
 
     ```bash
     oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL" --dry-run
