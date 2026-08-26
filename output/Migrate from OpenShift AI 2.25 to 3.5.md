@@ -4362,30 +4362,26 @@ Follow these steps for each namespace that lost data:
    If the output provides a file path, continue to the next step.  
    If no file is found, there is no backup for this namespace. Restart the steps in this procedure for the next namespace that lost data, if any.
 
-8. Set the backup file path and copy the backup out of the pod to your workstation:
-
-   **Note**
-   `rhai-cli` runs on your workstation and uses your `oc` credentials, so the metrics file must be a local path. Copy the backup out of the pod first; `rhai-cli` cannot read a path inside the pod.
+8. Set the backup file path:
 
    ```bash
    export BACKUP_FILE=$(oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- sh -c "ls -t ${BACKUP_DIR}/trustyai-metrics-${NS}-*.json | head -1")
-   export LOCAL_BACKUP_FILE="./$(basename "$BACKUP_FILE")"
-   oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- cat "$BACKUP_FILE" > "$LOCAL_BACKUP_FILE"
    echo "BACKUP_FILE=$BACKUP_FILE"
-   echo "LOCAL_BACKUP_FILE=$LOCAL_BACKUP_FILE"
    ```
 
-   The command should print the pod path and the local copy, as shown in the following example output:
+   The command should print the backup file path, as shown in the following example output:
 
    ```
    BACKUP_FILE=/tmp/rhoai-upgrade-backup/trustyai/trustyai-metrics-test-trustyaiservice-upgrade-20260218-175450.json
-   LOCAL_BACKUP_FILE=./trustyai-metrics-test-trustyaiservice-upgrade-20260218-175450.json
    ```
 
 9. Get the number of metrics that are in the backup:
 
+   **Note**
+   Run this from your workstation (it uses `jq`, which is not in the **rhai-cli** pod). It reads the backup file out of the pod with `oc exec`.
+
    ```bash
-   jq '.requests | length' "$LOCAL_BACKUP_FILE"
+   oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- cat "$BACKUP_FILE" | jq '.requests | length'
    ```
 
    Example output:
@@ -4454,7 +4450,7 @@ Follow these steps for each namespace that lost data:
 13. Dry-run the restore. Pass the backup file with `--metrics-file` (without it, the action reports "No --metrics-file specified; nothing to restore" and does nothing) and the route label with `--metrics-route-label`:
 
     ```bash
-    rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$LOCAL_BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL" --dry-run
+    oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL" --dry-run
     ```
 
     Example output:
@@ -4497,7 +4493,7 @@ Follow these steps for each namespace that lost data:
 14. Run the restore:
 
     ```bash
-    rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$LOCAL_BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL"
+    oc exec rhai-cli-0 -n "$RHAI_CLI_NS" -- rhai-cli migrate run --migration trustyai.metrics --target-version 3.5.0 --metrics-file "$BACKUP_FILE" --metrics-route-label "$ROUTE_LABEL"
     ```
 
 **Verification**
