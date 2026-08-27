@@ -677,7 +677,30 @@ The **rhai-cli** utility contains migration actions to assist with pre-upgrade a
 
 To run the **rhai-cli migrate** actions, you must have write access as a cluster or namespace administrator. These actions require write access because they perform modifications to cluster resources.
 
+**Important**  
+Not all sections in this chapter apply to every cluster. Use the output of the `rhai-cli lint` migration assessment script (see [Run the migration assessment script](#1.4.-run-the-migration-assessment-script)) to determine which sections require action for your environment. Focus on items with **critical** or **prohibited** impact — these are migration blockers that you must resolve before upgrading. Sections where the assessment reports only **info** status indicate that no migration action is required and can be skipped. Each section below includes its own prerequisites and skip conditions to help you determine whether it applies to your cluster.
+
 ## **2.1 Install the cert-manager Operator for Red Hat OpenShift** {#2.1-install-the-cert-manager-operator-for-red-hat-openshift}
+
+The cert-manager Operator for Red Hat OpenShift is a prerequisite for OpenShift AI 3.5. If cert-manager is already installed and running on your cluster, you can skip this section.
+
+**Pre-check: Verify whether cert-manager is already installed**
+
+Run the following command to check whether the cert-manager Operator is already installed:
+
+```bash
+oc get csv -n cert-manager-operator 2>/dev/null | grep -i cert-manager
+```
+
+* If the output shows a cert-manager CSV with **Succeeded** status, the Operator is already installed. Verify that the cert-manager pods are running:
+
+  ```bash
+  oc get pods -n cert-manager
+  ```
+
+  If all pods show **Running** status with all containers ready, cert-manager is operational and you can skip the rest of this section.
+
+* If the command returns no output or the namespace does not exist, proceed with the installation procedure below.
 
 **Procedure**
 
@@ -698,7 +721,7 @@ Install the cert-manager Operator for Red Hat OpenShift using one of the followi
 1. Create the namespace, OperatorGroup, and Subscription:
 
    ```bash
-   oc create namespace cert-manager-operator
+   oc create namespace cert-manager-operator --dry-run=client -o yaml | oc apply -f -
    oc apply -f - <<EOF
    apiVersion: operators.coreos.com/v1
    kind: OperatorGroup
