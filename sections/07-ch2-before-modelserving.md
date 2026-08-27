@@ -363,7 +363,11 @@ The following procedure describes how to use the **rhai-cli** migrate command to
    rhai-cli migrate run --migration modelserving.modelmesh-to-raw --target-version 3.5.0
    ```
 
-   The command handles runtime template selection, resource transformation, authentication resources, and storage credentials automatically.
+   The command handles runtime template selection, resource transformation, authentication resources, and storage credentials automatically for secret-based (S3/HDFS) storage types.
+
+   **Important**
+
+   PVC-backed models require manual post-conversion steps. The `modelmesh-to-raw` action does not translate ModelMesh PVC storage references to KServe Raw `storageUri` format. If any of your ModelMesh models use PVC-backed storage, see the [troubleshooting section for converted ModelMesh models not ready](#4.9.2.2.6.-converted-modelmesh-model-not-ready) after upgrade, or refer to the Knowledge Base article [Converting ModelMesh and Serverless InferenceServices to RawDeployment (Standard) Mode](https://access.redhat.com/articles/7134025).
 
    Example completion output:
 
@@ -584,6 +588,43 @@ Update cluster-wide resources to prepare for the Red Hat OpenShift AI Operator u
    5. In the confirmation dialog, select **Delete all operand instances for this operator**.
 
    6. Click **Uninstall**.
+
+   7. Delete the orphaned Istio CRDs left behind by the operator uninstall.
+
+      OLM does not remove CRDs when uninstalling an operator. The leftover Maistra-era `*.istio.io` CRDs serve only `v1beta1`/`v1alpha3` versions and block the OpenShift Gateway API (sail) controller from installing the `v1` CRDs it requires. If these CRDs are not removed, the Data Science Gateway will not become Ready after upgrade.
+
+      1. Verify that no Istio custom resources remain in the cluster:
+
+         ```bash
+         for crd in $(oc get crd -l maistra-version -o name); do
+           count=$(oc get "${crd#customresourcedefinition.apiextensions.k8s.io/}" -A --no-headers 2>/dev/null | wc -l)
+           echo "$crd: $count instances"
+         done
+         ```
+
+         All CRDs must show `0 instances`. If any CRD has active resources, investigate and migrate or remove those resources before proceeding.
+
+      2. Delete the orphaned `*.istio.io` CRDs:
+
+         ```bash
+         oc get crd -l maistra-version -o custom-columns=NAME:.metadata.name --no-headers | \
+           grep '\.istio\.io$' | xargs oc delete crd
+         ```
+
+      3. Optionally, remove the `*.maistra.io` CRDs (these are harmless but no longer needed):
+
+         ```bash
+         oc get crd -l maistra-version -o custom-columns=NAME:.metadata.name --no-headers | \
+           grep '\.maistra\.io$' | xargs oc delete crd
+         ```
+
+      4. Verify no Maistra-labeled CRDs remain:
+
+         ```bash
+         oc get crd -l maistra-version
+         ```
+
+         Expected output: `No resources found`
 
 5. If standalone Authorino is installed, uninstall it:
 
