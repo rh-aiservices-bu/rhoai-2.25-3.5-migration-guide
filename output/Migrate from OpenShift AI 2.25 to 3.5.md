@@ -675,7 +675,7 @@ Before you upgrade OpenShift AI from version 2.25.10 (and later) to 3.5, you mus
 
 The **rhai-cli** utility contains migration actions to assist with pre-upgrade and post-upgrade steps for the Model Serving, Workbenches, TrustyAI, Llama Stack / OGX, AI Pipelines, and Ray Training Operator components.
 
-To run the **rhai-cli migrate** actions, you must have write access as a cluster or namespace administrator. These actions require write access because they perform modifications to cluster resources.
+To run the **rhai-cli migrate** actions, you must have cluster administrator privileges. These actions require cluster-admin access because they perform modifications to cluster-scoped resources such as DataScienceCluster, Operators, and CustomResourceDefinitions.
 
 **Important**  
 Not all sections in this chapter apply to every cluster. Use the output of the `rhai-cli lint` migration assessment script (see [Run the migration assessment script](#1.4.-run-the-migration-assessment-script)) to determine which sections require action for your environment. Focus on items with **critical** or **prohibited** impact — these are migration blockers that you must resolve before upgrading. Sections where the assessment reports only **info** status indicate that no migration action is required and can be skipped. Each section below includes its own prerequisites and skip conditions to help you determine whether it applies to your cluster.
