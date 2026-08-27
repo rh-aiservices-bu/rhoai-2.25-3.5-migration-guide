@@ -688,11 +688,128 @@ OSSM v2 resources remain in the cluster and Gateway API resources do not functio
 
 **Resolution**
 
+There are two possible cases. Determine which applies to your cluster and follow the corresponding steps.
+
+**Case A: The Service Mesh v2 Operator is still installed**
+
 1. Verify that no other applications depend on Service Mesh v2 by consulting with application owners.
 
 2. If other applications depend on Service Mesh v2, migrate those applications to Service Mesh v3 following the official Red Hat documentation [Migrating from Service Mesh 2 to Service Mesh 3](https://docs.redhat.com/en/documentation/red_hat_openshift_service_mesh/3.1/html/migrating_from_service_mesh_2_to_service_mesh_3/ossm-migrating-from-service-mesh-2-to-3#ossm-migrating-hub-recommendations-for-migrating_ossm-migrating-from-service-mesh-2-to-3).
 
 3. After migration or if no dependencies exist, uninstall the Service Mesh v2 Operator through the OpenShift web console.
+
+4. After uninstalling the operator, continue to **Case B** below to remove the orphaned CRDs.
+
+**Case B: The Service Mesh v2 Operator was removed but orphaned Istio CRDs remain**
+
+OLM does not remove CRDs when uninstalling an operator. The leftover Maistra-era `*.istio.io` CRDs (which serve only `v1beta1`/`v1alpha3`) block the OpenShift Gateway API (sail) controller from installing the `v1` CRDs that `istiod` requires. Symptoms include:
+
+* `istiod-openshift-gateway` pod stuck at `0/1` with log: `failed to list *v1.VirtualService: the server could not find the requested resource`
+* `Gateway/data-science-gateway` in `openshift-ingress` shows `Programmed=False`
+* `GatewayConfig/default-gateway` reports: `failed to lookup … DestinationRule in version "networking.istio.io/v1"`
+* `ModelRegistry` fails with: `failed to compute gateway domain: gateway domain is missing`
+* Ingress operator log: `Istio CRDs are managed by an unknown party`
+
+1. Verify that no Istio custom resources remain:
+
+   ```bash
+   for crd in $(oc get crd -l maistra-version -o name); do
+     count=$(oc get "${crd#customresourcedefinition.apiextensions.k8s.io/}" -A --no-headers 2>/dev/null | wc -l)
+     echo "$crd: $count instances"
+   done
+   ```
+
+   All CRDs must show `0 instances`. If any CRD has active resources, investigate before deleting.
+
+2. Delete the orphaned `*.istio.io` CRDs:
+
+   ```bash
+   oc get crd -l maistra-version -o custom-columns=NAME:.metadata.name --no-headers | \
+     grep '\.istio\.io$' | xargs oc delete crd
+   ```
+
+3. Optionally, remove the `*.maistra.io` CRDs (harmless but no longer needed):
+
+   ```bash
+   oc get crd -l maistra-version -o custom-columns=NAME:.metadata.name --no-headers | \
+     grep '\.maistra\.io$' | xargs oc delete crd
+   ```
+
+4. Restart the ingress operator to trigger the sail controller to reinstall the CRDs at `v1`:
+
+   ```bash
+   oc rollout restart deploy/ingress-operator -n openshift-ingress-operator
+   ```
+
+5. Wait for the recovery cascade to complete:
+
+   ```bash
+   oc wait --for=condition=Programmed gateway/data-science-gateway -n openshift-ingress --timeout=180s
+   ```
+
+   The expected recovery sequence is: `*.istio.io` CRDs reappear serving `v1` → `istiod-openshift-gateway` becomes `1/1` → Gateway shows `Programmed=True` → GatewayConfig becomes Ready → ModelRegistry becomes Ready → DSC becomes Ready.
+
+##### **4.9.2.2.6. Converted ModelMesh model not Ready (PVC-backed storage)** {#4.9.2.2.6.-converted-modelmesh-model-not-ready}
+
+**Symptom**
+
+After running `rhai-cli migrate run --migration modelserving.modelmesh-to-raw`, the migration reports `Migration completed successfully!` but the converted InferenceService predictor pod never becomes `Ready`. One or more of the following errors may appear:
+
+* KServe pod-mutator webhook rejects the pod: `storage type must be one of [s3, hdfs, webhdfs]. storage type [pvc] is not supported`
+* OVMS container crash-loops: `Configuration file is invalid /models/model_config_list.json`
+* Pod runs but stays `0/1` (readiness probe never passes)
+
+**Cause**
+
+The `modelmesh-to-raw` action converts InferenceService and ServingRuntime metadata but does not rewrite PVC-backed storage references, OVMS multi-model launch arguments, or container port/readiness probe configuration. These must be updated manually for PVC-backed models.
+
+**Resolution**
+
+The following steps use example values. Replace `<isvc-name>`, `<namespace>`, `<runtime-name>`, `<pvc-name>`, and `<model-path>` with your actual resource names. To determine your PVC name and model path, inspect the `storage-config` secret in the model's namespace:
+
+```bash
+oc get secret storage-config -n <namespace> -o jsonpath='{.data}' | \
+  python3 -c "import sys,json,base64; d=json.load(sys.stdin); [print(k,base64.b64decode(v).decode()) for k,v in d.items()]"
+```
+
+1. Patch the InferenceService to use a KServe-compatible `storageUri` instead of the ModelMesh `storage` reference:
+
+   ```bash
+   oc patch isvc <isvc-name> -n <namespace> --type=merge \
+     -p '{"spec":{"predictor":{"model":{"storageUri":"pvc://<pvc-name>/<model-path>","storage":null}}}}'
+   ```
+
+2. Patch the ServingRuntime to use single-model OVMS arguments instead of multi-model arguments:
+
+   ```bash
+   oc patch servingruntime <runtime-name> -n <namespace> --type=json -p '[{"op":"replace","path":"/spec/containers/0/args","value":[
+     "--model_name=<isvc-name>","--model_path=/mnt/models","--port=8001","--rest_port=8888",
+     "--file_system_poll_wait_seconds=0","--grpc_bind_address=0.0.0.0","--rest_bind_address=0.0.0.0"]}]'
+   ```
+
+3. Add the container port declaration and readiness probe for the OVMS REST port:
+
+   ```bash
+   oc patch servingruntime <runtime-name> -n <namespace> --type=json -p '[
+     {"op":"add","path":"/spec/containers/0/ports","value":[{"containerPort":8888,"protocol":"TCP"}]},
+     {"op":"add","path":"/spec/containers/0/readinessProbe","value":{"tcpSocket":{"port":8888},"periodSeconds":10,"failureThreshold":3,"timeoutSeconds":5}}]'
+   ```
+
+4. Restart the predictor deployment:
+
+   ```bash
+   oc rollout restart deployment <isvc-name>-predictor -n <namespace>
+   ```
+
+5. Verify that the InferenceService reaches Ready state:
+
+   ```bash
+   oc get isvc <isvc-name> -n <namespace>
+   ```
+
+   The `READY` column must show `True`.
+
+For additional details, see the Knowledge Base article [Converting ModelMesh and Serverless InferenceServices to RawDeployment (Standard) Mode](https://access.redhat.com/articles/7134025).
 
 ####  **4.9.2.3. Additional resources** {#4.9.2.3.-additional-resources}
 
